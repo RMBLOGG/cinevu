@@ -1,75 +1,59 @@
 {% extends "admin/base_admin.html" %}
-{% block title %}Kelola Iklan Aktif{% endblock %}
-{% block page_title %}📢 Kelola Iklan Aktif{% endblock %}
+{% block title %}Kelola Iklan{% endblock %}
+{% block page_title %}Kelola Iklan{% endblock %}
 
 {% block content %}
-<div style="display:flex;justify-content:flex-end;margin-bottom:16px;">
-  <button class="btn btn-primary" onclick="openModal('addModal')">＋ Tambah Iklan</button>
+<div class="sec-header">
+  <div class="sec-title">Semua Iklan ({{ rows | length }})</div>
 </div>
 
-<div class="adm-table-wrap">
-  <div class="adm-table-head">
-    <h2>Semua Iklan</h2>
-    <div style="font-size:12px;color:#666;">Total: {{ rows | length }} iklan</div>
+<div class="card-list">
+  {% for r in rows %}
+  <div class="item-card" id="iklan-row-{{ r.id }}">
+    <div class="item-card-top">
+      <div>
+        <div class="item-card-title">{{ r.nama }}</div>
+        <div class="item-card-sub">{{ r.posisi }} · {{ r.tipe }}</div>
+      </div>
+      <button onclick="toggleAktif('{{ r.id }}', {{ 'false' if r.aktif else 'true' }})"
+        class="badge {% if r.aktif %}badge-aktif{% else %}badge-nonaktif{% endif %}"
+        style="cursor:pointer;border:none;font-size:10px;">
+        {% if r.aktif %}● AKTIF{% else %}○ OFF{% endif %}
+      </button>
+    </div>
+    <div class="item-card-meta">
+      <span class="meta-chip">Prioritas: {{ r.prioritas }}</span>
+      {% if r.tanggal_mulai %}<span class="meta-chip">{{ r.tanggal_mulai }}</span>{% endif %}
+      {% if r.tanggal_selesai %}<span class="meta-chip">s/d {{ r.tanggal_selesai }}</span>{% endif %}
+      {% if r.catatan %}<span class="meta-chip">{{ r.catatan[:30] }}</span>{% endif %}
+    </div>
+    <div class="item-card-actions">
+      <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">✏️ Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">🗑 Hapus</button>
+    </div>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Nama</th>
-        <th>Posisi</th>
-        <th>Tipe</th>
-        <th>Prioritas</th>
-        <th>Periode</th>
-        <th>Status</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in rows %}
-      <tr id="iklan-row-{{ r.id }}">
-        <td>
-          <strong>{{ r.nama }}</strong>
-          {% if r.catatan %}<div style="font-size:11px;color:#666;margin-top:2px;">{{ r.catatan[:50] }}</div>{% endif %}
-        </td>
-        <td><span style="background:rgba(255,255,255,.07);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600;">{{ r.posisi }}</span></td>
-        <td style="font-size:12px;color:#aaa;">{{ r.tipe }}</td>
-        <td style="font-size:13px;text-align:center;">{{ r.prioritas }}</td>
-        <td style="font-size:11px;color:#666;">
-          {% if r.tanggal_mulai %}{{ r.tanggal_mulai }}{% else %}—{% endif %}
-          {% if r.tanggal_selesai %} s/d {{ r.tanggal_selesai }}{% endif %}
-        </td>
-        <td>
-          <button onclick="toggleAktif('{{ r.id }}', {{ 'false' if r.aktif else 'true' }})"
-            class="badge {% if r.aktif %}badge-aktif{% else %}badge-nonaktif{% endif %}"
-            style="cursor:pointer;border:none;font-size:11px;font-weight:700;">
-            {% if r.aktif %}● AKTIF{% else %}○ NONAKTIF{% endif %}
-          </button>
-        </td>
-        <td>
-          <div style="display:flex;gap:6px;">
-            <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">✏️ Edit</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">🗑</button>
-          </div>
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="7" style="text-align:center;color:#555;padding:40px;">Belum ada iklan. Klik "Tambah Iklan" untuk mulai.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📢</div>
+    <p>Belum ada iklan. Tap + untuk tambah.</p>
+  </div>
+  {% endfor %}
 </div>
 
-<!-- ═══ Modal Tambah ═══ -->
+<!-- FAB tambah -->
+<button class="fab" onclick="openModal('addModal')">＋</button>
+
+<!-- Modal Tambah -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <div class="modal-head">
-      <h3>＋ Tambah Iklan Baru</h3>
+      <h3>＋ Tambah Iklan</h3>
       <button class="modal-close" onclick="closeModal('addModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Nama / Label Internal *</label>
-        <input type="text" class="form-control" id="add_nama" placeholder="Contoh: Banner Tokopedia Maret">
+        <label>Nama / Label *</label>
+        <input type="text" class="form-control" id="add_nama" placeholder="Contoh: Banner Tokopedia">
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -87,11 +71,11 @@
         </div>
         <div class="form-group">
           <label>Tipe *</label>
-          <select class="form-control" id="add_tipe" onchange="updateTipeHint('add')">
+          <select class="form-control" id="add_tipe" onchange="updateHint('add')">
             <option value="">-- Pilih --</option>
-            <option value="gambar">🖼 Gambar + Link</option>
-            <option value="html">📄 HTML Custom</option>
-            <option value="script">⚙️ Script / Embed</option>
+            <option value="gambar">🖼 Gambar</option>
+            <option value="html">📄 HTML</option>
+            <option value="script">⚙️ Script</option>
           </select>
         </div>
       </div>
@@ -101,17 +85,16 @@
       </div>
       <div class="form-group">
         <label>Konten *</label>
-        <div class="form-hint" id="add_tipe_hint" style="margin-bottom:6px;">Pilih tipe iklan terlebih dahulu</div>
-        <textarea class="form-control" id="add_konten" rows="4" placeholder="URL gambar / kode HTML / script embed"></textarea>
+        <div class="form-hint" id="add_hint" style="margin-bottom:6px;color:#e50914;"></div>
+        <textarea class="form-control" id="add_konten" placeholder="URL gambar / kode HTML / script embed"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>Prioritas</label>
           <input type="number" class="form-control" id="add_prioritas" value="1" min="1">
-          <div class="form-hint">Angka kecil = tampil lebih dulu</div>
         </div>
         <div class="form-group">
-          <label>Status Awal</label>
+          <label>Status</label>
           <select class="form-control" id="add_aktif">
             <option value="true">● Aktif</option>
             <option value="false">○ Nonaktif</option>
@@ -120,27 +103,27 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Tanggal Mulai</label>
+          <label>Tgl Mulai</label>
           <input type="date" class="form-control" id="add_mulai">
         </div>
         <div class="form-group">
-          <label>Tanggal Selesai</label>
+          <label>Tgl Selesai</label>
           <input type="date" class="form-control" id="add_selesai">
         </div>
       </div>
       <div class="form-group">
-        <label>Catatan Internal</label>
+        <label>Catatan</label>
         <input type="text" class="form-control" id="add_catatan" placeholder="Opsional">
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('addModal')">Batal</button>
-        <button class="btn btn-primary" onclick="tambahIklan()">💾 Simpan Iklan</button>
+        <button class="btn btn-primary" onclick="tambahIklan()">💾 Simpan</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ═══ Modal Edit ═══ -->
+<!-- Modal Edit -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-head">
@@ -150,7 +133,7 @@
     <div class="modal-body">
       <input type="hidden" id="edit_id">
       <div class="form-group">
-        <label>Nama / Label Internal *</label>
+        <label>Nama / Label *</label>
         <input type="text" class="form-control" id="edit_nama">
       </div>
       <div class="form-row">
@@ -168,10 +151,10 @@
         </div>
         <div class="form-group">
           <label>Tipe *</label>
-          <select class="form-control" id="edit_tipe" onchange="updateTipeHint('edit')">
-            <option value="gambar">🖼 Gambar + Link</option>
-            <option value="html">📄 HTML Custom</option>
-            <option value="script">⚙️ Script / Embed</option>
+          <select class="form-control" id="edit_tipe" onchange="updateHint('edit')">
+            <option value="gambar">🖼 Gambar</option>
+            <option value="html">📄 HTML</option>
+            <option value="script">⚙️ Script</option>
           </select>
         </div>
       </div>
@@ -181,8 +164,8 @@
       </div>
       <div class="form-group">
         <label>Konten *</label>
-        <div class="form-hint" id="edit_tipe_hint" style="margin-bottom:6px;"></div>
-        <textarea class="form-control" id="edit_konten" rows="4"></textarea>
+        <div class="form-hint" id="edit_hint" style="margin-bottom:6px;color:#e50914;"></div>
+        <textarea class="form-control" id="edit_konten"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -199,21 +182,21 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Tanggal Mulai</label>
+          <label>Tgl Mulai</label>
           <input type="date" class="form-control" id="edit_mulai">
         </div>
         <div class="form-group">
-          <label>Tanggal Selesai</label>
+          <label>Tgl Selesai</label>
           <input type="date" class="form-control" id="edit_selesai">
         </div>
       </div>
       <div class="form-group">
-        <label>Catatan Internal</label>
+        <label>Catatan</label>
         <input type="text" class="form-control" id="edit_catatan">
       </div>
       <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('editModal')">Batal</button>
-        <button class="btn btn-primary" onclick="simpanEdit()">💾 Update Iklan</button>
+        <button class="btn btn-primary" onclick="simpanEdit()">💾 Update</button>
       </div>
     </div>
   </div>
@@ -226,44 +209,35 @@ const iklanRows = {{ rows | tojson }};
 const iklanMap = {};
 iklanRows.forEach(r => iklanMap[r.id] = r);
 
-const tipeHints = {
-  gambar: '📎 Masukkan URL gambar (JPG/PNG/GIF). Tambahkan URL tujuan klik di kolom "Link".',
-  html:   '📄 Masukkan kode HTML bebas. Contoh: <a href="..."><img src="..."></a> atau banner HTML apapun.',
-  script: '⚙️ Masukkan kode script/embed. Contoh: kode dari Adsterra, Google Ads, dll.'
+const hints = {
+  gambar: 'Masukkan URL gambar (JPG/PNG/GIF)',
+  html: 'Masukkan kode HTML bebas',
+  script: 'Masukkan kode script/embed (Adsterra, dll)'
 };
 
-function updateTipeHint(prefix) {
-  const tipe = document.getElementById(`${prefix}_tipe`).value;
-  document.getElementById(`${prefix}_tipe_hint`).textContent = tipeHints[tipe] || '';
-  if (prefix === 'add') {
-    document.getElementById('add_link_wrap').style.display = tipe === 'gambar' ? 'block' : 'none';
-  }
+function updateHint(p) {
+  const tipe = document.getElementById(`${p}_tipe`).value;
+  document.getElementById(`${p}_hint`).textContent = hints[tipe] || '';
+  if (p === 'add') document.getElementById('add_link_wrap').style.display = tipe === 'gambar' ? 'block' : 'none';
 }
 
 async function tambahIklan() {
   const data = {
-    nama:            document.getElementById('add_nama').value.trim(),
-    posisi:          document.getElementById('add_posisi').value,
-    tipe:            document.getElementById('add_tipe').value,
-    konten:          document.getElementById('add_konten').value.trim(),
-    link_url:        document.getElementById('add_link_url').value.trim(),
-    aktif:           document.getElementById('add_aktif').value === 'true',
-    prioritas:       parseInt(document.getElementById('add_prioritas').value) || 1,
-    tanggal_mulai:   document.getElementById('add_mulai').value || null,
+    nama: document.getElementById('add_nama').value.trim(),
+    posisi: document.getElementById('add_posisi').value,
+    tipe: document.getElementById('add_tipe').value,
+    konten: document.getElementById('add_konten').value.trim(),
+    link_url: document.getElementById('add_link_url').value.trim(),
+    aktif: document.getElementById('add_aktif').value === 'true',
+    prioritas: parseInt(document.getElementById('add_prioritas').value) || 1,
+    tanggal_mulai: document.getElementById('add_mulai').value || null,
     tanggal_selesai: document.getElementById('add_selesai').value || null,
-    catatan:         document.getElementById('add_catatan').value.trim(),
+    catatan: document.getElementById('add_catatan').value.trim(),
   };
-  if (!data.nama || !data.posisi || !data.tipe || !data.konten) {
-    showToast('Harap isi semua field wajib', 'error'); return;
-  }
+  if (!data.nama || !data.posisi || !data.tipe || !data.konten) { showToast('Isi semua field wajib', 'error'); return; }
   const res = await apiPost('/admin/iklan/tambah', data);
-  if (res.ok) {
-    showToast('Iklan berhasil ditambahkan!');
-    closeModal('addModal');
-    setTimeout(() => location.reload(), 800);
-  } else {
-    showToast('Gagal menyimpan: ' + (res.error || ''), 'error');
-  }
+  if (res.ok) { showToast('Iklan ditambahkan!'); closeModal('addModal'); setTimeout(() => location.reload(), 700); }
+  else showToast('Gagal: ' + (res.error || ''), 'error');
 }
 
 function openEdit(id) {
@@ -280,7 +254,7 @@ function openEdit(id) {
   document.getElementById('edit_mulai').value = r.tanggal_mulai || '';
   document.getElementById('edit_selesai').value = r.tanggal_selesai || '';
   document.getElementById('edit_catatan').value = r.catatan || '';
-  updateTipeHint('edit');
+  updateHint('edit');
   openModal('editModal');
 }
 
@@ -288,47 +262,34 @@ async function simpanEdit() {
   const id = document.getElementById('edit_id').value;
   const data = {
     id,
-    nama:            document.getElementById('edit_nama').value.trim(),
-    posisi:          document.getElementById('edit_posisi').value,
-    tipe:            document.getElementById('edit_tipe').value,
-    konten:          document.getElementById('edit_konten').value.trim(),
-    link_url:        document.getElementById('edit_link_url').value.trim(),
-    aktif:           document.getElementById('edit_aktif').value === 'true',
-    prioritas:       parseInt(document.getElementById('edit_prioritas').value) || 1,
-    tanggal_mulai:   document.getElementById('edit_mulai').value || null,
+    nama: document.getElementById('edit_nama').value.trim(),
+    posisi: document.getElementById('edit_posisi').value,
+    tipe: document.getElementById('edit_tipe').value,
+    konten: document.getElementById('edit_konten').value.trim(),
+    link_url: document.getElementById('edit_link_url').value.trim(),
+    aktif: document.getElementById('edit_aktif').value === 'true',
+    prioritas: parseInt(document.getElementById('edit_prioritas').value) || 1,
+    tanggal_mulai: document.getElementById('edit_mulai').value || null,
     tanggal_selesai: document.getElementById('edit_selesai').value || null,
-    catatan:         document.getElementById('edit_catatan').value.trim(),
+    catatan: document.getElementById('edit_catatan').value.trim(),
   };
   const res = await apiPost('/admin/iklan/update', data);
-  if (res.ok) {
-    showToast('Iklan diperbarui!');
-    closeModal('editModal');
-    setTimeout(() => location.reload(), 800);
-  } else {
-    showToast('Gagal update', 'error');
-  }
+  if (res.ok) { showToast('Iklan diperbarui!'); closeModal('editModal'); setTimeout(() => location.reload(), 700); }
+  else showToast('Gagal update', 'error');
 }
 
 async function toggleAktif(id, newVal) {
   const aktif = newVal === 'true' || newVal === true;
   const res = await apiPost('/admin/iklan/toggle', {id, aktif});
-  if (res.ok) {
-    showToast(aktif ? 'Iklan diaktifkan' : 'Iklan dinonaktifkan');
-    setTimeout(() => location.reload(), 600);
-  } else {
-    showToast('Gagal', 'error');
-  }
+  if (res.ok) { showToast(aktif ? 'Diaktifkan' : 'Dinonaktifkan'); setTimeout(() => location.reload(), 600); }
+  else showToast('Gagal', 'error');
 }
 
 async function deleteIklan(id) {
-  if (!confirm('Hapus iklan ini permanen?')) return;
+  if (!confirm('Hapus iklan ini?')) return;
   const res = await apiPost('/admin/iklan/delete', {id});
-  if (res.ok) {
-    document.getElementById(`iklan-row-${id}`)?.remove();
-    showToast('Iklan dihapus');
-  } else {
-    showToast('Gagal hapus', 'error');
-  }
+  if (res.ok) { document.getElementById(`iklan-row-${id}`)?.remove(); showToast('Dihapus'); }
+  else showToast('Gagal hapus', 'error');
 }
 </script>
 {% endblock %}

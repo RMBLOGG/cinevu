@@ -1,12 +1,12 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Dashboard{% endblock %}
-{% block page_title %}📊 Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
 <div class="stats-grid">
   <div class="stat-card">
     <div class="stat-label">Total Request</div>
-    <div class="stat-val">{{ stats.total_request }}</div>
+    <div class="stat-val white">{{ stats.total_request }}</div>
   </div>
   <div class="stat-card">
     <div class="stat-label">Menunggu Review</div>
@@ -17,48 +17,42 @@
     <div class="stat-val green">{{ stats.approved }}</div>
   </div>
   <div class="stat-card">
-    <div class="stat-label">Iklan Aktif Tayang</div>
+    <div class="stat-label">Iklan Aktif</div>
     <div class="stat-val red">{{ stats.iklan_aktif }}</div>
   </div>
 </div>
 
-<div class="adm-table-wrap">
-  <div class="adm-table-head">
-    <h2>📨 Request Terbaru</h2>
-    <a href="/admin/requests" class="btn btn-ghost btn-sm">Lihat Semua →</a>
-  </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Brand</th>
-        <th>Email</th>
-        <th>Jenis Iklan</th>
-        <th>Budget</th>
-        <th>Status</th>
-        <th>Tanggal</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in recent_requests %}
-      <tr>
-        <td><strong>{{ r.nama_brand }}</strong></td>
-        <td style="color:#aaa;">{{ r.email }}</td>
-        <td>{{ r.jenis_iklan }}</td>
-        <td style="color:#f5c518;">{{ r.budget }}</td>
-        <td>
-          <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
-        </td>
-        <td style="color:#666;font-size:12px;">{{ r.created_at[:10] if r.created_at else '-' }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="6" style="text-align:center;color:#555;padding:32px;">Belum ada request</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<div class="sec-header">
+  <div class="sec-title">📨 Request Terbaru</div>
+  <a href="/admin/requests" class="btn btn-ghost btn-sm">Semua →</a>
 </div>
 
-<div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;">
-  <a href="/admin/requests?status=pending" class="btn btn-primary">📨 Review Request Pending</a>
-  <a href="/admin/iklan" class="btn btn-ghost">📢 Kelola Iklan Aktif</a>
+<div class="card-list">
+  {% for r in recent_requests %}
+  <div class="item-card">
+    <div class="item-card-top">
+      <div>
+        <div class="item-card-title">{{ r.nama_brand }}</div>
+        <div class="item-card-sub">{{ r.email }}</div>
+      </div>
+      <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
+    </div>
+    <div class="item-card-meta">
+      <span class="meta-chip">{{ r.jenis_iklan }}</span>
+      <span class="meta-chip yellow">{{ r.budget }}</span>
+      <span class="meta-chip">{{ r.created_at[:10] if r.created_at else '-' }}</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>Belum ada request</p>
+  </div>
+  {% endfor %}
+</div>
+
+<div style="display:flex;gap:10px;margin-top:20px;">
+  <a href="/admin/requests?status=pending" class="btn btn-primary" style="flex:1;justify-content:center;">📨 Review Pending</a>
+  <a href="/admin/iklan" class="btn btn-ghost" style="flex:1;justify-content:center;">📢 Kelola Iklan</a>
 </div>
 {% endblock %}
