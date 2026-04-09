@@ -1,0 +1,152 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Request Iklan{% endblock %}
+{% block page_title %}📨 Request Iklan Masuk{% endblock %}
+
+{% block content %}
+<div class="adm-table-wrap">
+  <div class="adm-table-head">
+    <h2>Semua Request</h2>
+    <div class="filter-tabs">
+      <a href="/admin/requests?status=all" class="filter-tab {% if status_filter=='all' %}active{% endif %}">Semua</a>
+      <a href="/admin/requests?status=pending" class="filter-tab {% if status_filter=='pending' %}active{% endif %}">⏳ Pending</a>
+      <a href="/admin/requests?status=approved" class="filter-tab {% if status_filter=='approved' %}active{% endif %}">✅ Approved</a>
+      <a href="/admin/requests?status=contacted" class="filter-tab {% if status_filter=='contacted' %}active{% endif %}">📞 Contacted</a>
+      <a href="/admin/requests?status=rejected" class="filter-tab {% if status_filter=='rejected' %}active{% endif %}">❌ Rejected</a>
+    </div>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Brand</th>
+        <th>Kontak</th>
+        <th>Jenis</th>
+        <th>Budget</th>
+        <th>Durasi</th>
+        <th>Status</th>
+        <th>Tgl</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr id="row-{{ r.id }}">
+        <td>
+          <strong>{{ r.nama_brand }}</strong>
+          {% if r.pesan %}<div style="font-size:11px;color:#666;margin-top:2px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ r.pesan }}">{{ r.pesan[:60] }}...</div>{% endif %}
+        </td>
+        <td>
+          <div style="font-size:12px;">{{ r.email }}</div>
+          <div style="font-size:12px;color:#aaa;">{{ r.no_hp }}</div>
+        </td>
+        <td style="font-size:12px;">{{ r.jenis_iklan }}</td>
+        <td style="font-size:12px;color:#f5c518;">{{ r.budget }}</td>
+        <td style="font-size:12px;color:#aaa;">{{ r.durasi_tayang }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span></td>
+        <td style="font-size:11px;color:#555;">{{ r.created_at[:10] if r.created_at else '-' }}</td>
+        <td>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="openDetail('{{ r.id }}')">Detail</button>
+            <button class="btn btn-success btn-sm" onclick="updateStatus('{{ r.id }}','approved')">✅</button>
+            <button class="btn btn-ghost btn-sm" onclick="updateStatus('{{ r.id }}','contacted')">📞</button>
+            <button class="btn btn-danger btn-sm" onclick="updateStatus('{{ r.id }}','rejected')">❌</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteRequest('{{ r.id }}')">🗑</button>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="8" style="text-align:center;color:#555;padding:40px;">Tidak ada request</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>📋 Detail Request</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="detailContent">
+      <!-- diisi JS -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const rows = {{ rows | tojson }};
+const rowMap = {};
+rows.forEach(r => rowMap[r.id] = r);
+
+function openDetail(id) {
+  const r = rowMap[id];
+  if (!r) return;
+  document.getElementById('detailContent').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Nama Brand</label><div style="font-weight:700;font-size:15px;margin-top:3px;">${r.nama_brand}</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Email</label><div style="margin-top:3px;">${r.email}</div></div>
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">No. HP</label><div style="margin-top:3px;">${r.no_hp}</div></div>
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Jenis Iklan</label><div style="margin-top:3px;">${r.jenis_iklan}</div></div>
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Budget</label><div style="margin-top:3px;color:#f5c518;font-weight:700;">${r.budget}</div></div>
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Durasi</label><div style="margin-top:3px;">${r.durasi_tayang}</div></div>
+        <div><label style="font-size:11px;color:#666;text-transform:uppercase;">Status</label><div style="margin-top:3px;"><span class="badge badge-${r.status}">${r.status.toUpperCase()}</span></div></div>
+      </div>
+      ${r.pesan ? `<div><label style="font-size:11px;color:#666;text-transform:uppercase;">Pesan</label><div style="margin-top:5px;font-size:13px;color:#ccc;line-height:1.6;">${r.pesan}</div></div>` : ''}
+      ${r.materi_url ? `<div><label style="font-size:11px;color:#666;text-transform:uppercase;">Materi</label><div style="margin-top:4px;"><a href="${r.materi_url}" target="_blank" style="color:#e50914;font-size:13px;">🔗 Lihat Materi</a></div></div>` : ''}
+      <div>
+        <label style="font-size:11px;color:#666;text-transform:uppercase;">Catatan Admin</label>
+        <textarea id="catatanInput_${r.id}" class="form-control" style="margin-top:6px;" placeholder="Tambahkan catatan...">${r.catatan_admin || ''}</textarea>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-success" onclick="updateStatusDetail('${r.id}','approved')">✅ Approve</button>
+        <button class="btn btn-ghost" onclick="updateStatusDetail('${r.id}','contacted')">📞 Contacted</button>
+        <button class="btn btn-danger" onclick="updateStatusDetail('${r.id}','rejected')">❌ Reject</button>
+        <button class="btn btn-primary" onclick="saveCatatan('${r.id}')">💾 Simpan Catatan</button>
+      </div>
+    </div>`;
+  openModal('detailModal');
+}
+
+async function updateStatus(id, status) {
+  const res = await apiPost('/admin/requests/update', {id, status});
+  if (res.ok) {
+    showToast(`Status diubah: ${status}`);
+    setTimeout(() => location.reload(), 800);
+  } else {
+    showToast('Gagal update', 'error');
+  }
+}
+
+async function updateStatusDetail(id, status) {
+  const catatan = document.getElementById(`catatanInput_${id}`)?.value || '';
+  const res = await apiPost('/admin/requests/update', {id, status, catatan_admin: catatan});
+  if (res.ok) {
+    showToast(`Status diubah: ${status}`);
+    closeModal('detailModal');
+    setTimeout(() => location.reload(), 800);
+  } else {
+    showToast('Gagal update', 'error');
+  }
+}
+
+async function saveCatatan(id) {
+  const catatan = document.getElementById(`catatanInput_${id}`)?.value || '';
+  const res = await apiPost('/admin/requests/update', {id, catatan_admin: catatan, status: rowMap[id]?.status});
+  showToast(res.ok ? 'Catatan disimpan' : 'Gagal simpan', res.ok ? 'success' : 'error');
+}
+
+async function deleteRequest(id) {
+  if (!confirm('Hapus request ini?')) return;
+  const res = await apiPost('/admin/requests/delete', {id});
+  if (res.ok) {
+    document.getElementById(`row-${id}`)?.remove();
+    showToast('Request dihapus');
+  } else {
+    showToast('Gagal hapus', 'error');
+  }
+}
+</script>
+{% endblock %}

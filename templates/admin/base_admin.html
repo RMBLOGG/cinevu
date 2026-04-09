@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Admin{% endblock %} — Cinevu</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--red:#e50914;--bg:#0a0a0a;--surface:#111;--surface2:#161616;--border:#222;--muted:#666;--muted2:#999;}
+body{background:var(--bg);color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;}
+
+/* Sidebar */
+.adm-sidebar{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100;}
+.adm-logo{padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+.adm-logo span{font-size:20px;font-weight:900;color:var(--red);}
+.adm-logo p{font-size:11px;color:var(--muted);margin-top:2px;}
+.adm-nav{flex:1;padding:12px 0;overflow-y:auto;}
+.adm-nav a{display:flex;align-items:center;gap:10px;padding:11px 20px;color:var(--muted2);font-size:13px;font-weight:500;text-decoration:none;transition:all .15s;border-left:3px solid transparent;}
+.adm-nav a:hover{color:#fff;background:rgba(255,255,255,.04);}
+.adm-nav a.active{color:#fff;background:rgba(229,9,20,.08);border-left-color:var(--red);}
+.adm-nav .nav-section{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:14px 20px 6px;}
+.adm-footer{padding:16px 20px;border-top:1px solid var(--border);}
+.adm-footer .admin-badge{font-size:12px;color:var(--muted2);margin-bottom:8px;}
+.adm-footer .admin-badge strong{color:#fff;display:block;}
+.adm-footer a{font-size:12px;color:var(--muted);text-decoration:none;}
+.adm-footer a:hover{color:var(--red);}
+
+/* Main */
+.adm-main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.adm-topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.adm-topbar h1{font-size:16px;font-weight:700;}
+.adm-topbar .topbar-right{display:flex;align-items:center;gap:12px;}
+.btn-back-site{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted2);font-size:12px;padding:6px 14px;border-radius:6px;text-decoration:none;transition:all .2s;}
+.btn-back-site:hover{color:#fff;border-color:#444;}
+.adm-content{padding:24px;flex:1;}
+
+/* Cards stats */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:28px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px;}
+.stat-card .stat-label{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.stat-card .stat-val{font-size:28px;font-weight:900;color:#fff;}
+.stat-card .stat-val.red{color:var(--red);}
+.stat-card .stat-val.green{color:#46d369;}
+.stat-card .stat-val.yellow{color:#f5c518;}
+
+/* Table */
+.adm-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.adm-table-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.adm-table-head h2{font-size:15px;font-weight:700;}
+table{width:100%;border-collapse:collapse;}
+thead th{background:var(--surface2);padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+tbody tr{border-top:1px solid var(--border);transition:background .15s;}
+tbody tr:hover{background:rgba(255,255,255,.02);}
+tbody td{padding:12px 16px;font-size:13px;vertical-align:middle;}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.badge-pending{background:rgba(245,197,24,.12);color:#f5c518;}
+.badge-approved{background:rgba(70,211,105,.12);color:#46d369;}
+.badge-rejected{background:rgba(229,9,20,.12);color:#ff6b6b;}
+.badge-contacted{background:rgba(100,149,237,.12);color:#6495ed;}
+.badge-aktif{background:rgba(70,211,105,.12);color:#46d369;}
+.badge-nonaktif{background:rgba(100,100,100,.15);color:#888;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:7px 14px;border-radius:7px;cursor:pointer;border:none;text-decoration:none;transition:all .2s;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover{opacity:.85;}
+.btn-success{background:rgba(70,211,105,.15);color:#46d369;border:1px solid rgba(70,211,105,.2);}
+.btn-success:hover{background:rgba(70,211,105,.25);}
+.btn-danger{background:rgba(229,9,20,.12);color:#ff6b6b;border:1px solid rgba(229,9,20,.2);}
+.btn-danger:hover{background:rgba(229,9,20,.22);}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--muted2);border:1px solid var(--border);}
+.btn-ghost:hover{color:#fff;border-color:#444;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+
+/* Filter tabs */
+.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;}
+.filter-tab{background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--muted2);font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;text-decoration:none;transition:all .2s;}
+.filter-tab:hover{color:#fff;}
+.filter-tab.active{background:var(--red);border-color:var(--red);color:#fff;}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;}
+.modal-head{padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;}
+.modal-head h3{font-size:16px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;}
+.modal-close:hover{color:#fff;}
+.modal-body{padding:20px 24px 24px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+.form-control{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;color:#fff;font-family:'Segoe UI',sans-serif;font-size:13px;padding:10px 13px;border-radius:7px;outline:none;transition:border-color .2s;}
+.form-control:focus{border-color:var(--red);}
+.form-control option{background:#1a1a1a;}
+textarea.form-control{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-hint{font-size:11px;color:var(--muted);margin-top:4px;}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;}
+.toast{position:fixed;bottom:24px;right:24px;background:#222;border:1px solid #333;color:#fff;font-size:13px;font-weight:600;padding:12px 20px;border-radius:10px;z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:rgba(70,211,105,.3);color:#46d369;}
+.toast.error{border-color:rgba(229,9,20,.3);color:#ff6b6b;}
+
+@media(max-width:768px){
+  .adm-sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .adm-sidebar.open{transform:translateX(0);}
+  .adm-main{margin-left:0;}
+  .adm-topbar{padding:0 16px;}
+  .adm-content{padding:16px;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<div class="adm-sidebar" id="sidebar">
+  <div class="adm-logo">
+    <span>Cinevu</span>
+    <p>Admin Panel</p>
+  </div>
+  <nav class="adm-nav">
+    <div class="nav-section">Menu</div>
+    <a href="/admin/dashboard" class="{% if active=='dashboard' %}active{% endif %}">📊 Dashboard</a>
+    <div class="nav-section">Iklan</div>
+    <a href="/admin/requests" class="{% if active=='requests' %}active{% endif %}">📨 Request Masuk</a>
+    <a href="/admin/iklan" class="{% if active=='iklan' %}active{% endif %}">📢 Kelola Iklan Aktif</a>
+  </nav>
+  <div class="adm-footer">
+    <div class="admin-badge">
+      <strong>{{ admin_name }}</strong>
+      Cinevu Admin
+    </div>
+    <a href="/admin/logout">🚪 Logout</a>
+  </div>
+</div>
+
+<div class="adm-main">
+  <div class="adm-topbar">
+    <h1>{% block page_title %}Dashboard{% endblock %}</h1>
+    <div class="topbar-right">
+      <a href="/" class="btn-back-site" target="_blank">← Lihat Site</a>
+    </div>
+  </div>
+  <div class="adm-content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+async function apiPost(url, data) {
+  const r = await fetch(url, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  return r.json();
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>
