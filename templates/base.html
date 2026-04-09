@@ -6,6 +6,7 @@
 <title>{% block title %}Cinevu{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -78,18 +79,46 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:h
 }
 .sidebar-search input::placeholder{color:#666;}
 
-.sidebar-section{padding:14px 20px 8px;}
-.sidebar-section-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#555;font-weight:700;margin-bottom:10px;}
+.sidebar-section{padding:6px 0;}
+
+/* Dropdown header */
+.sidebar-dropdown-btn{
+  display:flex;align-items:center;justify-content:space-between;
+  width:100%;background:none;border:none;cursor:pointer;
+  padding:10px 20px;color:#888;font-family:var(--font);
+  font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
+  transition:color .2s;
+}
+.sidebar-dropdown-btn:hover{color:#aaa;}
+.sidebar-dropdown-btn .chevron{
+  font-size:11px;transition:transform .3s;color:#555;
+}
+.sidebar-dropdown-btn.open .chevron{transform:rotate(180deg);}
+
+/* Dropdown body */
+.sidebar-dropdown-body{
+  overflow:hidden;max-height:0;transition:max-height .35s ease;
+}
+.sidebar-dropdown-body.open{max-height:600px;}
+
+/* Nav links */
 .sidebar-nav a{
   display:flex;align-items:center;gap:12px;
   color:#ccc;text-decoration:none;font-size:14px;font-weight:600;
-  padding:10px 14px;border-radius:6px;transition:all .2s;margin-bottom:2px;
+  padding:10px 20px;border-radius:0;transition:all .2s;
 }
 .sidebar-nav a:hover{background:rgba(255,255,255,.07);color:#fff;}
 .sidebar-nav a.active{background:rgba(229,9,20,.15);color:var(--red);}
-.sidebar-nav a .icon{font-size:18px;width:24px;text-align:center;}
+.sidebar-nav a .icon{font-size:14px;width:22px;text-align:center;color:inherit;}
 
-.sidebar-genre{display:flex;flex-wrap:wrap;gap:6px;padding:0 20px 16px;}
+/* Film Semi section title (non-dropdown) */
+.sidebar-section-title{
+  font-size:10px;text-transform:uppercase;letter-spacing:1.5px;
+  color:#555;font-weight:700;padding:10px 20px 6px;
+}
+
+/* Genre pills */
+.sidebar-genre{display:flex;flex-wrap:wrap;gap:6px;padding:4px 20px 14px;}
 .sidebar-genre a{
   background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
   color:#aaa;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;
@@ -353,63 +382,77 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
     </form>
   </div>
 
-  <!-- Navigasi -->
+  <!-- Navigasi (dropdown) -->
   <div class="sidebar-section">
-    <div class="sidebar-section-title">Navigasi</div>
-    <div class="sidebar-nav">
-      <a href="/" class="{% if active=='home' %}active{% endif %}"><span class="icon">🏠</span> Beranda</a>
-      <a href="/series" class="{% if active=='series' %}active{% endif %}"><span class="icon">📺</span> Series & TV</a>
-      <a href="/anime" class="{% if active=='anime' %}active{% endif %}"><span class="icon">🎌</span> Anime</a>
-      <a href="/semi" class="{% if active=='semi' %}active{% endif %}"><span class="icon">🔞</span> Film Semi</a>
-      <a href="/genre/trending"><span class="icon">🔥</span> Trending</a>
-      <a href="/year/2025"><span class="icon">📅</span> Terbaru 2025</a>
-      <a href="/year/2024"><span class="icon">📅</span> Film 2024</a>
+    <button class="sidebar-dropdown-btn open" onclick="toggleDropdown(this)" aria-expanded="true">
+      <span>Navigasi</span>
+      <i class="fa-solid fa-chevron-down chevron"></i>
+    </button>
+    <div class="sidebar-dropdown-body open">
+      <div class="sidebar-nav">
+        <a href="/" class="{% if active=='home' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-house"></i></span> Beranda</a>
+        <a href="/series" class="{% if active=='series' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-tv"></i></span> Series &amp; TV</a>
+        <a href="/anime" class="{% if active=='anime' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-star-and-crescent"></i></span> Anime</a>
+        <a href="/genre/trending"><span class="icon"><i class="fa-solid fa-fire"></i></span> Trending</a>
+        <a href="/year/2025"><span class="icon"><i class="fa-solid fa-calendar-days"></i></span> Terbaru 2025</a>
+        <a href="/year/2024"><span class="icon"><i class="fa-solid fa-calendar"></i></span> Film 2024</a>
+      </div>
     </div>
   </div>
 
-  <!-- Genre -->
+  <!-- Genre (dropdown) -->
   <div class="sidebar-section">
-    <div class="sidebar-section-title">Genre</div>
-    <div class="sidebar-genre">
-      <a href="/genre/action">Action</a>
-      <a href="/genre/horror">Horror</a>
-      <a href="/genre/drama">Drama</a>
-      <a href="/genre/comedy">Comedy</a>
-      <a href="/genre/thriller">Thriller</a>
-      <a href="/genre/romance">Romance</a>
-      <a href="/genre/science-fiction">Sci-Fi</a>
-      <a href="/genre/fantasy">Fantasy</a>
-      <a href="/genre/crime">Crime</a>
-      <a href="/genre/animation">Animation</a>
-      <a href="/genre/family">Family</a>
-      <a href="/genre/mystery">Mystery</a>
+    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)" aria-expanded="false">
+      <span>Genre</span>
+      <i class="fa-solid fa-chevron-down chevron"></i>
+    </button>
+    <div class="sidebar-dropdown-body">
+      <div class="sidebar-genre">
+        <a href="/genre/action"><i class="fa-solid fa-explosion"></i> Action</a>
+        <a href="/genre/horror"><i class="fa-solid fa-skull"></i> Horror</a>
+        <a href="/genre/drama"><i class="fa-solid fa-masks-theater"></i> Drama</a>
+        <a href="/genre/comedy"><i class="fa-solid fa-face-laugh"></i> Comedy</a>
+        <a href="/genre/thriller"><i class="fa-solid fa-eye"></i> Thriller</a>
+        <a href="/genre/romance"><i class="fa-solid fa-heart"></i> Romance</a>
+        <a href="/genre/science-fiction"><i class="fa-solid fa-rocket"></i> Sci-Fi</a>
+        <a href="/genre/fantasy"><i class="fa-solid fa-wand-magic-sparkles"></i> Fantasy</a>
+        <a href="/genre/crime"><i class="fa-solid fa-handcuffs"></i> Crime</a>
+        <a href="/genre/animation"><i class="fa-solid fa-film"></i> Animation</a>
+        <a href="/genre/family"><i class="fa-solid fa-people-roof"></i> Family</a>
+        <a href="/genre/mystery"><i class="fa-solid fa-magnifying-glass"></i> Mystery</a>
+      </div>
     </div>
   </div>
 
-  <!-- Negara -->
+  <!-- Negara (dropdown) -->
   <div class="sidebar-section">
-    <div class="sidebar-section-title">Negara</div>
-    <div class="sidebar-genre">
-      <a href="/country/korea">🇰🇷 Korea</a>
-      <a href="/country/indonesia">🇮🇩 Indonesia</a>
-      <a href="/country/japan">🇯🇵 Jepang</a>
-      <a href="/country/usa">🇺🇸 USA</a>
-      <a href="/country/china">🇨🇳 China</a>
-      <a href="/country/thailand">🇹🇭 Thailand</a>
-      <a href="/country/philippines">🇵🇭 Filipina</a>
-      <a href="/country/india">🇮🇳 India</a>
+    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)" aria-expanded="false">
+      <span>Negara</span>
+      <i class="fa-solid fa-chevron-down chevron"></i>
+    </button>
+    <div class="sidebar-dropdown-body">
+      <div class="sidebar-genre">
+        <a href="/country/korea">🇰🇷 Korea</a>
+        <a href="/country/indonesia">🇮🇩 Indonesia</a>
+        <a href="/country/japan">🇯🇵 Jepang</a>
+        <a href="/country/usa">🇺🇸 USA</a>
+        <a href="/country/china">🇨🇳 China</a>
+        <a href="/country/thailand">🇹🇭 Thailand</a>
+        <a href="/country/philippines">🇵🇭 Filipina</a>
+        <a href="/country/india">🇮🇳 India</a>
+      </div>
     </div>
   </div>
 
-  <!-- Semi Sub -->
+  <!-- Film Semi (NON dropdown) -->
   <div class="sidebar-section">
     <div class="sidebar-section-title">Film Semi</div>
     <div class="sidebar-nav">
-      <a href="/semi"><span class="icon">🎬</span> Semua Semi</a>
-      <a href="/semi/jepang"><span class="icon">🇯🇵</span> Semi Jepang</a>
-      <a href="/semi/korea"><span class="icon">🇰🇷</span> Semi Korea</a>
-      <a href="/semi/indonesia"><span class="icon">🇮🇩</span> Semi Indonesia</a>
-      <a href="/semi/vivamax"><span class="icon">🎭</span> Vivamax</a>
+      <a href="/semi" class="{% if active=='semi' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-film"></i></span> Semua Semi</a>
+      <a href="/semi/jepang"><span class="icon"><i class="fa-solid fa-torii-gate"></i></span> Semi Jepang</a>
+      <a href="/semi/korea"><span class="icon"><i class="fa-solid fa-k"></i></span> Semi Korea</a>
+      <a href="/semi/indonesia"><span class="icon"><i class="fa-solid fa-flag"></i></span> Semi Indonesia</a>
+      <a href="/semi/vivamax"><span class="icon"><i class="fa-solid fa-play-circle"></i></span> Vivamax</a>
     </div>
   </div>
   <div style="height:32px;"></div>
@@ -443,6 +486,14 @@ document.getElementById('menuBtn').addEventListener('click',()=>{
 function closeSidebar(){
   sidebar.classList.remove('open');overlay.classList.remove('open');
   document.body.style.overflow='';
+}
+
+function toggleDropdown(btn){
+  const body=btn.nextElementSibling;
+  const isOpen=btn.classList.contains('open');
+  btn.classList.toggle('open',!isOpen);
+  body.classList.toggle('open',!isOpen);
+  btn.setAttribute('aria-expanded',String(!isOpen));
 }
 
 // Sliders
