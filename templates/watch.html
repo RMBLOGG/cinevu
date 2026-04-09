@@ -180,7 +180,7 @@ function loadPlayer(idx) {
       <div class="spin"></div> Memuat...
     </div>
 
-    <!-- Overlay transparan — intercept klik iklan pertama -->
+    <!-- Overlay transparan — intercept klik pertama yg biasanya trigger iklan -->
     <div id="adOverlay" style="
       position:absolute;inset:0;z-index:3;cursor:pointer;
       background:transparent;
@@ -191,8 +191,6 @@ function loadPlayer(idx) {
       src="${p.url}"
       allowfullscreen
       allow="autoplay; fullscreen; picture-in-picture"
-      sandbox="allow-scripts allow-same-origin allow-forms allow-fullscreen allow-presentation"
-      referrerpolicy="no-referrer"
       style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:1;"
       onload="onIframeLoad()">
     </iframe>`;
