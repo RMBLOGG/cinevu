@@ -480,8 +480,9 @@ window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60)
 const sidebar=document.getElementById('sidebar');
 const overlay=document.getElementById('sidebarOverlay');
 document.getElementById('menuBtn').addEventListener('click',()=>{
-  sidebar.classList.add('open');overlay.classList.add('open');
-  document.body.style.overflow='hidden';
+  const isOpen=sidebar.classList.contains('open');
+  if(isOpen){closeSidebar();}
+  else{sidebar.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';}
 });
 function closeSidebar(){
   sidebar.classList.remove('open');overlay.classList.remove('open');
