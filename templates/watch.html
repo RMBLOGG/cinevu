@@ -19,11 +19,16 @@
     <!-- Server tabs -->
     <div class="player-controls">
       <span class="server-label">Server:</span>
-      <div id="serverTabs" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <div id="serverTabs" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;">
         <div style="color:var(--muted);font-size:12px;display:flex;align-items:center;gap:8px;">
           <div class="spin"></div> Memuat server...
         </div>
       </div>
+      <button onclick="goFullscreen()" title="Fullscreen" style="
+        background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+        color:#ccc;padding:6px 10px;border-radius:4px;cursor:pointer;
+        font-size:16px;line-height:1;flex-shrink:0;transition:all .2s;
+      ">⛶</button>
     </div>
   </div>
 
@@ -242,7 +247,16 @@ function loadFirstPlayer() {
 
 fetchPlayers();
 
-function toggleSyn() {
+function goFullscreen() {
+  const iframe = document.getElementById('playerIframe');
+  const frame  = document.getElementById('playerFrame');
+  const target = iframe || frame;
+  if (!target) return;
+  if (target.requestFullscreen) target.requestFullscreen();
+  else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+  else if (target.mozRequestFullScreen) target.mozRequestFullScreen();
+  else if (target.msRequestFullscreen) target.msRequestFullscreen();
+}
   const txt = document.getElementById('synText');
   const btn = document.getElementById('synBtn');
   if (!txt) return;
