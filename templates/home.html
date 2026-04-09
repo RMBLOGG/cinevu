@@ -82,6 +82,16 @@
 <!-- ROWS -->
 <div class="rows-wrap">
 
+  <!-- SLOT IKLAN: header_banner -->
+  {% if iklan is defined and iklan.get('header_banner') %}
+  <div style="text-align:center;padding:12px 4% 0;">
+  {% for ad in iklan['header_banner'] %}
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+    {% else %}{{ ad.konten | safe }}{% endif %}
+  {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Genre pills SEBELUM rows -->
   <div class="genre-bar">
     <a class="genre-pill" href="/genre/action">⚡ Action</a>
@@ -103,6 +113,15 @@
 
   {% for sec in sections %}
   {% if sec.movies %}
+
+  {% if loop.index == 4 and iklan is defined and iklan.get('home_mid') %}
+  <div style="text-align:center;padding:4px 4% 12px;">
+  {% for ad in iklan['home_mid'] %}
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+    {% else %}{{ ad.konten | safe }}{% endif %}
+  {% endfor %}
+  </div>
+  {% endif %}
   <div class="row fade-in" style="animation-delay:{{ loop.index0 * 0.06 }}s">
     <div class="row-header">
       <div class="row-title">{{ sec.title }}</div>

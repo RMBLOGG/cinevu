@@ -358,6 +358,7 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
     <a href="/genre/action">Action</a>
     <a href="/genre/horror">Horror</a>
     <a href="/country/korea">Korea</a>
+    <a href="/pasang-iklan" style="color:var(--red);font-weight:700;">Pasang Iklan</a>
   </div>
   <div class="nav-right">
     <button class="hamburger" id="menuBtn" aria-label="Menu">
@@ -460,6 +461,19 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
 
 <main>{% block content %}{% endblock %}</main>
 
+<!-- SLOT IKLAN: footer_banner -->
+{% if iklan is defined and iklan.get('footer_banner') %}
+<div class="ad-slot ad-footer-banner">
+{% for ad in iklan['footer_banner'] %}
+  {% if ad.tipe == 'gambar' %}
+    <a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" alt="{{ ad.nama }}" style="max-width:100%;display:block;margin:0 auto;"></a>
+  {% elif ad.tipe in ('html','script') %}
+    {{ ad.konten | safe }}
+  {% endif %}
+{% endfor %}
+</div>
+{% endif %}
+
 <footer>
   <div class="footer-links">
     <a href="/genre/action">Action</a><a href="/genre/drama">Drama</a>
@@ -467,9 +481,26 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
     <a href="/series">Series</a><a href="/semi">Semi</a>
     <a href="/country/korea">Korea</a><a href="/country/indonesia">Indonesia</a>
     <a href="/year/2025">2025</a><a href="/year/2024">2024</a>
+    <a href="/pasang-iklan" style="color:var(--red);">Pasang Iklan</a>
   </div>
   <p>© 2025 Cinevu — Streaming film online gratis</p>
 </footer>
+
+<!-- SLOT IKLAN: popup -->
+{% if iklan is defined and iklan.get('popup') %}
+{% for ad in iklan['popup'] %}
+<div id="popup-ad-{{ loop.index }}" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;">
+  <div style="position:relative;max-width:520px;width:100%;">
+    <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:-12px;right:-12px;background:#e50914;color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;z-index:1;">✕</button>
+    {% if ad.tipe == 'gambar' %}
+      <a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="width:100%;border-radius:8px;display:block;"></a>
+    {% else %}
+      {{ ad.konten | safe }}
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+{% endif %}
 
 <script>
 // Navbar scroll

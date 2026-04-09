@@ -29,6 +29,16 @@
 
   <div class="watch-body">
 
+    <!-- SLOT IKLAN: watch_before -->
+    {% if iklan is defined and iklan.get('watch_before') %}
+    <div class="ad-slot" style="margin-bottom:16px;text-align:center;">
+    {% for ad in iklan['watch_before'] %}
+      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+      {% else %}{{ ad.konten | safe }}{% endif %}
+    {% endfor %}
+    </div>
+    {% endif %}
+
     <!-- EPISODES -->
     {% if movie.episodes %}
     <div class="eps-section fade-in">
@@ -131,6 +141,16 @@
         </a>
         {% endfor %}
       </div>
+    </div>
+    {% endif %}
+
+    <!-- SLOT IKLAN: watch_after -->
+    {% if iklan is defined and iklan.get('watch_after') %}
+    <div class="ad-slot" style="margin-top:20px;text-align:center;">
+    {% for ad in iklan['watch_after'] %}
+      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+      {% else %}{{ ad.konten | safe }}{% endif %}
+    {% endfor %}
     </div>
     {% endif %}
 
