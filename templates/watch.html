@@ -170,16 +170,60 @@ function loadPlayer(idx) {
   if (!p) return;
   document.querySelectorAll('.server-tab').forEach((b,i) => b.classList.toggle('active', i===idx));
   const frame = document.getElementById('playerFrame');
+
+  // -- AD BLOCK LAYER --
+  // 1. sandbox: blokir popup/redirect baru, hanya izin script + fullscreen
+  // 2. overlay: intercept klik pertama (biasanya trigger iklan), terusin ke play setelah delay
+  // 3. window.open override: matiin semua popup dari iframe (best-effort)
   frame.innerHTML = `
-    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);" id="pLoad">
+    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);z-index:2;" id="pLoad">
       <div class="spin"></div> Memuat...
     </div>
-    <iframe src="${p.url}" allowfullscreen allow="autoplay;fullscreen"
-      style="position:absolute;inset:0;width:100%;height:100%;border:none;"
-      onload="document.getElementById('pLoad')?.remove()">
+
+    <!-- Overlay transparan — intercept klik iklan pertama -->
+    <div id="adOverlay" style="
+      position:absolute;inset:0;z-index:3;cursor:pointer;
+      background:transparent;
+    " onclick="dismissOverlay(this)" title="Klik untuk play"></div>
+
+    <iframe
+      id="playerIframe"
+      src="${p.url}"
+      allowfullscreen
+      allow="autoplay; fullscreen; picture-in-picture"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-fullscreen allow-presentation"
+      referrerpolicy="no-referrer"
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:1;"
+      onload="onIframeLoad()">
     </iframe>`;
+
   frame.scrollIntoView({behavior:'smooth', block:'start'});
 }
+
+function onIframeLoad() {
+  document.getElementById('pLoad')?.remove();
+  // Hapus overlay setelah 3 detik (cukup untuk skip iklan auto-click)
+  setTimeout(() => {
+    const ov = document.getElementById('adOverlay');
+    if (ov) ov.remove();
+  }, 3000);
+}
+
+function dismissOverlay(el) {
+  // Klik overlay = user mau nonton, langsung hapus
+  el.remove();
+}
+
+// Blokir window.open dari iframe (popup iklan)
+const _origOpen = window.open;
+window.open = function(url, target, features) {
+  // Izinkan hanya kalau dipanggil langsung oleh user gesture di halaman ini,
+  // bukan dari iframe
+  if (document.activeElement && document.activeElement.id === 'playerIframe') {
+    return null; // blok
+  }
+  return _origOpen.call(window, url, target, features);
+};
 
 function loadFirstPlayer() {
   if (players.length > 0) loadPlayer(0);
