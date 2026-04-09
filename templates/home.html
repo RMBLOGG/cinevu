@@ -75,22 +75,33 @@
         {% else %}
           {% for m in sec.movies %}
           <a href="/watch?url={{ m.url | urlencode }}" class="ncard">
-            <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
-                 onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text=No+Image'">
-            {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
-            {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
-            <div class="ncard-overlay">
-              <div class="ncard-actions">
-                <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-              </div>
-              <div class="ncard-info">
-                <div class="ncard-title-h">{{ m.title | truncate(32) }}</div>
-                <div class="ncard-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
-                <div class="ncard-meta-h">
-                  {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
-                  {% if m.quality %}<span class="ncard-qlabel">{{ m.quality }}</span>{% endif %}
-                  {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
+            <div class="ncard-poster-wrap">
+              <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
+                   onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text=No+Image'">
+              {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
+              {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
+              <div class="ncard-overlay">
+                <div class="ncard-actions">
+                  <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
                 </div>
+                <div class="ncard-info">
+                  <div class="ncard-title-h">{{ m.title | truncate(32) }}</div>
+                  <div class="ncard-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
+                  <div class="ncard-meta-h">
+                    {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+                    {% if m.quality %}<span class="ncard-qlabel">{{ m.quality }}</span>{% endif %}
+                    {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ncard-foot">
+              <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
+              <div class="ncard-foot-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
+              <div class="ncard-foot-meta">
+                {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+                {% if m.quality %}<span class="ncard-foot-hd">{{ m.quality }}</span>{% endif %}
+                {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
               </div>
             </div>
           </a>
