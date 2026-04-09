@@ -204,34 +204,22 @@ def parse_detail(url):
     return data
 
 def get_players(post_id):
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-    sess = requests.Session()
-    sess.headers.update(HEADERS)
-
-    def fetch_tab(tab):
+    session_r = requests.Session()
+    session_r.headers.update(HEADERS)
+    players = []
+    for tab in ["p1","p2","p3","p4"]:
         try:
-            r = sess.post(AJAX_URL, data={"action":"muvipro_player_content","tab":tab,"post_id":post_id}, timeout=6)
+            r = session_r.post(AJAX_URL, data={"action":"muvipro_player_content","tab":tab,"post_id":post_id}, timeout=10)
             if r.status_code == 200 and r.text.strip():
                 inner = BeautifulSoup(r.text, "html.parser")
                 iframe = inner.find("iframe")
                 if iframe:
                     src = iframe.get("src") or iframe.get("SRC") or ""
                     if src:
-                        return {"server": tab.upper(), "url": src, "tab": tab}
+                        players.append({"server": tab.upper(), "url": src})
         except:
             pass
-        return None
-
-    tabs = ["p1","p2","p3","p4","p5"]
-    results = {}
-    with ThreadPoolExecutor(max_workers=5) as ex:
-        futures = {ex.submit(fetch_tab, t): t for t in tabs}
-        for f in as_completed(futures, timeout=8):
-            res = f.result()
-            if res:
-                results[res["tab"]] = res
-
-    return [results[t] for t in tabs if t in results]
+    return players
 
 # ══════════════════════════════════════════
 # PUBLIC ROUTES
