@@ -110,7 +110,7 @@
         <span style="width:4px;height:20px;background:var(--red);border-radius:2px;display:inline-block;"></span>
         Film Terkait
       </div>
-      <div class="list-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+      <div class="grid-movies">
         {% for m in movie.related %}
         <a href="/watch?url={{ m.url | urlencode }}" class="ncard" style="width:100%;">
           <div class="ncard-poster-wrap">
