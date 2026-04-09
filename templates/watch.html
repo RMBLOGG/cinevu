@@ -43,63 +43,61 @@
 
     <!-- DETAIL -->
     <div class="watch-detail fade-in">
-      <img class="watch-poster" src="{{ movie.poster }}" alt="{{ movie.title }}"
-           onerror="this.src='https://placehold.co/220x330/1a1a1a/333?text=No+Image'">
-      <div class="watch-info">
-        <div class="watch-title">{{ movie.title }}</div>
-        <div class="watch-badges">
-          {% if movie.rating %}
-          <div class="badge-rating">⭐ {{ movie.rating }}<span style="color:var(--muted);font-weight:400;font-size:12px">/10</span></div>
-          {% endif %}
-          <span class="badge-match">{{ [92,95,97,98,99]|random }}% Match</span>
-          {% if movie.meta.get('year') %}<span class="badge-year">{{ movie.meta.year }}</span>{% endif %}
-          {% if movie.meta.get('duration') %}<span class="badge-dur">{{ movie.meta.duration }}</span>{% endif %}
-          {% if movie.meta.get('quality') %}<span class="badge-quality">{{ movie.meta.quality }}</span>{% endif %}
-        </div>
 
-        {% if movie.synopsis %}
-        <p class="watch-synopsis">{{ movie.synopsis }}</p>
-        {% endif %}
-
-        <div class="meta-pills">
-          {% if movie.meta.get('genre') %}
-          <div class="meta-pill"><strong>Genre:</strong>{{ movie.meta.genre }}</div>
-          {% endif %}
-          {% if movie.meta.get('country') %}
-          <div class="meta-pill"><strong>Negara:</strong>{{ movie.meta.country }}</div>
-          {% endif %}
-          {% if movie.meta.get('director') %}
-          <div class="meta-pill"><strong>Sutradara:</strong>{{ movie.meta.director }}</div>
-          {% endif %}
-          {% if movie.meta.get('cast') %}
-          <div class="meta-pill"><strong>Pemain:</strong>{{ movie.meta.cast | truncate(80) }}</div>
-          {% endif %}
-          {% if movie.meta.get('language') %}
-          <div class="meta-pill"><strong>Bahasa:</strong>{{ movie.meta.language }}</div>
-          {% endif %}
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button onclick="loadFirstPlayer()" style="
-            background:var(--red);color:#fff;border:none;font-family:var(--font);
-            font-size:14px;font-weight:700;padding:10px 24px;border-radius:4px;
-            cursor:pointer;display:flex;align-items:center;gap:8px;
-          ">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-            Tonton Sekarang
-          </button>
-          {% if movie.trailer %}
-          <a href="{{ movie.trailer }}" target="_blank" style="
-            background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);
-            font-family:var(--font);font-size:14px;font-weight:600;
-            padding:10px 24px;border-radius:4px;text-decoration:none;
-            display:flex;align-items:center;gap:8px;
-          ">
-            🎬 Trailer
-          </a>
-          {% endif %}
+      <!-- Hero row: poster kiri + info kanan -->
+      <div class="wd-hero">
+        <img class="watch-poster" src="{{ movie.poster }}" alt="{{ movie.title }}"
+             onerror="this.src='https://placehold.co/220x330/1a1a1a/333?text=No+Image'">
+        <div class="wd-hero-info">
+          <div class="watch-title">{{ movie.title }}</div>
+          <div class="watch-badges">
+            {% if movie.rating %}
+            <div class="badge-rating">⭐ {{ movie.rating }}<span style="color:var(--muted);font-weight:400;font-size:11px">/10</span></div>
+            {% endif %}
+            <span class="badge-match">{{ [92,95,97,98,99]|random }}% Match</span>
+            {% if movie.meta.get('year') %}<span class="badge-year">{{ movie.meta.year }}</span>{% endif %}
+            {% if movie.meta.get('quality') %}<span class="badge-quality">{{ movie.meta.quality }}</span>{% endif %}
+          </div>
+          {% if movie.meta.get('duration') %}<div class="wd-dur">⏱ {{ movie.meta.duration }}</div>{% endif %}
+          <div class="wd-cta">
+            <button onclick="loadFirstPlayer()" class="btn-play-main">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+              Tonton
+            </button>
+            {% if movie.trailer %}
+            <a href="{{ movie.trailer }}" target="_blank" class="btn-trailer">🎬 Trailer</a>
+            {% endif %}
+          </div>
         </div>
       </div>
+
+      <!-- Synopsis collapsible -->
+      {% if movie.synopsis %}
+      <div class="wd-syn-wrap">
+        <p class="watch-synopsis collapsed" id="synText">{{ movie.synopsis }}</p>
+        <button class="syn-toggle" id="synBtn" onclick="toggleSyn()">Baca selengkapnya ▾</button>
+      </div>
+      {% endif %}
+
+      <!-- Meta info -->
+      <div class="meta-pills">
+        {% if movie.meta.get('genre') %}
+        <div class="meta-pill"><strong>Genre</strong><span>{{ movie.meta.genre }}</span></div>
+        {% endif %}
+        {% if movie.meta.get('country') %}
+        <div class="meta-pill"><strong>Negara</strong><span>{{ movie.meta.country }}</span></div>
+        {% endif %}
+        {% if movie.meta.get('director') %}
+        <div class="meta-pill"><strong>Sutradara</strong><span>{{ movie.meta.director }}</span></div>
+        {% endif %}
+        {% if movie.meta.get('cast') %}
+        <div class="meta-pill"><strong>Pemain</strong><span>{{ movie.meta.cast | truncate(80) }}</span></div>
+        {% endif %}
+        {% if movie.meta.get('language') %}
+        <div class="meta-pill"><strong>Bahasa</strong><span>{{ movie.meta.language }}</span></div>
+        {% endif %}
+      </div>
+
     </div>
 
     <!-- RELATED -->
@@ -188,5 +186,47 @@ function loadFirstPlayer() {
 }
 
 fetchPlayers();
+
+function toggleSyn() {
+  const txt = document.getElementById('synText');
+  const btn = document.getElementById('synBtn');
+  if (!txt) return;
+  txt.classList.toggle('collapsed');
+  btn.textContent = txt.classList.contains('collapsed') ? 'Baca selengkapnya ▾' : 'Tutup ▴';
+}
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.watch-detail{display:block;margin-bottom:28px;}
+.wd-hero{display:grid;grid-template-columns:115px 1fr;gap:14px;align-items:start;margin-bottom:16px;}
+.watch-poster{width:115px;border-radius:8px;object-fit:cover;aspect-ratio:2/3;box-shadow:0 6px 24px rgba(0,0,0,.8);flex-shrink:0;}
+.wd-hero-info{display:flex;flex-direction:column;gap:8px;min-width:0;}
+.watch-title{font-size:clamp(15px,4vw,32px);font-weight:900;letter-spacing:-.3px;line-height:1.2;}
+.watch-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.badge-rating{color:var(--gold,#f5c518);font-weight:700;font-size:13px;}
+.badge-match{color:#46d369;font-weight:700;font-size:12px;}
+.badge-year,.badge-quality{color:#aaa;font-size:11px;background:rgba(255,255,255,.07);padding:2px 8px;border-radius:3px;}
+.badge-quality{border:1px solid #555;color:#ccc;font-weight:700;}
+.wd-dur{font-size:12px;color:var(--muted,#888);}
+.wd-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+.btn-play-main{background:var(--red,#e50914);color:#fff;border:none;font-family:var(--font,sans-serif);font-size:13px;font-weight:700;padding:9px 18px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:100px;}
+.btn-trailer{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);font-family:var(--font,sans-serif);font-size:13px;font-weight:600;padding:9px 14px;border-radius:5px;text-decoration:none;display:flex;align-items:center;gap:6px;}
+.wd-syn-wrap{margin-bottom:14px;}
+.watch-synopsis{font-size:13.5px;line-height:1.72;color:#bbb;margin:0 0 4px;}
+.watch-synopsis.collapsed{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.syn-toggle{background:none;border:none;color:var(--red,#e50914);font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:var(--font,sans-serif);}
+.meta-pills{display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(255,255,255,.07);}
+.meta-pill{display:flex;gap:8px;font-size:12.5px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:baseline;}
+.meta-pill strong{color:#999;font-weight:600;min-width:72px;flex-shrink:0;}
+.meta-pill span{color:#ddd;}
+@media(min-width:600px){
+  .wd-hero{grid-template-columns:180px 1fr;gap:20px;}
+  .watch-poster{width:180px;}
+  .meta-pills{flex-direction:row;flex-wrap:wrap;border-top:none;gap:8px;}
+  .meta-pill{border-bottom:none;background:rgba(255,255,255,.05);padding:5px 12px;border-radius:4px;flex-direction:column;gap:2px;}
+  .meta-pill strong{min-width:unset;}
+}
+</style>
 {% endblock %}
