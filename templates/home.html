@@ -2,34 +2,81 @@
 {% block title %}Cinevu — Streaming Film Gratis{% endblock %}
 {% block content %}
 
-{% set hero = sections[0].movies[0] if sections and sections[0].movies else none %}
+{% set hero_movies = [] %}
+{% for sec in sections %}
+  {% for m in sec.movies %}
+    {% if hero_movies|length < 5 %}
+      {% set _ = hero_movies.append(m) %}
+    {% endif %}
+  {% endfor %}
+{% endfor %}
 
-<!-- HERO -->
-{% if hero %}
-<div class="hero fade-in">
-  <div class="hero-bg">
-    <img src="{{ hero.poster }}" alt="{{ hero.title }}" onerror="this.style.display='none'">
+<!-- HERO SLIDESHOW -->
+{% if hero_movies %}
+<div class="hero-slider fade-in" id="heroSlider">
+  {% for m in hero_movies %}
+  <div class="hero-slide{% if loop.first %} active{% endif %}" data-url="/watch?url={{ m.url | urlencode }}">
+    <div class="hero-bg">
+      <img src="{{ m.poster }}" alt="{{ m.title }}" onerror="this.style.display='none'">
+    </div>
+    <div class="hero-grad"></div>
+    <div class="hero-content">
+      <div class="hero-badge">★ FILM TERBARU</div>
+      <div class="hero-title">{{ m.title }}</div>
+      <div class="hero-meta">
+        {% if m.rating %}<span class="hero-rating">⭐ {{ m.rating }}</span>{% endif %}
+        <span class="hero-match">{{ [94,96,97,98,99]|random }}% Match</span>
+        {% if m.duration %}<span class="hero-dur">{{ m.duration }}</span>{% endif %}
+        {% if m.quality %}<span class="hero-qual">{{ m.quality }}</span>{% endif %}
+      </div>
+      <div class="hero-btns">
+        <a href="/watch?url={{ m.url | urlencode }}" class="btn-play">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tonton
+        </a>
+        <a href="/watch?url={{ m.url | urlencode }}" class="btn-info">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>Info Lebih
+        </a>
+      </div>
+    </div>
   </div>
-  <div class="hero-grad"></div>
-  <div class="hero-content">
-    <div class="hero-badge">★ FILM TERBARU</div>
-    <div class="hero-title">{{ hero.title }}</div>
-    <div class="hero-meta">
-      {% if hero.rating %}<span class="hero-rating">⭐ {{ hero.rating }}</span>{% endif %}
-      <span class="hero-match">97% Match</span>
-      {% if hero.duration %}<span class="hero-dur">{{ hero.duration }}</span>{% endif %}
-      {% if hero.quality %}<span class="hero-qual">{{ hero.quality }}</span>{% endif %}
-    </div>
-    <div class="hero-btns">
-      <a href="/watch?url={{ hero.url | urlencode }}" class="btn-play">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tonton
-      </a>
-      <a href="/watch?url={{ hero.url | urlencode }}" class="btn-info">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>Info Lebih
-      </a>
-    </div>
+  {% endfor %}
+  <!-- Dots -->
+  <div class="hero-dots">
+    {% for m in hero_movies %}
+    <button class="hero-dot{% if loop.first %} active{% endif %}" data-idx="{{ loop.index0 }}"></button>
+    {% endfor %}
   </div>
 </div>
+
+<script>
+(function(){
+  const slides = document.querySelectorAll('.hero-slide');
+  const dots = document.querySelectorAll('.hero-dot');
+  let cur = 0, timer;
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dots[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    dots[cur].classList.add('active');
+  }
+
+  function next() { goTo(cur + 1); }
+
+  function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(next, 5000);
+  }
+
+  dots.forEach(d => d.addEventListener('click', () => {
+    goTo(+d.dataset.idx);
+    startTimer();
+  }));
+
+  startTimer();
+})();
+</script>
 {% endif %}
 
 <!-- ROWS -->
