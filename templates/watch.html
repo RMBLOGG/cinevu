@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }} — Cinevu{% endblock %}
+
+{% block content %}
+<div class="watch-page">
+
+  <!-- PLAYER -->
+  <div class="watch-player-wrap">
+    <div class="watch-player-inner">
+      <div class="player-frame" id="playerFrame">
+        <div class="player-placeholder" id="playerPlaceholder" onclick="loadFirstPlayer()">
+          <div class="big-play">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div class="placeholder-label">Klik untuk streaming</div>
+        </div>
+      </div>
+    </div>
+    <!-- Server tabs -->
+    <div class="player-controls">
+      <span class="server-label">Server:</span>
+      <div id="serverTabs" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="color:var(--muted);font-size:12px;display:flex;align-items:center;gap:8px;">
+          <div class="spin"></div> Memuat server...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="watch-body">
+
+    <!-- EPISODES -->
+    {% if movie.episodes %}
+    <div class="eps-section fade-in">
+      <div class="eps-title">Daftar Episode</div>
+      <div class="eps-grid">
+        {% for ep in movie.episodes %}
+        <a class="eps-btn" href="/watch?url={{ ep.url | urlencode }}">{{ ep.label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- DETAIL -->
+    <div class="watch-detail fade-in">
+      <img class="watch-poster" src="{{ movie.poster }}" alt="{{ movie.title }}"
+           onerror="this.src='https://placehold.co/220x330/1a1a1a/333?text=No+Image'">
+      <div class="watch-info">
+        <div class="watch-title">{{ movie.title }}</div>
+        <div class="watch-badges">
+          {% if movie.rating %}
+          <div class="badge-rating">⭐ {{ movie.rating }}<span style="color:var(--muted);font-weight:400;font-size:12px">/10</span></div>
+          {% endif %}
+          <span class="badge-match">{{ [92,95,97,98,99]|random }}% Match</span>
+          {% if movie.meta.get('year') %}<span class="badge-year">{{ movie.meta.year }}</span>{% endif %}
+          {% if movie.meta.get('duration') %}<span class="badge-dur">{{ movie.meta.duration }}</span>{% endif %}
+          {% if movie.meta.get('quality') %}<span class="badge-quality">{{ movie.meta.quality }}</span>{% endif %}
+        </div>
+
+        {% if movie.synopsis %}
+        <p class="watch-synopsis">{{ movie.synopsis }}</p>
+        {% endif %}
+
+        <div class="meta-pills">
+          {% if movie.meta.get('genre') %}
+          <div class="meta-pill"><strong>Genre:</strong>{{ movie.meta.genre }}</div>
+          {% endif %}
+          {% if movie.meta.get('country') %}
+          <div class="meta-pill"><strong>Negara:</strong>{{ movie.meta.country }}</div>
+          {% endif %}
+          {% if movie.meta.get('director') %}
+          <div class="meta-pill"><strong>Sutradara:</strong>{{ movie.meta.director }}</div>
+          {% endif %}
+          {% if movie.meta.get('cast') %}
+          <div class="meta-pill"><strong>Pemain:</strong>{{ movie.meta.cast | truncate(80) }}</div>
+          {% endif %}
+          {% if movie.meta.get('language') %}
+          <div class="meta-pill"><strong>Bahasa:</strong>{{ movie.meta.language }}</div>
+          {% endif %}
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="loadFirstPlayer()" style="
+            background:var(--red);color:#fff;border:none;font-family:var(--font);
+            font-size:14px;font-weight:700;padding:10px 24px;border-radius:4px;
+            cursor:pointer;display:flex;align-items:center;gap:8px;
+          ">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
+            Tonton Sekarang
+          </button>
+          {% if movie.trailer %}
+          <a href="{{ movie.trailer }}" target="_blank" style="
+            background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);
+            font-family:var(--font);font-size:14px;font-weight:600;
+            padding:10px 24px;border-radius:4px;text-decoration:none;
+            display:flex;align-items:center;gap:8px;
+          ">
+            🎬 Trailer
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATED -->
+    {% if movie.related %}
+    <div style="margin-top:20px;">
+      <div style="font-size:20px;font-weight:700;color:#e5e5e5;margin-bottom:14px;
+                  display:flex;align-items:center;gap:10px;">
+        <span style="width:4px;height:20px;background:var(--red);border-radius:2px;display:inline-block;"></span>
+        Film Terkait
+      </div>
+      <div class="list-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
+        {% for m in movie.related %}
+        <a href="/watch?url={{ m.url | urlencode }}" class="ncard" style="width:100%;">
+          <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy" style="height:210px;"
+               onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
+          {% if m.quality %}<div class="ncard-badge-top">{{ m.quality }}</div>{% endif %}
+          {% if m.rating %}<div class="ncard-rating-top">⭐ {{ m.rating }}</div>{% endif %}
+          <div class="ncard-overlay">
+            <div class="ncard-actions">
+              <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            </div>
+            <div class="ncard-info">
+              <div class="ncard-title-hover">{{ m.title | truncate(28) }}</div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const POST_ID = "{{ movie.post_id or '' }}";
+let players = [];
+
+async function fetchPlayers() {
+  if (!POST_ID) {
+    document.getElementById('serverTabs').innerHTML = '<span style="color:var(--muted);font-size:12px">Tidak ada server</span>';
+    return;
+  }
+  try {
+    const res = await fetch(`/api/player?post_id=${POST_ID}`);
+    const data = await res.json();
+    players = data.players || [];
+    const tabs = document.getElementById('serverTabs');
+    if (!players.length) {
+      tabs.innerHTML = '<span style="color:var(--muted);font-size:12px">Server tidak tersedia</span>';
+      return;
+    }
+    tabs.innerHTML = players.map((p,i) =>
+      `<button class="server-tab ${i===0?'active':''}" onclick="loadPlayer(${i})">${p.server}</button>`
+    ).join('');
+  } catch(e) {
+    document.getElementById('serverTabs').innerHTML = '<span style="color:var(--muted);font-size:12px">Gagal memuat server</span>';
+  }
+}
+
+function loadPlayer(idx) {
+  const p = players[idx];
+  if (!p) return;
+  document.querySelectorAll('.server-tab').forEach((b,i) => b.classList.toggle('active', i===idx));
+  const frame = document.getElementById('playerFrame');
+  frame.innerHTML = `
+    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);" id="pLoad">
+      <div class="spin"></div> Memuat...
+    </div>
+    <iframe src="${p.url}" allowfullscreen allow="autoplay;fullscreen"
+      style="position:absolute;inset:0;width:100%;height:100%;border:none;"
+      onload="document.getElementById('pLoad')?.remove()">
+    </iframe>`;
+  frame.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function loadFirstPlayer() {
+  if (players.length > 0) loadPlayer(0);
+}
+
+fetchPlayers();
+</script>
+{% endblock %}

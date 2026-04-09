@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Cinevu{% endblock %}
+
+{% block content %}
+<div class="list-wrap">
+  <div class="list-heading">{{ title }}</div>
+
+  {% if query %}
+  <p style="color:var(--muted);margin-bottom:20px;font-size:14px;">
+    Hasil pencarian untuk <strong style="color:#fff">"{{ query }}"</strong>
+    {% if movies %}— {{ movies|length }} film ditemukan{% endif %}
+  </p>
+  {% endif %}
+
+  {% if movies %}
+  <div class="list-grid">
+    {% for m in movies %}
+    <a href="/watch?url={{ m.url | urlencode }}" class="ncard fade-in" style="width:100%;animation-delay:{{ loop.index0 * 0.025 }}s">
+      <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy" style="height:240px;"
+           onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
+      {% if m.quality %}<div class="ncard-badge-top">{{ m.quality }}</div>{% endif %}
+      {% if m.rating %}<div class="ncard-rating-top">⭐ {{ m.rating }}</div>{% endif %}
+      <div class="ncard-overlay">
+        <div class="ncard-actions">
+          <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+        </div>
+        <div class="ncard-info">
+          <div class="ncard-title-hover">{{ m.title | truncate(30) }}</div>
+          <div class="ncard-meta">
+            {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+            {% if m.quality %}<span class="ncard-quality">{{ m.quality }}</span>{% endif %}
+            {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination">
+    {% if page > 1 %}
+    <a class="pag-btn" href="?{% if query %}q={{ query }}&{% endif %}page={{ page - 1 }}">← Sebelumnya</a>
+    {% endif %}
+    <span class="pag-btn cur">{{ page }}</span>
+    {% if next_page %}
+    <a class="pag-btn" href="?{% if query %}q={{ query }}&{% endif %}page={{ page + 1 }}">Berikutnya →</a>
+    {% endif %}
+  </div>
+
+  {% else %}
+  <div class="loading-screen">
+    {% if query %}
+    <div style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:16px;">🔍</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Tidak ditemukan</div>
+      <div style="color:var(--muted);font-size:14px;">Coba kata kunci lain</div>
+    </div>
+    {% else %}
+    <div class="spin"></div> Memuat...
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

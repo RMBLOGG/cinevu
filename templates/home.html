@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Cinevu — Streaming Film Gratis{% endblock %}
+{% block content %}
+
+{% set hero = sections[0].movies[0] if sections and sections[0].movies else none %}
+
+<!-- HERO -->
+{% if hero %}
+<div class="hero fade-in">
+  <div class="hero-bg">
+    <img src="{{ hero.poster }}" alt="{{ hero.title }}" onerror="this.style.display='none'">
+  </div>
+  <div class="hero-grad"></div>
+  <div class="hero-content">
+    <div class="hero-badge">★ FILM TERBARU</div>
+    <div class="hero-title">{{ hero.title }}</div>
+    <div class="hero-meta">
+      {% if hero.rating %}<span class="hero-rating">⭐ {{ hero.rating }}</span>{% endif %}
+      <span class="hero-match">97% Match</span>
+      {% if hero.duration %}<span class="hero-dur">{{ hero.duration }}</span>{% endif %}
+      {% if hero.quality %}<span class="hero-qual">{{ hero.quality }}</span>{% endif %}
+    </div>
+    <div class="hero-btns">
+      <a href="/watch?url={{ hero.url | urlencode }}" class="btn-play">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tonton
+      </a>
+      <a href="/watch?url={{ hero.url | urlencode }}" class="btn-info">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>Info Lebih
+      </a>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ROWS -->
+<div class="rows-wrap">
+
+  <!-- Genre pills SEBELUM rows -->
+  <div class="genre-bar">
+    <a class="genre-pill" href="/genre/action">⚡ Action</a>
+    <a class="genre-pill" href="/genre/horror">💀 Horror</a>
+    <a class="genre-pill" href="/genre/drama">🎭 Drama</a>
+    <a class="genre-pill" href="/genre/comedy">😂 Comedy</a>
+    <a class="genre-pill" href="/genre/thriller">🔪 Thriller</a>
+    <a class="genre-pill" href="/genre/science-fiction">🚀 Sci-Fi</a>
+    <a class="genre-pill" href="/genre/romance">💕 Romance</a>
+    <a class="genre-pill" href="/anime">🎌 Anime</a>
+    <a class="genre-pill" href="/genre/fantasy">🧙 Fantasy</a>
+    <a class="genre-pill" href="/genre/crime">🕵️ Crime</a>
+    <a class="genre-pill" href="/country/korea">🇰🇷 Korea</a>
+    <a class="genre-pill" href="/country/indonesia">🇮🇩 Indonesia</a>
+    <a class="genre-pill" href="/country/japan">🇯🇵 Jepang</a>
+    <a class="genre-pill" href="/year/2025">📅 2025</a>
+    <a class="genre-pill" href="/semi">🔞 Semi</a>
+  </div>
+
+  {% for sec in sections %}
+  {% if sec.movies %}
+  <div class="row fade-in" style="animation-delay:{{ loop.index0 * 0.06 }}s">
+    <div class="row-header">
+      <div class="row-title">{{ sec.title }}</div>
+      <a class="see-all" href="{{ sec.more }}">Lihat Semua ›</a>
+    </div>
+    <div class="slider-wrap">
+      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <div class="slider">
+        {% if sec.id == 'trending' %}
+          {% for m in sec.movies %}
+          <a href="/watch?url={{ m.url | urlencode }}" class="top10-card">
+            <div class="top10-num">{{ loop.index }}</div>
+            <img class="top10-img" src="{{ m.poster }}" alt="{{ m.title }}"
+                 onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text={{ loop.index }}'">
+          </a>
+          {% endfor %}
+        {% else %}
+          {% for m in sec.movies %}
+          <a href="/watch?url={{ m.url | urlencode }}" class="ncard">
+            <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
+                 onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text=No+Image'">
+            {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
+            {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
+            <div class="ncard-overlay">
+              <div class="ncard-actions">
+                <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+              </div>
+              <div class="ncard-info">
+                <div class="ncard-title-h">{{ m.title | truncate(32) }}</div>
+                <div class="ncard-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
+                <div class="ncard-meta-h">
+                  {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+                  {% if m.quality %}<span class="ncard-qlabel">{{ m.quality }}</span>{% endif %}
+                  {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
+                </div>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        {% endif %}
+      </div>
+      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+    </div>
+  </div>
+  {% endif %}
+  {% endfor %}
+</div>
+{% endblock %}
