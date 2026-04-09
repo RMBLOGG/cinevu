@@ -191,27 +191,20 @@ function loadPlayer(idx) {
   document.querySelectorAll('.server-tab').forEach((b,i) => b.classList.toggle('active', i===idx));
   const frame = document.getElementById('playerFrame');
 
-  // -- AD BLOCK LAYER --
-  // 1. sandbox: blokir popup/redirect baru, hanya izin script + fullscreen
-  // 2. overlay: intercept klik pertama (biasanya trigger iklan), terusin ke play setelah delay
-  // 3. window.open override: matiin semua popup dari iframe (best-effort)
+  // Pastikan frame visible dan punya height
+  frame.style.minHeight = Math.round(frame.offsetWidth * 0.5625) + 'px';
+
   frame.innerHTML = `
-    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:var(--muted);z-index:2;" id="pLoad">
+    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:#888;z-index:2;" id="pLoad">
       <div class="spin"></div> Memuat...
     </div>
-
-    <!-- Overlay transparan — intercept klik pertama yg biasanya trigger iklan -->
-    <div id="adOverlay" style="
-      position:absolute;inset:0;z-index:3;cursor:pointer;
-      background:transparent;
-    " onclick="dismissOverlay(this)" title="Klik untuk play"></div>
-
+    <div id="adOverlay" style="position:absolute;inset:0;z-index:3;cursor:pointer;background:transparent;" onclick="dismissOverlay(this)"></div>
     <iframe
       id="playerIframe"
       src="${p.url}"
       allowfullscreen
       allow="autoplay; fullscreen; picture-in-picture"
-      style="position:absolute;inset:0;width:100%;height:100%;border:none;z-index:1;"
+      style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:1;display:block;"
       onload="onIframeLoad()">
     </iframe>`;
 
