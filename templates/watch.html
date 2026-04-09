@@ -113,17 +113,22 @@
       <div class="list-grid" style="grid-template-columns:repeat(auto-fill,minmax(140px,1fr));">
         {% for m in movie.related %}
         <a href="/watch?url={{ m.url | urlencode }}" class="ncard" style="width:100%;">
-          <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy" style="height:210px;"
-               onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
-          {% if m.quality %}<div class="ncard-badge-top">{{ m.quality }}</div>{% endif %}
-          {% if m.rating %}<div class="ncard-rating-top">⭐ {{ m.rating }}</div>{% endif %}
-          <div class="ncard-overlay">
-            <div class="ncard-actions">
-              <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+          <div class="ncard-poster-wrap">
+            <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
+                 onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
+            {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
+            {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
+            <div class="ncard-overlay">
+              <div class="ncard-actions">
+                <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+              </div>
+              <div class="ncard-info">
+                <div class="ncard-title-h">{{ m.title | truncate(28) }}</div>
+              </div>
             </div>
-            <div class="ncard-info">
-              <div class="ncard-title-hover">{{ m.title | truncate(28) }}</div>
-            </div>
+          </div>
+          <div class="ncard-foot">
+            <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
           </div>
         </a>
         {% endfor %}
