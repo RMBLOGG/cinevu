@@ -21,14 +21,17 @@
     </div>
     <div class="hero-grad"></div>
     <div class="hero-content">
-      <div class="hero-badge">★ FILM TERBARU</div>
+      <div class="hero-n-badge">FILM TERBARU</div>
       <div class="hero-title">{{ m.title }}</div>
       <div class="hero-meta">
         {% if m.rating %}<span class="hero-rating">⭐ {{ m.rating }}</span>{% endif %}
-        <span class="hero-match">{{ [94,96,97,98,99]|random }}% Match</span>
+        <span class="hero-match">{{ loop.index * 3 + 91 }}% Match</span>
         {% if m.duration %}<span class="hero-dur">{{ m.duration }}</span>{% endif %}
         {% if m.quality %}<span class="hero-qual">{{ m.quality }}</span>{% endif %}
       </div>
+      {% if m.synopsis %}
+      <div class="hero-synopsis">{{ m.synopsis }}</div>
+      {% endif %}
       <div class="hero-btns">
         <a href="/watch?url={{ m.url | urlencode }}" class="btn-play">
           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tonton
@@ -40,18 +43,25 @@
     </div>
   </div>
   {% endfor %}
-  <!-- Dots -->
+
+  <!-- Dots — bottom left Netflix style -->
   <div class="hero-dots">
     {% for m in hero_movies %}
     <button class="hero-dot{% if loop.first %} active{% endif %}" data-idx="{{ loop.index0 }}"></button>
     {% endfor %}
   </div>
+
+  <!-- Mute & Age badge — bottom right -->
+  <button class="hero-mute-btn" id="heroMuteBtn" title="Mute/Unmute">
+    <i class="fa-solid fa-volume-xmark"></i>
+  </button>
+  <div class="hero-age-badge">17+</div>
 </div>
 
 <script>
 (function(){
   const slides = document.querySelectorAll('.hero-slide');
-  const dots = document.querySelectorAll('.hero-dot');
+  const dots   = document.querySelectorAll('.hero-dot');
   let cur = 0, timer;
 
   function goTo(n) {
@@ -61,20 +71,23 @@
     slides[cur].classList.add('active');
     dots[cur].classList.add('active');
   }
-
   function next() { goTo(cur + 1); }
+  function startTimer() { clearInterval(timer); timer = setInterval(next, 6000); }
 
-  function startTimer() {
-    clearInterval(timer);
-    timer = setInterval(next, 5000);
-  }
-
-  dots.forEach(d => d.addEventListener('click', () => {
-    goTo(+d.dataset.idx);
-    startTimer();
-  }));
-
+  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startTimer(); }));
   startTimer();
+
+  // Mute btn toggle (visual only — no video)
+  const muteBtn = document.getElementById('heroMuteBtn');
+  let muted = true;
+  if (muteBtn) {
+    muteBtn.addEventListener('click', () => {
+      muted = !muted;
+      muteBtn.innerHTML = muted
+        ? '<i class="fa-solid fa-volume-xmark"></i>'
+        : '<i class="fa-solid fa-volume-high"></i>';
+    });
+  }
 })();
 </script>
 {% endif %}
@@ -82,7 +95,6 @@
 <!-- ROWS -->
 <div class="rows-wrap">
 
-  <!-- SLOT IKLAN: header_banner -->
   {% if iklan is defined and iklan.get('header_banner') %}
   <div style="text-align:center;padding:12px 4% 0;">
   {% for ad in iklan['header_banner'] %}
@@ -92,7 +104,7 @@
   </div>
   {% endif %}
 
-  <!-- Genre pills SEBELUM rows -->
+  <!-- Genre pills -->
   <div class="genre-bar">
     <a class="genre-pill" href="/genre/action">⚡ Action</a>
     <a class="genre-pill" href="/genre/horror">💀 Horror</a>
@@ -122,10 +134,11 @@
   {% endfor %}
   </div>
   {% endif %}
+
   <div class="row fade-in" style="animation-delay:{{ loop.index0 * 0.06 }}s">
     <div class="row-header">
       <div class="row-title">{{ sec.title }}</div>
-      <a class="see-all" href="{{ sec.more }}">Lihat Semua ›</a>
+      <a class="see-all" href="{{ sec.more }}">Lihat Semua <span class="arrow">›</span></a>
     </div>
     <div class="slider-wrap">
       <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
@@ -135,39 +148,54 @@
           <a href="/watch?url={{ m.url | urlencode }}" class="top10-card">
             <div class="top10-num">{{ loop.index }}</div>
             <img class="top10-img" src="{{ m.poster }}" alt="{{ m.title }}"
-                 onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text={{ loop.index }}'">
+                 onerror="this.src='https://placehold.co/180x260/1a1a1a/333?text={{ loop.index }}'">
           </a>
           {% endfor %}
         {% else %}
           {% for m in sec.movies %}
+          {% set match_val = (loop.index * 7 + 87) % 12 + 88 %}
           <a href="/watch?url={{ m.url | urlencode }}" class="ncard">
             <div class="ncard-poster-wrap">
               <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
-                   onerror="this.src='https://placehold.co/170x255/1a1a1a/333?text=No+Image'">
+                   onerror="this.src='https://placehold.co/190x260/1a1a1a/333?text=No+Image'">
               {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
               {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
               <div class="ncard-overlay">
-                <div class="ncard-actions">
-                  <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+                <div class="ncard-info" style="color:#fff;font-size:11px;font-weight:700;">{{ m.title | truncate(28) }}</div>
+              </div>
+            </div>
+            <!-- Hover popup (desktop) -->
+            <div class="ncard-popup">
+              <img class="ncard-popup-img" src="{{ m.poster }}" alt="{{ m.title }}"
+                   onerror="this.src='https://placehold.co/280x150/1a1a1a/333?text=No+Image'">
+              <div class="ncard-popup-body">
+                <div class="ncard-popup-btns">
+                  <button class="ncard-popup-play" onclick="event.preventDefault();window.location='/watch?url={{ m.url | urlencode }}'">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                  <button class="ncard-popup-icon" title="Tambah ke Daftar"><i class="fa-solid fa-plus"></i></button>
+                  <button class="ncard-popup-icon" title="Suka"><i class="fa-regular fa-thumbs-up"></i></button>
+                  <button class="ncard-popup-icon ncard-popup-chevron" title="Info lengkap"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
-                <div class="ncard-info">
-                  <div class="ncard-title-h">{{ m.title | truncate(32) }}</div>
-                  <div class="ncard-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
-                  <div class="ncard-meta-h">
-                    {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
-                    {% if m.quality %}<span class="ncard-qlabel">{{ m.quality }}</span>{% endif %}
-                    {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
-                  </div>
+                <div class="ncard-popup-match">{{ match_val }}% Cocok</div>
+                <div class="ncard-popup-meta">
+                  {% if m.quality %}<span class="ncard-popup-hd">{{ m.quality }}</span>{% endif %}
+                  {% if m.duration %}<span class="ncard-popup-dur">{{ m.duration }}</span>{% endif %}
+                  {% if m.episodes %}<span class="ncard-popup-dur">{{ m.episodes }} Eps</span>{% endif %}
+                </div>
+                <div class="ncard-popup-genres">
+                  <span>{{ sec.title }}</span>
+                  {% if m.quality %}<span>{{ m.quality }}</span>{% endif %}
                 </div>
               </div>
             </div>
+            <!-- Mobile fallback -->
             <div class="ncard-foot">
               <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
-              <div class="ncard-foot-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
+              <div class="ncard-foot-match">{{ match_val }}% Cocok</div>
               <div class="ncard-foot-meta">
                 {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
                 {% if m.quality %}<span class="ncard-foot-hd">{{ m.quality }}</span>{% endif %}
-                {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
               </div>
             </div>
           </a>

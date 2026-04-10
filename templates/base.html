@@ -14,265 +14,221 @@
   --red:#e50914;--gold:#f5c518;
   --text:#fff;--muted:#999;--muted2:#b3b3b3;
   --font:'Montserrat',sans-serif;
+  --card-w:190px;
 }
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;min-height:100vh;}
 
 /* ── NAVBAR ── */
 .navbar{
-  position:fixed;top:0;left:0;right:0;z-index:1000;height:64px;
+  position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;
   padding:0 4%;display:flex;align-items:center;justify-content:space-between;
-  background:var(--bg);
-  transition:background .4s;
-  border-bottom:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(180deg,rgba(0,0,0,0.85) 0%,transparent 100%);
+  transition:background .6s ease;
 }
-.navbar.scrolled{background:var(--bg);}
-.nav-logo{font-size:24px;font-weight:900;color:var(--red);text-decoration:none;letter-spacing:-1px;flex-shrink:0;}
+.navbar.scrolled{background:var(--bg) !important;}
+.nav-logo{font-size:26px;font-weight:900;color:var(--red);text-decoration:none;letter-spacing:-1px;flex-shrink:0;font-style:italic;}
+.nav-left{display:flex;align-items:center;gap:24px;}
 .nav-links{display:flex;align-items:center;gap:2px;}
-.nav-links a{color:var(--muted2);text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:4px;transition:color .15s;white-space:nowrap;}
+.nav-links a{color:rgba(255,255,255,.75);text-decoration:none;font-size:13px;font-weight:500;padding:6px 10px;border-radius:4px;transition:color .15s;white-space:nowrap;}
 .nav-links a:hover,.nav-links a.active{color:#fff;}
-.nav-right{display:flex;align-items:center;gap:12px;}
-.hamburger{
-  background:none;border:none;cursor:pointer;
-  display:flex;flex-direction:column;gap:5px;padding:6px;
-}
+.nav-dropdown{position:relative;}
+.nav-dropdown-label{color:rgba(255,255,255,.75);font-size:13px;font-weight:500;padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:color .15s;user-select:none;}
+.nav-dropdown-label:hover{color:#fff;}
+.nav-dropdown-label .chev{font-size:9px;transition:transform .2s;}
+.nav-dropdown:hover .chev{transform:rotate(180deg);}
+.nav-dropdown-menu{position:absolute;top:100%;left:50%;transform:translateX(-50%);background:#141414;border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:8px 0;min-width:180px;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 4px 24px rgba(0,0,0,.6);}
+.nav-dropdown:hover .nav-dropdown-menu{opacity:1;pointer-events:all;}
+.nav-dropdown-menu a{display:block;padding:9px 20px;color:#ccc;font-size:13px;text-decoration:none;transition:all .15s;}
+.nav-dropdown-menu a:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-search{position:relative;display:flex;align-items:center;}
+.nav-search-btn{background:none;border:none;cursor:pointer;color:#fff;padding:6px;display:flex;align-items:center;justify-content:center;}
+.nav-search-btn svg{width:18px;height:18px;fill:#fff;}
+.nav-search-expand{position:absolute;right:0;top:50%;transform:translateY(-50%);width:0;overflow:hidden;transition:width .3s ease;display:flex;align-items:center;background:#000;border:1px solid #fff;}
+.nav-search-expand.open{width:220px;}
+.nav-search-expand input{flex:1;background:none;border:none;color:#fff;font-size:13px;font-family:var(--font);padding:6px 10px;outline:none;}
+.nav-search-expand input::placeholder{color:#666;}
+.nav-bell{background:none;border:none;cursor:pointer;color:#fff;padding:6px;display:flex;align-items:center;font-size:18px;position:relative;}
+.nav-bell-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--red);border-radius:50%;border:1.5px solid var(--bg);}
+.nav-avatar{width:32px;height:32px;border-radius:4px;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;position:relative;flex-shrink:0;}
+.nav-avatar-menu{position:absolute;top:calc(100% + 10px);right:0;background:#141414;border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:8px 0;min-width:210px;opacity:0;pointer-events:none;transition:opacity .2s;box-shadow:0 4px 24px rgba(0,0,0,.6);}
+.nav-avatar:hover .nav-avatar-menu{opacity:1;pointer-events:all;}
+.nav-avatar-item{display:flex;align-items:center;gap:10px;padding:9px 16px;color:#ccc;font-size:13px;cursor:pointer;transition:background .15s;}
+.nav-avatar-item:hover{background:rgba(255,255,255,.07);color:#fff;}
+.nav-avatar-item a{color:inherit;text-decoration:none;}
+.nav-avatar-divider{height:1px;background:rgba(255,255,255,.1);margin:6px 0;}
+.nav-avatar-center{justify-content:center;color:rgba(255,255,255,.5);font-size:12px;}
+.hamburger{background:none;border:none;cursor:pointer;display:none;flex-direction:column;gap:5px;padding:6px;}
 .hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s;}
 
 /* ── SIDEBAR ── */
-.sidebar-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;
-  opacity:0;pointer-events:none;transition:opacity .3s;
-}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:300;opacity:0;pointer-events:none;transition:opacity .3s;}
 .sidebar-overlay.open{opacity:1;pointer-events:all;}
-.sidebar{
-  position:fixed;top:0;right:-320px;width:300px;height:100%;
-  background:#111;z-index:301;
-  display:flex;flex-direction:column;
-  transition:right .35s cubic-bezier(.4,0,.2,1);
-  overflow-y:auto;
-}
+.sidebar{position:fixed;top:0;right:-320px;width:300px;height:100%;background:#111;z-index:301;display:flex;flex-direction:column;transition:right .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
 .sidebar.open{right:0;}
-.sidebar-head{
-  padding:20px 20px 16px;display:flex;align-items:center;
-  justify-content:space-between;border-bottom:1px solid #222;
-}
-.sidebar-logo{font-size:22px;font-weight:900;color:var(--red);letter-spacing:-1px;}
-.sidebar-close{
-  background:none;border:none;color:#fff;cursor:pointer;
-  font-size:24px;line-height:1;padding:4px;
-}
-
-/* Search di sidebar */
-.sidebar-search{
-  padding:16px 20px;border-bottom:1px solid #222;
-}
-.sidebar-search form{
-  display:flex;align-items:center;gap:8px;
-  background:#222;border:1px solid #333;border-radius:6px;padding:8px 14px;
-  transition:border-color .2s;
-}
+.sidebar-head{padding:20px 20px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #222;}
+.sidebar-logo{font-size:22px;font-weight:900;color:var(--red);letter-spacing:-1px;font-style:italic;}
+.sidebar-close{background:none;border:none;color:#fff;cursor:pointer;font-size:24px;line-height:1;padding:4px;}
+.sidebar-search{padding:16px 20px;border-bottom:1px solid #222;}
+.sidebar-search form{display:flex;align-items:center;gap:8px;background:#222;border:1px solid #333;border-radius:6px;padding:8px 14px;transition:border-color .2s;}
 .sidebar-search form:focus-within{border-color:#555;}
 .sidebar-search svg{width:16px;height:16px;fill:#999;flex-shrink:0;}
-.sidebar-search input{
-  background:none;border:none;color:#fff;font-size:14px;font-family:var(--font);
-  outline:none;width:100%;
-}
+.sidebar-search input{background:none;border:none;color:#fff;font-size:14px;font-family:var(--font);outline:none;width:100%;}
 .sidebar-search input::placeholder{color:#666;}
-
 .sidebar-section{padding:6px 0;}
-
-/* Dropdown header */
-.sidebar-dropdown-btn{
-  display:flex;align-items:center;justify-content:space-between;
-  width:100%;background:none;border:none;cursor:pointer;
-  padding:10px 20px;color:#888;font-family:var(--font);
-  font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;
-  transition:color .2s;
-}
+.sidebar-dropdown-btn{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:none;cursor:pointer;padding:10px 20px;color:#888;font-family:var(--font);font-size:10px;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;transition:color .2s;}
 .sidebar-dropdown-btn:hover{color:#aaa;}
-.sidebar-dropdown-btn .chevron{
-  font-size:11px;transition:transform .3s;color:#555;
-}
+.sidebar-dropdown-btn .chevron{font-size:11px;transition:transform .3s;color:#555;}
 .sidebar-dropdown-btn.open .chevron{transform:rotate(180deg);}
-
-/* Dropdown body */
-.sidebar-dropdown-body{
-  overflow:hidden;max-height:0;transition:max-height .35s ease;
-}
+.sidebar-dropdown-body{overflow:hidden;max-height:0;transition:max-height .35s ease;}
 .sidebar-dropdown-body.open{max-height:600px;}
-
-/* Nav links */
-.sidebar-nav a{
-  display:flex;align-items:center;gap:12px;
-  color:#ccc;text-decoration:none;font-size:14px;font-weight:600;
-  padding:10px 20px;border-radius:0;transition:all .2s;
-}
+.sidebar-nav a{display:flex;align-items:center;gap:12px;color:#ccc;text-decoration:none;font-size:14px;font-weight:600;padding:10px 20px;transition:all .2s;}
 .sidebar-nav a:hover{background:rgba(255,255,255,.07);color:#fff;}
 .sidebar-nav a.active{background:rgba(229,9,20,.15);color:var(--red);}
 .sidebar-nav a .icon{font-size:14px;width:22px;text-align:center;color:inherit;}
-
-/* Film Semi section title (non-dropdown) */
-.sidebar-section-title{
-  font-size:10px;text-transform:uppercase;letter-spacing:1.5px;
-  color:#555;font-weight:700;padding:10px 20px 6px;
-}
-
-/* Genre pills */
+.sidebar-section-title{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#555;font-weight:700;padding:10px 20px 6px;}
 .sidebar-genre{display:flex;flex-wrap:wrap;gap:6px;padding:4px 20px 14px;}
-.sidebar-genre a{
-  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
-  color:#aaa;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;
-  text-decoration:none;transition:all .2s;
-}
+.sidebar-genre a{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#aaa;padding:5px 12px;border-radius:16px;font-size:12px;font-weight:600;text-decoration:none;transition:all .2s;}
 .sidebar-genre a:hover{background:var(--red);border-color:var(--red);color:#fff;}
 
 main{min-height:100vh;}
 
 /* ── HERO ── */
-.hero-slider{position:relative;height:85vh;min-height:480px;overflow:hidden;}
-.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;pointer-events:none;display:flex;align-items:flex-end;}
+.hero-slider{position:relative;height:90vh;min-height:500px;overflow:hidden;}
+.hero-slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;pointer-events:none;display:flex;align-items:flex-end;}
 .hero-slide.active{opacity:1;pointer-events:auto;}
-.hero-dots{position:absolute;bottom:18px;right:20px;display:flex;gap:6px;z-index:10;}
-.hero-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);border:none;cursor:pointer;padding:0;transition:background .3s,transform .3s;}
-.hero-dot.active{background:#fff;transform:scale(1.3);}
+.hero-dots{position:absolute;bottom:22px;left:4%;display:flex;gap:5px;z-index:10;}
+.hero-dot{width:12px;height:3px;border-radius:2px;background:rgba(255,255,255,.35);border:none;cursor:pointer;padding:0;transition:all .3s;}
+.hero-dot.active{background:#fff;width:24px;}
 .hero-dot:hover{background:rgba(255,255,255,.7);}
 .hero-bg{position:absolute;inset:0;background:#0d0d0d;}
-.hero-bg img{width:100%;height:100%;object-fit:cover;opacity:.45;object-position:center top;}
+.hero-bg img{width:100%;height:100%;object-fit:cover;object-position:center 20%;}
 .hero-grad{
   position:absolute;inset:0;
-  background:linear-gradient(90deg,rgba(20,20,20,.96) 0%,rgba(20,20,20,.55) 55%,transparent 100%),
-             linear-gradient(0deg,rgba(20,20,20,1) 0%,transparent 55%);
+  background:
+    linear-gradient(90deg,rgba(20,20,20,.92) 0%,rgba(20,20,20,.45) 50%,transparent 75%),
+    linear-gradient(0deg,rgba(20,20,20,1) 0%,rgba(20,20,20,.5) 25%,transparent 60%),
+    linear-gradient(180deg,rgba(20,20,20,.4) 0%,transparent 15%);
 }
-.hero-content{position:relative;z-index:2;padding:0 4% 72px;max-width:560px;}
-.hero-badge{
-  display:inline-flex;align-items:center;gap:6px;background:var(--red);color:#fff;
-  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
-  padding:4px 10px;border-radius:3px;margin-bottom:14px;
-}
-.hero-title{font-size:clamp(26px,4.5vw,52px);font-weight:900;line-height:1.05;letter-spacing:-.5px;margin-bottom:12px;text-shadow:0 2px 8px rgba(0,0,0,.5);}
-.hero-meta{display:flex;align-items:center;gap:12px;font-size:13px;margin-bottom:14px;flex-wrap:wrap;}
+.hero-content{position:relative;z-index:2;padding:0 4% 100px;max-width:600px;}
+.hero-n-badge{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#e5e5e5;margin-bottom:16px;}
+.hero-n-badge::before{content:'N';display:flex;align-items:center;justify-content:center;width:20px;height:26px;background:var(--red);font-size:16px;font-weight:900;font-style:italic;color:#fff;border-radius:2px;}
+.hero-title{font-size:clamp(30px,5vw,62px);font-weight:900;line-height:1;letter-spacing:-.5px;margin-bottom:16px;text-shadow:2px 2px 4px rgba(0,0,0,.45);}
+.hero-meta{display:flex;align-items:center;gap:14px;font-size:14px;margin-bottom:16px;flex-wrap:wrap;}
 .hero-rating{color:var(--gold);font-weight:700;}
-.hero-match{color:#46d369;font-weight:700;}
+.hero-match{color:#46d369;font-weight:700;font-size:15px;}
 .hero-dur,.hero-qual{color:var(--muted2);}
-.hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-play{
-  display:flex;align-items:center;gap:8px;background:#fff;color:#000;border:none;
-  font-size:15px;font-weight:700;font-family:var(--font);padding:10px 24px;border-radius:4px;
-  cursor:pointer;transition:background .15s;text-decoration:none;
-}
-.btn-play:hover{background:rgba(255,255,255,.8);}
-.btn-play svg{width:20px;height:20px;fill:#000;}
-.btn-info{
-  display:flex;align-items:center;gap:8px;background:rgba(109,109,110,.7);color:#fff;border:none;
-  font-size:15px;font-weight:600;font-family:var(--font);padding:10px 24px;border-radius:4px;
-  cursor:pointer;transition:background .15s;text-decoration:none;
-}
-.btn-info:hover{background:rgba(109,109,110,.5);}
-.btn-info svg{width:20px;height:20px;fill:#fff;}
+.hero-qual{border:1px solid rgba(255,255,255,.4);padding:1px 6px;border-radius:2px;font-size:12px;font-weight:700;}
+.hero-synopsis{font-size:15px;line-height:1.65;color:rgba(255,255,255,.85);margin-bottom:22px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
+.btn-play{display:flex;align-items:center;gap:8px;background:#fff;color:#000;border:none;font-size:16px;font-weight:700;font-family:var(--font);padding:12px 28px;border-radius:4px;cursor:pointer;transition:background .15s;text-decoration:none;}
+.btn-play:hover{background:rgba(255,255,255,.75);}
+.btn-play svg{width:22px;height:22px;fill:#000;}
+.btn-info{display:flex;align-items:center;gap:8px;background:rgba(109,109,110,.7);color:#fff;border:none;font-size:16px;font-weight:600;font-family:var(--font);padding:12px 28px;border-radius:4px;cursor:pointer;transition:background .15s;text-decoration:none;}
+.btn-info:hover{background:rgba(109,109,110,.4);}
+.btn-info svg{width:22px;height:22px;fill:#fff;}
+.hero-mute-btn{position:absolute;bottom:100px;right:4%;width:40px;height:40px;border-radius:50%;background:transparent;border:2px solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;font-size:16px;z-index:5;transition:border-color .2s;}
+.hero-mute-btn:hover{border-color:#fff;}
+.hero-age-badge{position:absolute;bottom:100px;right:calc(4% + 56px);background:rgba(0,0,0,.5);border-left:3px solid rgba(255,255,255,.5);padding:4px 12px;color:rgba(255,255,255,.7);font-size:13px;display:flex;align-items:center;z-index:5;font-weight:600;}
 
 /* ── ROWS ── */
-.rows-wrap{position:relative;z-index:5;margin-top:-48px;padding-bottom:40px;isolation:isolate;}
-.row{padding:0 4%;margin-bottom:28px;}
+.rows-wrap{position:relative;z-index:5;margin-top:-80px;padding-bottom:40px;isolation:isolate;}
+.row{padding:0 4%;margin-bottom:40px;}
 .row-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
-.row-title{font-size:18px;font-weight:700;color:#e5e5e5;}
-.see-all{color:var(--red);font-size:12px;font-weight:700;text-decoration:none;opacity:.8;transition:opacity .2s;}
-.see-all:hover{opacity:1;}
+.row-title{font-size:20px;font-weight:700;color:#e5e5e5;letter-spacing:-.3px;}
+.see-all{color:#54b3d6;font-size:13px;font-weight:600;text-decoration:none;opacity:0;transition:all .2s;display:flex;align-items:center;gap:4px;}
+.see-all .arrow{transition:transform .2s;}
+.row:hover .see-all{opacity:1;}
+.row:hover .see-all .arrow{transform:translateX(4px);}
 
 /* SLIDER */
 .slider-wrap{position:relative;}
-.slider{display:flex;gap:6px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:8px 0 12px;}
+.slider{display:flex;gap:4px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;padding:8px 0 16px;}
 .slider::-webkit-scrollbar{display:none;}
-.slider-btn{
-  position:absolute;top:50%;transform:translateY(-50%);
-  width:36px;height:70%;max-height:140px;
-  background:rgba(0,0,0,.75);border:none;color:#fff;cursor:pointer;z-index:10;
-  display:flex;align-items:center;justify-content:center;border-radius:4px;
-  opacity:0;transition:opacity .2s;
-}
+.slider-btn{position:absolute;top:0;bottom:16px;width:4%;background:rgba(20,20,20,.6);border:none;color:#fff;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;}
 .slider-wrap:hover .slider-btn{opacity:1;}
-.slider-btn.prev{left:-10px;}
-.slider-btn.next{right:-10px;}
-.slider-btn svg{width:22px;height:22px;fill:#fff;}
+.slider-btn.prev{left:0;border-radius:4px 0 0 4px;}
+.slider-btn.next{right:0;border-radius:0 4px 4px 0;}
+.slider-btn svg{width:28px;height:28px;fill:#fff;}
 
 /* ── CARD ── */
-.ncard{
-  flex-shrink:0;width:170px;border-radius:4px;overflow:visible;position:relative;
-  cursor:pointer;transition:transform .3s ease;text-decoration:none;color:inherit;
-}
-.ncard:hover{transform:scale(1.1);z-index:10;}
+.ncard{flex-shrink:0;width:var(--card-w);border-radius:4px;overflow:visible;position:relative;cursor:pointer;text-decoration:none;color:inherit;}
 .ncard-poster-wrap{position:relative;border-radius:4px;overflow:hidden;}
-.ncard-img{width:100%;height:255px;object-fit:cover;background:#1a1a1a;display:block;}
-.ncard-overlay{
-  position:absolute;top:0;left:0;right:0;bottom:0;
-  background:linear-gradient(0deg,rgba(0,0,0,.92) 0%,rgba(0,0,0,.1) 60%,transparent 100%);
-  opacity:1;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;border-radius:4px;
+.ncard-img{width:100%;height:260px;object-fit:cover;background:#1a1a1a;display:block;transition:border-radius .2s;}
+.ncard-badge{position:absolute;top:7px;left:7px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:.5px;}
+.ncard-star{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.75);color:var(--gold);font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;}
+
+/* Netflix-style hover popup */
+.ncard-popup{
+  position:absolute;top:-4px;left:50%;
+  transform:translateX(-50%) scale(0.92);
+  width:calc(var(--card-w) * 1.45);min-width:250px;
+  background:#181818;border-radius:8px;
+  box-shadow:0 6px 40px rgba(0,0,0,.85);
+  opacity:0;pointer-events:none;
+  transition:opacity .2s ease,transform .2s ease;
+  z-index:50;overflow:hidden;
+  transition-delay:0.3s;
 }
-.ncard:hover .ncard-overlay{opacity:1;}
+.ncard:hover .ncard-popup{
+  opacity:1;pointer-events:all;
+  transform:translateX(-50%) scale(1);
+}
+.ncard:hover .ncard-img{border-radius:6px 6px 0 0;}
+.ncard-popup-img{width:100%;height:150px;object-fit:cover;display:block;}
+.ncard-popup-body{padding:12px 14px 14px;}
+.ncard-popup-btns{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.ncard-popup-play{width:36px;height:36px;background:#fff;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.ncard-popup-play svg{width:16px;height:16px;fill:#000;margin-left:2px;}
+.ncard-popup-play:hover{background:rgba(255,255,255,.8);}
+.ncard-popup-icon{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.5);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;transition:border-color .15s;flex-shrink:0;}
+.ncard-popup-icon:hover{border-color:#fff;}
+.ncard-popup-chevron{margin-left:auto;}
+.ncard-popup-match{color:#46d369;font-weight:700;font-size:13px;margin-bottom:5px;}
+.ncard-popup-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+.ncard-popup-hd{border:1px solid rgba(255,255,255,.45);color:#ddd;font-size:10px;font-weight:700;padding:1px 4px;border-radius:2px;}
+.ncard-popup-dur{color:var(--muted2);font-size:12px;}
+.ncard-popup-genres{color:var(--muted2);font-size:11px;}
+.ncard-popup-genres span::after{content:'•';margin:0 4px;color:#444;}
+.ncard-popup-genres span:last-child::after{content:'';}
+
+/* Simple overlay mobile */
+.ncard-overlay{position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.85) 0%,rgba(0,0,0,.05) 60%,transparent 100%);opacity:0;transition:opacity .25s;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;border-radius:4px;}
 .ncard-foot{padding:5px 2px 2px;display:none;}
 .ncard-foot-title{font-size:11px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ncard-foot-match{color:#46d369;font-weight:700;font-size:10px;margin-bottom:2px;}
 .ncard-foot-meta{color:#aaa;font-size:9px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .ncard-foot-hd{border:1px solid #777;color:#aaa;font-size:8px;font-weight:700;padding:1px 3px;border-radius:2px;}
-.ncard-actions{display:flex;gap:6px;margin-bottom:8px;}
-.ncard-play{
-  width:32px;height:32px;background:#fff;border-radius:50%;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:background .15s;
-}
-.ncard-play svg{width:14px;height:14px;fill:#000;margin-left:2px;}
-.ncard-play:hover{background:rgba(255,255,255,.8);}
-.ncard-info{font-size:11px;}
-.ncard-title-h{font-weight:700;font-size:12px;margin-bottom:3px;line-height:1.3;}
-.ncard-match{color:#46d369;font-weight:700;font-size:11px;margin-bottom:2px;}
-.ncard-meta-h{color:var(--muted2);font-size:10px;display:flex;gap:6px;flex-wrap:wrap;}
-.ncard-qlabel{border:1px solid #777;color:var(--muted2);font-size:9px;font-weight:700;padding:1px 4px;border-radius:2px;}
-.ncard-badge{position:absolute;top:7px;left:7px;background:var(--red);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:2px;letter-spacing:.5px;}
-.ncard-star{position:absolute;top:7px;right:7px;background:rgba(0,0,0,.75);color:var(--gold);font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;}
+/* hide popup-driven overlay on desktop */
+@media(min-width:769px){.ncard:hover .ncard-overlay{opacity:0;}}
 
 /* TOP 10 */
-.top10-card{flex-shrink:0;width:240px;display:flex;align-items:center;cursor:pointer;text-decoration:none;color:inherit;}
-.top10-num{font-size:110px;font-weight:900;color:var(--bg);-webkit-text-stroke:3px #333;line-height:1;width:80px;flex-shrink:0;margin-right:-18px;z-index:0;}
-.top10-img{width:170px;height:255px;object-fit:cover;border-radius:4px;z-index:1;flex-shrink:0;transition:transform .3s;}
-.top10-card:hover .top10-img{transform:scale(1.06);}
+.top10-card{flex-shrink:0;width:260px;display:flex;align-items:center;cursor:pointer;text-decoration:none;color:inherit;position:relative;}
+.top10-num{font-size:130px;font-weight:900;color:var(--bg);-webkit-text-stroke:4px #444;line-height:1;width:88px;flex-shrink:0;margin-right:-28px;z-index:0;font-style:italic;}
+.top10-img{width:180px;height:260px;object-fit:cover;border-radius:6px;z-index:1;flex-shrink:0;transition:transform .3s;}
+.top10-card:hover .top10-img{transform:scale(1.05);}
 
 /* ── GENRE PILLS ── */
 .genre-bar{display:flex;gap:8px;overflow-x:auto;padding:16px 4%;scrollbar-width:none;}
 .genre-bar::-webkit-scrollbar{display:none;}
-.genre-pill{
-  flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  color:#bbb;padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;
-  text-decoration:none;transition:all .2s;white-space:nowrap;
-}
+.genre-pill{flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#bbb;padding:7px 18px;border-radius:20px;font-size:12px;font-weight:600;text-decoration:none;transition:all .2s;white-space:nowrap;}
 .genre-pill:hover{background:var(--red);border-color:var(--red);color:#fff;}
 
 /* ── WATCH PAGE ── */
-.watch-page{padding-top:64px;}
+.watch-page{padding-top:68px;}
 .watch-player-wrap{background:#000;}
 .watch-player-inner{width:100%;}
 .player-frame{position:relative;width:100%;padding-top:56.25%;background:#000;min-height:200px;}
 .player-frame iframe,.player-frame>div:last-child{position:absolute;inset:0;width:100%;height:100%;border:none;}
-.player-placeholder{
-  position:absolute;inset:0;background:linear-gradient(135deg,#0a0a0a,#1a0000);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;
-}
+.player-placeholder{position:absolute;inset:0;background:linear-gradient(135deg,#0a0a0a,#1a0000);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;}
 .player-placeholder:hover .big-play{transform:scale(1.08);}
-.big-play{
-  width:76px;height:76px;background:rgba(255,255,255,.9);border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform .2s;box-shadow:0 0 40px rgba(255,255,255,.15);
-}
+.big-play{width:76px;height:76px;background:rgba(255,255,255,.9);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s;box-shadow:0 0 40px rgba(255,255,255,.15);}
 .big-play svg{width:30px;height:30px;fill:#000;margin-left:5px;}
 .placeholder-label{color:rgba(255,255,255,.5);font-size:13px;font-weight:500;}
-.player-controls{
-  background:var(--bg);padding:14px 4%;
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  border-bottom:1px solid #222;
-}
+.player-controls{background:var(--bg);padding:14px 4%;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #222;}
 .server-label{font-size:11px;color:#666;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-right:4px;}
-.server-tab{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  color:#ccc;padding:7px 18px;border-radius:3px;cursor:pointer;
-  font-size:13px;font-weight:600;font-family:var(--font);transition:all .2s;
-}
+.server-tab{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ccc;padding:7px 18px;border-radius:3px;cursor:pointer;font-size:13px;font-weight:600;font-family:var(--font);transition:all .2s;}
 .server-tab:hover{background:rgba(255,255,255,.15);color:#fff;}
 .server-tab.active{background:var(--red);border-color:var(--red);color:#fff;}
 .watch-body{max-width:1100px;margin:0 auto;padding:24px 4%;}
@@ -288,54 +244,64 @@ main{min-height:100vh;}
 .meta-rows{display:flex;flex-direction:column;gap:6px;margin-bottom:18px;}
 .meta-row{font-size:13px;color:var(--muted2);}
 .meta-row strong{color:#fff;margin-right:6px;}
-.watch-cta{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:0;}
+.watch-cta{display:flex;gap:10px;flex-wrap:wrap;}
 .eps-section{margin-bottom:24px;}
 .eps-title{font-size:18px;font-weight:700;margin-bottom:10px;color:#e5e5e5;}
 .eps-grid{display:flex;gap:8px;flex-wrap:wrap;}
-.eps-btn{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  color:#ccc;padding:8px 16px;border-radius:3px;text-decoration:none;
-  font-size:13px;font-weight:600;transition:all .2s;
-}
+.eps-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ccc;padding:8px 16px;border-radius:3px;text-decoration:none;font-size:13px;font-weight:600;transition:all .2s;}
 .eps-btn:hover{background:var(--red);border-color:var(--red);color:#fff;}
 
 /* LIST / SEARCH */
 .list-wrap{padding:84px 4% 40px;}
-.list-heading{font-size:26px;font-weight:900;margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-.list-heading::before{content:'';width:4px;height:26px;background:var(--red);border-radius:2px;flex-shrink:0;}
-.grid-movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:8px;}
+.list-heading{font-size:28px;font-weight:900;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.list-heading::before{content:'';width:4px;height:28px;background:var(--red);border-radius:2px;flex-shrink:0;}
+.grid-movies{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;}
 .grid-movies .ncard{width:100%;}
-.grid-movies .ncard-img{height:232px;}
-.grid-movies .ncard-poster-wrap .ncard-img{height:232px;}
+.grid-movies .ncard-img{height:240px;}
 .pagination{display:flex;justify-content:center;gap:8px;margin-top:32px;flex-wrap:wrap;}
-.pag-btn{
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-  color:#ccc;padding:10px 22px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;
-}
+.pag-btn{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#ccc;padding:10px 22px;border-radius:4px;text-decoration:none;font-size:14px;font-weight:600;transition:all .2s;}
 .pag-btn:hover,.pag-btn.cur{background:var(--red);border-color:var(--red);color:#fff;}
 
 /* MISC */
 .loading-screen{display:flex;align-items:center;justify-content:center;min-height:280px;gap:12px;color:#666;}
 .spin{width:22px;height:22px;border:2px solid #333;border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;}
-footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
-.footer-links{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;}
-.footer-links a{color:#555;text-decoration:none;transition:color .15s;}
-.footer-links a:hover{color:#ccc;}
+
+/* ── FOOTER NETFLIX-STYLE ── */
+footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
+.footer-logo{font-size:22px;font-weight:900;color:var(--red);font-style:italic;margin-bottom:20px;display:inline-block;text-decoration:none;}
+.footer-social{display:flex;gap:18px;margin-bottom:28px;}
+.footer-social a{color:#737373;font-size:22px;text-decoration:none;transition:color .2s;}
+.footer-social a:hover{color:#e5e5e5;}
+.footer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.footer-col-title{font-size:13px;color:#737373;margin-bottom:12px;font-weight:400;}
+.footer-col a{display:block;color:#737373;text-decoration:none;font-size:12px;margin-bottom:10px;transition:color .2s;line-height:1.4;}
+.footer-col a:hover{color:#e5e5e5;text-decoration:underline;}
+.footer-lang{display:inline-flex;align-items:center;gap:8px;border:1px solid #555;color:#737373;padding:7px 14px;border-radius:3px;font-size:13px;cursor:pointer;background:transparent;font-family:var(--font);transition:border-color .2s;margin-bottom:18px;}
+.footer-lang:hover{border-color:#ccc;}
+.footer-copy{font-size:11px;color:#555;line-height:1.6;}
+
 @keyframes spin{to{transform:rotate(360deg);}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .fade-in{animation:fadeUp .35s ease forwards;}
 
-@media(max-width:768px){
-  .nav-links{display:none;}
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .nav-links,.nav-dropdown,.nav-search,.nav-bell,.nav-avatar{display:none;}
+  .hamburger{display:flex;}
   .navbar{padding:0 16px;}
-  .hero-content{padding:0 16px 56px;max-width:100%;}
+}
+@media(max-width:768px){
+  .hero-content{padding:0 16px 80px;max-width:100%;}
+  .hero-title{font-size:clamp(24px,8vw,40px);}
+  .hero-synopsis{display:none;}
+  .hero-mute-btn,.hero-age-badge{display:none;}
   .row{padding:0 16px;}
   .genre-bar{padding:12px 16px;}
-  .ncard{width:130px;}
+  :root{--card-w:130px;}
   .ncard-img{height:195px;}
+  .ncard-popup{display:none;}
   .ncard-foot{display:block;}
-  .ncard-info{display:none;}
-  .ncard-actions{display:none;}
+  .ncard-overlay{opacity:1;}
   .top10-card{width:200px;}
   .top10-img{width:140px;height:210px;}
   .top10-num{font-size:90px;width:70px;}
@@ -343,6 +309,8 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
   .list-wrap{padding:80px 16px 32px;}
   .grid-movies{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));}
   .watch-body{padding:20px 16px;}
+  .footer-grid{grid-template-columns:repeat(2,1fr);}
+  .rows-wrap{margin-top:-40px;}
 }
 </style>
 {% block extra_css %}{% endblock %}
@@ -351,50 +319,95 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
-  <a href="/" class="nav-logo">Cinevu</a>
-  <div class="nav-links">
-    <a href="/" class="{% if active=='home' %}active{% endif %}">Beranda</a>
-    <a href="/series" class="{% if active=='series' %}active{% endif %}">Series</a>
-    <a href="/anime" class="{% if active=='anime' %}active{% endif %}">Anime</a>
-    <a href="/semi" class="{% if active=='semi' %}active{% endif %}">Semi</a>
-    <a href="/genre/action">Action</a>
-    <a href="/genre/horror">Horror</a>
-    <a href="/country/korea">Korea</a>
-    <a href="/pasang-iklan" style="color:var(--red);font-weight:700;">Pasang Iklan</a>
+  <div class="nav-left">
+    <a href="/" class="nav-logo">CINEVU</a>
+    <div class="nav-links">
+      <a href="/" class="{% if active=='home' %}active{% endif %}">Beranda</a>
+      <a href="/series" class="{% if active=='series' %}active{% endif %}">Series</a>
+      <a href="/anime" class="{% if active=='anime' %}active{% endif %}">Anime</a>
+      <a href="/semi" class="{% if active=='semi' %}active{% endif %}">Semi</a>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-label">Genre <i class="fa-solid fa-chevron-down chev"></i></div>
+        <div class="nav-dropdown-menu">
+          <a href="/genre/action">⚡ Action</a>
+          <a href="/genre/horror">💀 Horror</a>
+          <a href="/genre/drama">🎭 Drama</a>
+          <a href="/genre/comedy">😂 Comedy</a>
+          <a href="/genre/thriller">🔪 Thriller</a>
+          <a href="/genre/science-fiction">🚀 Sci-Fi</a>
+          <a href="/genre/romance">💕 Romance</a>
+          <a href="/genre/fantasy">🧙 Fantasy</a>
+          <a href="/genre/crime">🕵️ Crime</a>
+        </div>
+      </div>
+      <div class="nav-dropdown">
+        <div class="nav-dropdown-label">Negara <i class="fa-solid fa-chevron-down chev"></i></div>
+        <div class="nav-dropdown-menu">
+          <a href="/country/korea">🇰🇷 Korea</a>
+          <a href="/country/indonesia">🇮🇩 Indonesia</a>
+          <a href="/country/japan">🇯🇵 Jepang</a>
+          <a href="/country/usa">🇺🇸 USA</a>
+          <a href="/country/china">🇨🇳 China</a>
+          <a href="/country/thailand">🇹🇭 Thailand</a>
+          <a href="/country/india">🇮🇳 India</a>
+        </div>
+      </div>
+    </div>
   </div>
+
   <div class="nav-right">
+    <div class="nav-search" id="navSearch">
+      <div class="nav-search-expand" id="searchExpand">
+        <form action="/search" method="get" style="display:flex;width:100%;align-items:center;">
+          <svg style="width:16px;height:16px;fill:#fff;margin-left:10px;flex-shrink:0;" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input id="searchInput" name="q" placeholder="Judul, genre, orang..." value="{{ request.args.get('q','') }}" autocomplete="off">
+        </form>
+      </div>
+      <button class="nav-search-btn" id="searchBtn" aria-label="Cari">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      </button>
+    </div>
+    <button class="nav-bell" aria-label="Notifikasi">
+      <i class="fa-regular fa-bell"></i>
+      <span class="nav-bell-dot"></span>
+    </button>
+    <div class="nav-avatar">
+      C
+      <div class="nav-avatar-menu">
+        <div class="nav-avatar-item"><i class="fa-solid fa-circle-user" style="width:16px;"></i> Profil Saya</div>
+        <div class="nav-avatar-item"><i class="fa-regular fa-bookmark" style="width:16px;"></i> Daftar Tonton</div>
+        <div class="nav-avatar-item" style="color:var(--red);"><i class="fa-solid fa-rectangle-ad" style="width:16px;"></i><a href="/pasang-iklan" style="color:inherit;text-decoration:none;">Pasang Iklan</a></div>
+        <div class="nav-avatar-divider"></div>
+        <div class="nav-avatar-item nav-avatar-center">Keluar dari Cinevu</div>
+      </div>
+    </div>
     <button class="hamburger" id="menuBtn" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- SIDEBAR -->
+<!-- SIDEBAR (mobile) -->
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-head">
-    <span class="sidebar-logo">Cinevu</span>
+    <span class="sidebar-logo">CINEVU</span>
     <button class="sidebar-close" onclick="closeSidebar()">✕</button>
   </div>
-
-  <!-- Search -->
   <div class="sidebar-search">
     <form action="/search" method="get">
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
       <input name="q" placeholder="Cari judul, genre..." value="{{ request.args.get('q','') }}" autocomplete="off">
     </form>
   </div>
-
-  <!-- Navigasi (dropdown) -->
   <div class="sidebar-section">
-    <button class="sidebar-dropdown-btn open" onclick="toggleDropdown(this)" aria-expanded="true">
-      <span>Navigasi</span>
-      <i class="fa-solid fa-chevron-down chevron"></i>
+    <button class="sidebar-dropdown-btn open" onclick="toggleDropdown(this)">
+      <span>Navigasi</span><i class="fa-solid fa-chevron-down chevron"></i>
     </button>
     <div class="sidebar-dropdown-body open">
       <div class="sidebar-nav">
         <a href="/" class="{% if active=='home' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-house"></i></span> Beranda</a>
-        <a href="/series" class="{% if active=='series' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-tv"></i></span> Series &amp; TV</a>
+        <a href="/series" class="{% if active=='series' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-tv"></i></span> Series & TV</a>
         <a href="/anime" class="{% if active=='anime' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-star-and-crescent"></i></span> Anime</a>
         <a href="/genre/trending"><span class="icon"><i class="fa-solid fa-fire"></i></span> Trending</a>
         <a href="/year/2025"><span class="icon"><i class="fa-solid fa-calendar-days"></i></span> Terbaru 2025</a>
@@ -402,62 +415,39 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
       </div>
     </div>
   </div>
-
-  <!-- Genre (dropdown) -->
   <div class="sidebar-section">
-    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)" aria-expanded="false">
-      <span>Genre</span>
-      <i class="fa-solid fa-chevron-down chevron"></i>
+    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)">
+      <span>Genre</span><i class="fa-solid fa-chevron-down chevron"></i>
     </button>
     <div class="sidebar-dropdown-body">
       <div class="sidebar-genre">
-        <a href="/genre/action"><i class="fa-solid fa-explosion"></i> Action</a>
-        <a href="/genre/horror"><i class="fa-solid fa-skull"></i> Horror</a>
-        <a href="/genre/drama"><i class="fa-solid fa-masks-theater"></i> Drama</a>
-        <a href="/genre/comedy"><i class="fa-solid fa-face-laugh"></i> Comedy</a>
-        <a href="/genre/thriller"><i class="fa-solid fa-eye"></i> Thriller</a>
-        <a href="/genre/romance"><i class="fa-solid fa-heart"></i> Romance</a>
-        <a href="/genre/science-fiction"><i class="fa-solid fa-rocket"></i> Sci-Fi</a>
-        <a href="/genre/fantasy"><i class="fa-solid fa-wand-magic-sparkles"></i> Fantasy</a>
-        <a href="/genre/crime"><i class="fa-solid fa-handcuffs"></i> Crime</a>
-        <a href="/genre/animation"><i class="fa-solid fa-film"></i> Animation</a>
-        <a href="/genre/family"><i class="fa-solid fa-people-roof"></i> Family</a>
-        <a href="/genre/mystery"><i class="fa-solid fa-magnifying-glass"></i> Mystery</a>
+        <a href="/genre/action">⚡ Action</a><a href="/genre/horror">💀 Horror</a>
+        <a href="/genre/drama">🎭 Drama</a><a href="/genre/comedy">😂 Comedy</a>
+        <a href="/genre/thriller">🔪 Thriller</a><a href="/genre/romance">💕 Romance</a>
+        <a href="/genre/science-fiction">🚀 Sci-Fi</a><a href="/genre/fantasy">🧙 Fantasy</a>
+        <a href="/genre/crime">🕵️ Crime</a><a href="/genre/animation">🎬 Animation</a>
       </div>
     </div>
   </div>
-
-  <!-- Negara (dropdown) -->
   <div class="sidebar-section">
-    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)" aria-expanded="false">
-      <span>Negara</span>
-      <i class="fa-solid fa-chevron-down chevron"></i>
+    <button class="sidebar-dropdown-btn" onclick="toggleDropdown(this)">
+      <span>Negara</span><i class="fa-solid fa-chevron-down chevron"></i>
     </button>
     <div class="sidebar-dropdown-body">
       <div class="sidebar-genre">
-        <a href="/country/korea">🇰🇷 Korea</a>
-        <a href="/country/indonesia">🇮🇩 Indonesia</a>
-        <a href="/country/japan">🇯🇵 Jepang</a>
-        <a href="/country/usa">🇺🇸 USA</a>
-        <a href="/country/china">🇨🇳 China</a>
-        <a href="/country/thailand">🇹🇭 Thailand</a>
-        <a href="/country/philippines">🇵🇭 Filipina</a>
+        <a href="/country/korea">🇰🇷 Korea</a><a href="/country/indonesia">🇮🇩 Indonesia</a>
+        <a href="/country/japan">🇯🇵 Jepang</a><a href="/country/usa">🇺🇸 USA</a>
+        <a href="/country/china">🇨🇳 China</a><a href="/country/thailand">🇹🇭 Thailand</a>
         <a href="/country/india">🇮🇳 India</a>
       </div>
     </div>
   </div>
-
-  <!-- Pasang Iklan -->
   <div class="sidebar-section">
     <div class="sidebar-nav">
-      <a href="/pasang-iklan" style="color:#e50914;font-weight:700;">
-        <span class="icon"><i class="fa-solid fa-rectangle-ad"></i></span> Pasang Iklan
-      </a>
+      <a href="/pasang-iklan" style="color:#e50914;font-weight:700;"><span class="icon"><i class="fa-solid fa-rectangle-ad"></i></span> Pasang Iklan</a>
     </div>
   </div>
-  <div style="height:32px;"></div>
-
-  <!-- Film Semi (NON dropdown) -->
+  <div style="height:24px;"></div>
   <div class="sidebar-section">
     <div class="sidebar-section-title">Film Semi</div>
     <div class="sidebar-nav">
@@ -467,88 +457,142 @@ footer{padding:32px 4%;border-top:1px solid #1e1e1e;color:#555;font-size:12px;}
       <a href="/semi/indonesia"><span class="icon"><i class="fa-solid fa-flag"></i></span> Semi Indonesia</a>
       <a href="/semi/filipina"><span class="icon"><i class="fa-solid fa-star"></i></span> Semi Filipina</a>
       <a href="/semi/vivamax"><span class="icon"><i class="fa-solid fa-play-circle"></i></span> Vivamax</a>
-      <a href="/semi/kelas-bintang"><span class="icon"><i class="fa-solid fa-crown"></i></span> Kelas Bintang</a>
     </div>
   </div>
-
 </div>
 
 <main>{% block content %}{% endblock %}</main>
 
-<!-- SLOT IKLAN: footer_banner -->
 {% if iklan is defined and iklan.get('footer_banner') %}
 <div class="ad-slot ad-footer-banner">
 {% for ad in iklan['footer_banner'] %}
-  {% if ad.tipe == 'gambar' %}
-    <a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" alt="{{ ad.nama }}" style="max-width:100%;display:block;margin:0 auto;"></a>
-  {% elif ad.tipe in ('html','script') %}
-    {{ ad.konten | safe }}
-  {% endif %}
+  {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" alt="{{ ad.nama }}" style="max-width:100%;display:block;margin:0 auto;"></a>
+  {% elif ad.tipe in ('html','script') %}{{ ad.konten | safe }}{% endif %}
 {% endfor %}
 </div>
 {% endif %}
 
+<!-- FOOTER -->
 <footer>
-  <div class="footer-links">
-    <a href="/genre/action">Action</a><a href="/genre/drama">Drama</a>
-    <a href="/genre/horror">Horror</a><a href="/anime">Anime</a>
-    <a href="/series">Series</a><a href="/semi">Semi</a>
-    <a href="/country/korea">Korea</a><a href="/country/indonesia">Indonesia</a>
-    <a href="/year/2025">2025</a><a href="/year/2024">2024</a>
-    <a href="/pasang-iklan" style="color:var(--red);">Pasang Iklan</a>
+  <a href="/" class="footer-logo">CINEVU</a>
+  <div class="footer-social">
+    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+    <a href="#" aria-label="X / Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+    <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+    <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
   </div>
-  <p>© 2025 Cinevu — Streaming film online gratis</p>
+  <div class="footer-grid">
+    <div class="footer-col">
+      <p class="footer-col-title">Kategori</p>
+      <a href="/genre/action">Action</a>
+      <a href="/genre/drama">Drama</a>
+      <a href="/genre/horror">Horror</a>
+      <a href="/genre/comedy">Comedy</a>
+      <a href="/genre/thriller">Thriller</a>
+      <a href="/genre/romance">Romance</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Jelajahi</p>
+      <a href="/anime">Anime</a>
+      <a href="/series">Series & TV</a>
+      <a href="/semi">Film Semi</a>
+      <a href="/country/korea">Korea</a>
+      <a href="/country/indonesia">Indonesia</a>
+      <a href="/year/2025">Terbaru 2025</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Informasi</p>
+      <a href="/pasang-iklan">Pasang Iklan</a>
+      <a href="#">Tentang Kami</a>
+      <a href="#">Hubungi Kami</a>
+      <a href="#">Kebijakan Privasi</a>
+      <a href="#">Syarat Penggunaan</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Bantuan</p>
+      <a href="#">FAQ</a>
+      <a href="#">Cara Menonton</a>
+      <a href="#">Laporkan Masalah</a>
+      <a href="#">Request Film</a>
+      <a href="#">Kode Promo</a>
+    </div>
+  </div>
+  <button class="footer-lang">
+    <i class="fa-solid fa-globe" style="font-size:14px;"></i>
+    Bahasa Indonesia
+    <i class="fa-solid fa-chevron-down" style="font-size:10px;margin-left:6px;"></i>
+  </button>
+  <p class="footer-copy">© 2025 Cinevu. Streaming film & series online gratis. Semua konten untuk tujuan hiburan.</p>
 </footer>
 
-<!-- SLOT IKLAN: popup -->
 {% if iklan is defined and iklan.get('popup') %}
 {% for ad in iklan['popup'] %}
 <div id="popup-ad-{{ loop.index }}" style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;">
   <div style="position:relative;max-width:520px;width:100%;">
     <button onclick="this.parentElement.parentElement.remove()" style="position:absolute;top:-12px;right:-12px;background:#e50914;color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;z-index:1;">✕</button>
-    {% if ad.tipe == 'gambar' %}
-      <a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="width:100%;border-radius:8px;display:block;"></a>
-    {% else %}
-      {{ ad.konten | safe }}
-    {% endif %}
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="width:100%;border-radius:8px;display:block;"></a>
+    {% else %}{{ ad.konten | safe }}{% endif %}
   </div>
 </div>
 {% endfor %}
 {% endif %}
 
 <script>
-// Navbar scroll
-const nav=document.getElementById('navbar');
-window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>60));
+// Navbar: gradient transparent → solid on scroll
+const nav = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
 
 // Sidebar
-const sidebar=document.getElementById('sidebar');
-const overlay=document.getElementById('sidebarOverlay');
-document.getElementById('menuBtn').addEventListener('click',()=>{
-  const isOpen=sidebar.classList.contains('open');
-  if(isOpen){closeSidebar();}
-  else{sidebar.classList.add('open');overlay.classList.add('open');document.body.style.overflow='hidden';}
-});
-function closeSidebar(){
-  sidebar.classList.remove('open');overlay.classList.remove('open');
-  document.body.style.overflow='';
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const menuBtn = document.getElementById('menuBtn');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => {
+    const open = sidebar.classList.contains('open');
+    if (open) closeSidebar();
+    else { sidebar.classList.add('open'); overlay.classList.add('open'); document.body.style.overflow = 'hidden'; }
+  });
+}
+function closeSidebar() {
+  sidebar.classList.remove('open'); overlay.classList.remove('open'); document.body.style.overflow = '';
+}
+function toggleDropdown(btn) {
+  const body = btn.nextElementSibling;
+  const isOpen = btn.classList.contains('open');
+  btn.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
 }
 
-function toggleDropdown(btn){
-  const body=btn.nextElementSibling;
-  const isOpen=btn.classList.contains('open');
-  btn.classList.toggle('open',!isOpen);
-  body.classList.toggle('open',!isOpen);
-  btn.setAttribute('aria-expanded',String(!isOpen));
+// Navbar search
+const searchBtn = document.getElementById('searchBtn');
+const searchExpand = document.getElementById('searchExpand');
+const searchInput = document.getElementById('searchInput');
+if (searchBtn) {
+  searchBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    if (searchExpand.classList.contains('open')) {
+      if (searchInput.value.trim()) searchInput.closest('form').submit();
+      else searchExpand.classList.remove('open');
+    } else {
+      searchExpand.classList.add('open');
+      searchInput.focus();
+    }
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#navSearch')) searchExpand.classList.remove('open');
+  });
 }
 
 // Sliders
-document.querySelectorAll('.slider-wrap').forEach(wrap=>{
-  const slider=wrap.querySelector('.slider');
-  const prev=wrap.querySelector('.slider-btn.prev');
-  const next=wrap.querySelector('.slider-btn.next');
-  if(prev)prev.addEventListener('click',()=>slider.scrollBy({left:-580,behavior:'smooth'}));
-  if(next)next.addEventListener('click',()=>slider.scrollBy({left:580,behavior:'smooth'}));
+document.querySelectorAll('.slider-wrap').forEach(wrap => {
+  const slider = wrap.querySelector('.slider');
+  const prev = wrap.querySelector('.slider-btn.prev');
+  const next = wrap.querySelector('.slider-btn.next');
+  if (prev) prev.addEventListener('click', () => slider.scrollBy({ left: -Math.floor(slider.offsetWidth * 0.85), behavior: 'smooth' }));
+  if (next) next.addEventListener('click', () => slider.scrollBy({ left: Math.floor(slider.offsetWidth * 0.85), behavior: 'smooth' }));
 });
 </script>
 {% block extra_js %}{% endblock %}
