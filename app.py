@@ -285,14 +285,16 @@ def semi():
     soup = get_soup(url)
     movies = parse_cards(soup) if soup else []
     return render_template("list.html", movies=movies, page=int(page), title="Film Semi",
-                           next_page=get_next_page(soup), active="semi", iklan=get_all_iklan_posisi())
+                           next_page=get_next_page(soup) if soup else None,
+                           active="semi", iklan=get_all_iklan_posisi())
 
-# Semi sub-kategori
 SEMI_MAP = {
-    "indonesia": ("film-semi/country/indonesia", "Semi Indonesia"),
-    "jepang":    ("film-semi/country/japan",      "Semi Jepang"),
-    "korea":     ("film-semi/country/korea",       "Semi Korea"),
-    "vivamax":   ("vivamax",                       "Vivamax"),
+    "indonesia":    ("film-semi/semi-indonesia",   "Semi Indonesia"),
+    "jepang":       ("film-semi/semi-jepang",       "Semi Jepang"),
+    "korea":        ("film-semi/semi-korea",         "Semi Korea"),
+    "filipina":     ("film-semi/semi-filipina",      "Semi Filipina"),
+    "vivamax":      ("vivamax",                      "Vivamax Sub Indo"),
+    "kelas-bintang":("kelas-bintang",                "Kelas Bintang"),
 }
 
 @app.route("/semi/<sub>")
@@ -306,7 +308,8 @@ def semi_sub(sub):
     soup = get_soup(url)
     movies = parse_cards(soup) if soup else []
     return render_template("list.html", movies=movies, page=int(page), title=title,
-                           next_page=get_next_page(soup), active="semi", iklan=get_all_iklan_posisi())
+                           next_page=get_next_page(soup) if soup else None,
+                           active="semi", iklan=get_all_iklan_posisi())
 
 @app.route("/genre/<slug>")
 def genre(slug):
