@@ -201,6 +201,22 @@ def parse_detail(url):
             m = parse_cards(BeautifulSoup(str(art), "html.parser"))
             related.extend(m)
     data["related"] = related[:8]
+
+    # Download links
+    downloads = []
+    dl_wrap = soup.find("div", class_="gmr-download-wrap")
+    if dl_wrap:
+        for a in dl_wrap.find_all("a", href=True):
+            href = a.get("href", "")
+            title = a.get("title", "") or txt(a)
+            # Filter hanya link download valid (bukan anchor #)
+            if href and not href.startswith("#"):
+                downloads.append({
+                    "url":   href,
+                    "label": title or f"Download {len(downloads)+1}",
+                })
+    data["downloads"] = downloads
+
     return data
 
 def get_players(post_id):
@@ -570,6 +586,25 @@ def admin_iklan_delete():
 def api_iklan(posisi):
     rows = get_iklan_by_posisi(posisi)
     return jsonify({"iklan": rows})
+
+# ── Download links ──
+@app.route("/api/download")
+def download():
+    url = request.args.get("url", "")
+    if not url:
+        return error("Parameter url diperlukan")
+    soup = get_soup(url)
+    if not soup:
+        return error("Gagal fetch", 500)
+    downloads = []
+    dl_wrap = soup.find("div", class_="gmr-download-wrap")
+    if dl_wrap:
+        for a in dl_wrap.find_all("a", href=True):
+            href = a.get("href", "")
+            title = a.get("title", "")
+            if href and not href.startswith("#"):
+                downloads.append({"url": href, "label": title or f"Download {len(downloads)+1}"})
+    return jsonify({"success": True, "downloads": downloads, "total": len(downloads)})
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
