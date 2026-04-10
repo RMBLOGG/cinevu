@@ -79,6 +79,11 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
               Tonton
             </button>
+            <button id="wl-watch-btn" class="btn-trailer"
+              data-wl-url="{{ movie.url }}"
+              onclick="wlToggle({url:'{{ movie.url }}',title:{{ movie.title|tojson }},poster:'{{ movie.poster }}',quality:'{{ movie.meta.get('quality','') }}',rating:'{{ movie.rating }}'});updateWlWatchBtn()">
+              <i class="fa-solid fa-plus"></i> My List
+            </button>
             {% if movie.trailer %}
             <a href="{{ movie.trailer }}" target="_blank" class="btn-trailer">🎬 Trailer</a>
             {% endif %}
@@ -343,6 +348,17 @@ function toggleSyn() {
   txt.classList.toggle('collapsed');
   btn.textContent = txt.classList.contains('collapsed') ? 'Baca selengkapnya ▾' : 'Tutup ▴';
 }
+
+function updateWlWatchBtn() {
+  const btn = document.getElementById('wl-watch-btn');
+  if (!btn) return;
+  const url = btn.getAttribute('data-wl-url');
+  const inList = wlHas(url);
+  btn.innerHTML = inList ? '<i class="fa-solid fa-check"></i> Tersimpan' : '<i class="fa-solid fa-plus"></i> My List';
+  btn.style.borderColor = inList ? '#46d369' : '';
+  btn.style.color = inList ? '#46d369' : '';
+}
+document.addEventListener('DOMContentLoaded', updateWlWatchBtn);
 </script>
 {% endblock %}
 

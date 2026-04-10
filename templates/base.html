@@ -326,8 +326,7 @@ footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
       <a href="/series" class="{% if active=='series' %}active{% endif %}">Series</a>
       <a href="/anime" class="{% if active=='anime' %}active{% endif %}">Anime</a>
       <a href="/semi" class="{% if active=='semi' %}active{% endif %}">Semi</a>
-      <div class="nav-dropdown">
-        <div class="nav-dropdown-label">Genre <i class="fa-solid fa-chevron-down chev"></i></div>
+      <a href="/watchlist" class="{% if active=='watchlist' %}active{% endif %}">My List</a>
         <div class="nav-dropdown-menu">
           <a href="/genre/action">⚡ Action</a>
           <a href="/genre/horror">💀 Horror</a>
@@ -375,7 +374,7 @@ footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
       C
       <div class="nav-avatar-menu">
         <div class="nav-avatar-item"><i class="fa-solid fa-circle-user" style="width:16px;"></i> Profil Saya</div>
-        <div class="nav-avatar-item"><i class="fa-regular fa-bookmark" style="width:16px;"></i> Daftar Tonton</div>
+        <div class="nav-avatar-item" onclick="window.location='/watchlist'"><i class="fa-regular fa-bookmark" style="width:16px;"></i> Daftar Tonton</div>
         <div class="nav-avatar-item" style="color:var(--red);"><i class="fa-solid fa-rectangle-ad" style="width:16px;"></i><a href="/pasang-iklan" style="color:inherit;text-decoration:none;">Pasang Iklan</a></div>
         <div class="nav-avatar-divider"></div>
         <div class="nav-avatar-item nav-avatar-center">Keluar dari Cinevu</div>
@@ -409,7 +408,7 @@ footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
         <a href="/" class="{% if active=='home' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-house"></i></span> Beranda</a>
         <a href="/series" class="{% if active=='series' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-tv"></i></span> Series & TV</a>
         <a href="/anime" class="{% if active=='anime' %}active{% endif %}"><span class="icon"><i class="fa-solid fa-star-and-crescent"></i></span> Anime</a>
-        <a href="/genre/trending"><span class="icon"><i class="fa-solid fa-fire"></i></span> Trending</a>
+        <a href="/watchlist" class="{% if active=='watchlist' %}active{% endif %}"><span class="icon"><i class="fa-regular fa-bookmark"></i></span> My List</a>
         <a href="/year/2025"><span class="icon"><i class="fa-solid fa-calendar-days"></i></span> Terbaru 2025</a>
         <a href="/year/2024"><span class="icon"><i class="fa-solid fa-calendar"></i></span> Film 2024</a>
       </div>
@@ -820,5 +819,76 @@ document.addEventListener('keydown', e => {
 });
 </script>
 {% block extra_js %}{% endblock %}
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- WATCHLIST ENGINE (localStorage)             -->
+<!-- ═══════════════════════════════════════════ -->
+<script>
+const WL_KEY = 'cinevu_watchlist';
+
+function wlGet() {
+  try { return JSON.parse(localStorage.getItem(WL_KEY) || '[]'); } catch { return []; }
+}
+function wlSave(list) {
+  localStorage.setItem(WL_KEY, JSON.stringify(list));
+}
+function wlHas(url) {
+  return wlGet().some(i => i.url === url);
+}
+function wlAdd(item) {
+  const list = wlGet();
+  if (!list.some(i => i.url === item.url)) {
+    list.unshift({ ...item, added: Date.now() });
+    wlSave(list);
+    wlToast('✅ Ditambahkan ke My List');
+  }
+  wlSyncAll();
+}
+function wlRemove(url) {
+  wlSave(wlGet().filter(i => i.url !== url));
+  wlToast('🗑️ Dihapus dari My List');
+  wlSyncAll();
+}
+function wlToggle(item) {
+  wlHas(item.url) ? wlRemove(item.url) : wlAdd(item);
+}
+
+function wlToast(msg) {
+  let t = document.getElementById('wl-toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'wl-toast';
+    t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:10px 22px;border-radius:24px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5);';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+}
+
+// Update all wl-btn elements on page
+function wlSyncAll() {
+  document.querySelectorAll('[data-wl-url]').forEach(btn => {
+    const url = btn.getAttribute('data-wl-url');
+    const inList = wlHas(url);
+    const ico = btn.querySelector('i');
+    if (ico) {
+      ico.className = inList ? 'fa-solid fa-check' : 'fa-solid fa-plus';
+    }
+    btn.classList.toggle('wl-active', inList);
+    btn.title = inList ? 'Hapus dari My List' : 'Tambah ke My List';
+  });
+  // Update watchlist count badge
+  const cnt = document.querySelectorAll('[data-wl-count]');
+  cnt.forEach(el => { el.textContent = wlGet().length; });
+}
+
+document.addEventListener('DOMContentLoaded', wlSyncAll);
+</script>
+
+<style>
+.wl-active { border-color: #46d369 !important; color: #46d369 !important; }
+</style>
 </body>
 </html>

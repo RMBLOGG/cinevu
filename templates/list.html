@@ -24,6 +24,11 @@
         <div class="ncard-overlay">
           <div class="ncard-actions">
             <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+            <button class="ncard-play" data-wl-url="{{ m.url }}" title="My List"
+              style="background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.6);"
+              onclick="event.preventDefault();wlToggle({url:'{{ m.url }}',title:{{ m.title|tojson }},poster:'{{ m.poster }}',quality:'{{ m.quality }}',rating:'{{ m.rating }}'})">
+              <i class="fa-solid fa-plus" style="font-size:13px;color:#fff;margin-left:0;"></i>
+            </button>
           </div>
           <div class="ncard-info">
             <div class="ncard-title-h">{{ m.title | truncate(30) }}</div>

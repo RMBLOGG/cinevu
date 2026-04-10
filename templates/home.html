@@ -173,7 +173,9 @@
                   <button class="ncard-popup-play" onclick="event.preventDefault();window.location='/watch?url={{ m.url | urlencode }}'">
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   </button>
-                  <button class="ncard-popup-icon" title="Tambah ke Daftar"><i class="fa-solid fa-plus"></i></button>
+                  <button class="ncard-popup-icon" data-wl-url="{{ m.url }}" title="Tambah ke My List"
+                    onclick="event.preventDefault();wlToggle({url:'{{ m.url }}',title:{{ m.title|tojson }},poster:'{{ m.poster }}',quality:'{{ m.quality }}',rating:'{{ m.rating }}'})">
+                    <i class="fa-solid fa-plus"></i></button>
                   <button class="ncard-popup-icon" title="Suka"><i class="fa-regular fa-thumbs-up"></i></button>
                   <button class="ncard-popup-icon ncard-popup-chevron" title="Info lengkap"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
