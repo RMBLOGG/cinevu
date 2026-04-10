@@ -190,18 +190,28 @@ async function fetchPlayers() {
   }
 }
 
+let _autoSkipTimer = null;
+let _currentIdx = 0;
+
 function loadPlayer(idx) {
   const p = players[idx];
   if (!p) return;
+  _currentIdx = idx;
+
+  // Clear auto-skip timer sebelumnya
+  if (_autoSkipTimer) { clearTimeout(_autoSkipTimer); _autoSkipTimer = null; }
+
   document.querySelectorAll('.server-tab').forEach((b,i) => b.classList.toggle('active', i===idx));
   const frame = document.getElementById('playerFrame');
-
-  // Pastikan frame visible dan punya height
   frame.style.minHeight = Math.round(frame.offsetWidth * 0.5625) + 'px';
 
+  // Tampilkan status server
+  const serverName = p.server || `Server ${idx+1}`;
   frame.innerHTML = `
-    <div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center;gap:10px;color:#888;z-index:2;" id="pLoad">
-      <div class="spin"></div> Memuat...
+    <div style="position:absolute;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#888;z-index:2;" id="pLoad">
+      <div class="spin"></div>
+      <span style="font-size:13px;">Memuat ${serverName}...</span>
+      ${players.length > 1 ? `<span style="font-size:11px;color:#555;">Auto-skip ke server berikutnya dalam <span id="skipCount">15</span>s jika gagal</span>` : ''}
     </div>
     <div id="adOverlay" style="position:absolute;inset:0;z-index:3;cursor:pointer;background:transparent;" onclick="dismissOverlay(this)"></div>
     <iframe
@@ -214,11 +224,53 @@ function loadPlayer(idx) {
     </iframe>`;
 
   frame.scrollIntoView({behavior:'smooth', block:'start'});
+
+  // Auto-skip: countdown 15 detik, kalau onIframeLoad belum hapus pLoad → skip
+  if (players.length > 1) {
+    let sec = 15;
+    const countEl = () => document.getElementById('skipCount');
+    const countdown = setInterval(() => {
+      sec--;
+      if (countEl()) countEl().textContent = sec;
+      if (sec <= 0) clearInterval(countdown);
+    }, 1000);
+
+    _autoSkipTimer = setTimeout(() => {
+      clearInterval(countdown);
+      // Kalau pLoad masih ada → iframe belum berhasil load → skip
+      if (document.getElementById('pLoad')) {
+        const next = idx + 1;
+        if (next < players.length) {
+          showSkipNotif(serverName, players[next].server || `Server ${next+1}`);
+          setTimeout(() => loadPlayer(next), 800);
+        } else {
+          // Sudah coba semua server
+          const pLoad = document.getElementById('pLoad');
+          if (pLoad) pLoad.innerHTML = `
+            <div style="text-align:center;padding:20px;">
+              <div style="font-size:32px;margin-bottom:12px;">😔</div>
+              <div style="color:#ccc;font-size:14px;margin-bottom:8px;">Semua server tidak tersedia</div>
+              <div style="color:#666;font-size:12px;">Coba lagi nanti atau cari film lain</div>
+            </div>`;
+        }
+      }
+    }, 15000);
+  }
+}
+
+function showSkipNotif(from, to) {
+  const notif = document.createElement('div');
+  notif.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #6c63ff;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;animation:fadeUp .3s ease;white-space:nowrap;';
+  notif.innerHTML = `⚡ ${from} gagal → pindah ke ${to}`;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 3000);
 }
 
 function onIframeLoad() {
+  // Iframe berhasil load → cancel auto-skip
+  if (_autoSkipTimer) { clearTimeout(_autoSkipTimer); _autoSkipTimer = null; }
   document.getElementById('pLoad')?.remove();
-  // Hapus overlay setelah 3 detik (cukup untuk skip iklan auto-click)
+  // Hapus overlay setelah 3 detik
   setTimeout(() => {
     const ov = document.getElementById('adOverlay');
     if (ov) ov.remove();
@@ -226,7 +278,6 @@ function onIframeLoad() {
 }
 
 function dismissOverlay(el) {
-  // Klik overlay = user mau nonton, langsung hapus
   el.remove();
 }
 
