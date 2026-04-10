@@ -287,6 +287,27 @@ def semi():
     return render_template("list.html", movies=movies, page=int(page), title="Film Semi",
                            next_page=get_next_page(soup), active="semi", iklan=get_all_iklan_posisi())
 
+# Semi sub-kategori
+SEMI_MAP = {
+    "indonesia": ("film-semi/country/indonesia", "Semi Indonesia"),
+    "jepang":    ("film-semi/country/japan",      "Semi Jepang"),
+    "korea":     ("film-semi/country/korea",       "Semi Korea"),
+    "vivamax":   ("vivamax",                       "Vivamax"),
+}
+
+@app.route("/semi/<sub>")
+def semi_sub(sub):
+    if sub not in SEMI_MAP:
+        return redirect(url_for("semi"))
+    slug, title = SEMI_MAP[sub]
+    page = request.args.get("page", "1")
+    base = f"{BASE_URL}/category/{slug}/"
+    url = base if page == "1" else f"{base}page/{page}/"
+    soup = get_soup(url)
+    movies = parse_cards(soup) if soup else []
+    return render_template("list.html", movies=movies, page=int(page), title=title,
+                           next_page=get_next_page(soup), active="semi", iklan=get_all_iklan_posisi())
+
 @app.route("/genre/<slug>")
 def genre(slug):
     page = request.args.get("page", "1")
