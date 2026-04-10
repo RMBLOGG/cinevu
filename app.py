@@ -606,5 +606,11 @@ def download():
                 downloads.append({"url": href, "label": title or f"Download {len(downloads)+1}"})
     return jsonify({"success": True, "downloads": downloads, "total": len(downloads)})
 
+# ── Watchlist (localStorage-based, no DB) ──
+
+@app.route("/watchlist")
+def watchlist():
+    return render_template("watchlist.html", active="watchlist", iklan=get_all_iklan_posisi())
+
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
