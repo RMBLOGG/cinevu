@@ -504,18 +504,15 @@ footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
     <div class="footer-col">
       <p class="footer-col-title">Informasi</p>
       <a href="/pasang-iklan">Pasang Iklan</a>
-      <a href="#">Tentang Kami</a>
-      <a href="#">Hubungi Kami</a>
-      <a href="#">Kebijakan Privasi</a>
-      <a href="#">Syarat Penggunaan</a>
+      <a href="#" onclick="showPopup('hubungi');return false;">Hubungi Kami</a>
+      <a href="#" onclick="showPopup('privasi');return false;">Kebijakan Privasi</a>
+      <a href="#" onclick="showPopup('syarat');return false;">Syarat Penggunaan</a>
     </div>
     <div class="footer-col">
       <p class="footer-col-title">Bantuan</p>
-      <a href="#">FAQ</a>
-      <a href="#">Cara Menonton</a>
-      <a href="#">Laporkan Masalah</a>
-      <a href="#">Request Film</a>
-      <a href="#">Kode Promo</a>
+      <a href="#" onclick="showPopup('faq');return false;">FAQ</a>
+      <a href="#" onclick="showPopup('cara');return false;">Cara Menonton</a>
+      <a href="#" onclick="showPopup('lapor');return false;">Laporkan Masalah</a>
     </div>
   </div>
   <button class="footer-lang">
@@ -537,6 +534,197 @@ footer{padding:48px 4% 32px;border-top:1px solid #222;color:#737373;}
 </div>
 {% endfor %}
 {% endif %}
+
+<!-- ── FOOTER POPUPS ── -->
+<style>
+.fpopup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:8000;display:none;align-items:center;justify-content:center;padding:20px;}
+.fpopup-overlay.open{display:flex;}
+.fpopup-box{background:#1a1a1a;border-radius:10px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:32px 28px 28px;animation:fadeUp .25s ease;}
+.fpopup-close{position:absolute;top:14px;right:16px;background:none;border:none;color:#aaa;font-size:22px;cursor:pointer;line-height:1;transition:color .15s;}
+.fpopup-close:hover{color:#fff;}
+.fpopup-title{font-size:20px;font-weight:800;color:#fff;margin-bottom:16px;padding-right:24px;}
+.fpopup-body{font-size:13.5px;line-height:1.8;color:#b3b3b3;}
+.fpopup-body h4{color:#fff;font-size:14px;font-weight:700;margin:16px 0 6px;}
+.fpopup-body p{margin-bottom:10px;}
+.fpopup-body ul{padding-left:18px;margin-bottom:10px;}
+.fpopup-body ul li{margin-bottom:6px;}
+.fpopup-form input,.fpopup-form textarea,.fpopup-form select{
+  width:100%;background:#111;border:1px solid #333;color:#fff;
+  font-family:var(--font);font-size:13px;padding:10px 14px;border-radius:6px;
+  outline:none;transition:border-color .2s;margin-bottom:12px;
+}
+.fpopup-form input:focus,.fpopup-form textarea:focus,.fpopup-form select:focus{border-color:#e50914;}
+.fpopup-form textarea{resize:vertical;min-height:100px;}
+.fpopup-form label{font-size:12px;color:#888;display:block;margin-bottom:4px;}
+.fpopup-btn{background:var(--red);color:#fff;border:none;font-family:var(--font);font-size:14px;font-weight:700;padding:11px 28px;border-radius:6px;cursor:pointer;transition:background .15s;width:100%;}
+.fpopup-btn:hover{background:#c1070f;}
+.fpopup-success{display:none;text-align:center;padding:20px 0;}
+.fpopup-success .check{font-size:48px;margin-bottom:12px;}
+.fpopup-success p{color:#46d369;font-weight:700;font-size:15px;}
+</style>
+
+<!-- Popup: Hubungi Kami -->
+<div class="fpopup-overlay" id="popup-hubungi" onclick="if(event.target===this)closePopup('hubungi')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('hubungi')">✕</button>
+    <div class="fpopup-title">📬 Hubungi Kami</div>
+    <div class="fpopup-body">
+      <p>Ada pertanyaan, saran, atau laporan? Kirim pesan ke tim Cinevu.</p>
+    </div>
+    <div class="fpopup-form" id="form-hubungi">
+      <label>Nama</label>
+      <input type="text" placeholder="Nama kamu...">
+      <label>Email</label>
+      <input type="email" placeholder="email@contoh.com">
+      <label>Subjek</label>
+      <select>
+        <option>Pertanyaan Umum</option>
+        <option>Laporkan Bug</option>
+        <option>Kerjasama Iklan</option>
+        <option>Lainnya</option>
+      </select>
+      <label>Pesan</label>
+      <textarea placeholder="Tulis pesanmu di sini..."></textarea>
+      <button class="fpopup-btn" onclick="submitForm('hubungi')">Kirim Pesan</button>
+    </div>
+    <div class="fpopup-success" id="success-hubungi">
+      <div class="check">✅</div>
+      <p>Pesan berhasil dikirim!<br><span style="color:#aaa;font-weight:400;font-size:13px;">Kami akan membalas dalam 1-2 hari kerja.</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Kebijakan Privasi -->
+<div class="fpopup-overlay" id="popup-privasi" onclick="if(event.target===this)closePopup('privasi')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('privasi')">✕</button>
+    <div class="fpopup-title">🔒 Kebijakan Privasi</div>
+    <div class="fpopup-body">
+      <p>Terakhir diperbarui: 1 Januari 2025</p>
+      <h4>1. Informasi yang Kami Kumpulkan</h4>
+      <p>Cinevu hanya mengumpulkan data minimal yang diperlukan untuk operasional layanan, termasuk data teknis seperti alamat IP, browser, dan perangkat yang digunakan untuk mengakses situs.</p>
+      <h4>2. Penggunaan Data</h4>
+      <p>Data yang dikumpulkan digunakan untuk meningkatkan performa situs, menganalisis trafik, dan menampilkan iklan yang relevan melalui jaringan pihak ketiga (seperti Google AdSense).</p>
+      <h4>3. Cookie</h4>
+      <p>Kami menggunakan cookie untuk menyimpan preferensi pengguna dan data sesi. Kamu dapat menonaktifkan cookie melalui pengaturan browser, namun beberapa fitur situs mungkin tidak berfungsi optimal.</p>
+      <h4>4. Pihak Ketiga</h4>
+      <p>Cinevu menggunakan layanan pihak ketiga seperti Vercel (hosting), Supabase (database), dan jaringan iklan. Masing-masing pihak memiliki kebijakan privasi sendiri.</p>
+      <h4>5. Keamanan</h4>
+      <p>Kami menerapkan langkah-langkah keamanan standar industri. Namun tidak ada sistem yang 100% aman — gunakan situs ini dengan bijak.</p>
+      <h4>6. Kontak</h4>
+      <p>Untuk pertanyaan seputar privasi, hubungi kami melalui menu Hubungi Kami.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Syarat Penggunaan -->
+<div class="fpopup-overlay" id="popup-syarat" onclick="if(event.target===this)closePopup('syarat')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('syarat')">✕</button>
+    <div class="fpopup-title">📄 Syarat Penggunaan</div>
+    <div class="fpopup-body">
+      <p>Dengan menggunakan Cinevu, kamu menyetujui syarat-syarat berikut:</p>
+      <h4>1. Layanan</h4>
+      <p>Cinevu menyediakan akses ke konten streaming film dan series secara gratis. Layanan dapat berubah sewaktu-waktu tanpa pemberitahuan sebelumnya.</p>
+      <h4>2. Penggunaan yang Diizinkan</h4>
+      <ul>
+        <li>Menonton konten untuk keperluan pribadi dan non-komersial</li>
+        <li>Berbagi link situs kepada teman dan keluarga</li>
+      </ul>
+      <h4>3. Larangan</h4>
+      <ul>
+        <li>Mengunduh atau mendistribusikan konten secara ilegal</li>
+        <li>Menggunakan bot atau scraper untuk mengakses situs</li>
+        <li>Memodifikasi atau menjual ulang layanan Cinevu</li>
+      </ul>
+      <h4>4. Konten</h4>
+      <p>Cinevu tidak menyimpan file video di server kami. Konten yang ditampilkan bersumber dari pihak ketiga. Kami tidak bertanggung jawab atas ketersediaan konten tersebut.</p>
+      <h4>5. Penafian</h4>
+      <p>Cinevu disediakan "apa adanya" tanpa jaminan apapun. Penggunaan situs sepenuhnya atas risiko pengguna.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: FAQ -->
+<div class="fpopup-overlay" id="popup-faq" onclick="if(event.target===this)closePopup('faq')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('faq')">✕</button>
+    <div class="fpopup-title">❓ FAQ — Pertanyaan Umum</div>
+    <div class="fpopup-body">
+      <h4>Apakah Cinevu gratis?</h4>
+      <p>Ya! Cinevu sepenuhnya gratis untuk ditonton. Tidak perlu daftar atau bayar apapun.</p>
+      <h4>Kenapa video tidak bisa diputar?</h4>
+      <p>Coba ganti server video dengan menekan tombol server lain di bawah player. Jika semua server error, konten mungkin sedang tidak tersedia sementara.</p>
+      <h4>Apakah ada aplikasi Android/iOS?</h4>
+      <p>Saat ini Cinevu tersedia di browser mobile. Kamu bisa install sebagai PWA (Progressive Web App) dengan menekan "Tambah ke Layar Utama" di browser.</p>
+      <h4>Kualitas video yang tersedia apa saja?</h4>
+      <p>Tergantung server — tersedia mulai dari 360p hingga 1080p (Full HD), tergantung ketersediaan konten.</p>
+      <h4>Bagaimana cara request film?</h4>
+      <p>Hubungi kami melalui menu Hubungi Kami dengan menyebutkan judul film yang diinginkan.</p>
+      <h4>Ada iklan, apakah bisa dihilangkan?</h4>
+      <p>Iklan membantu Cinevu tetap gratis. Kamu bisa menggunakan adblocker, namun beberapa fitur mungkin terpengaruh.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Cara Menonton -->
+<div class="fpopup-overlay" id="popup-cara" onclick="if(event.target===this)closePopup('cara')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('cara')">✕</button>
+    <div class="fpopup-title">▶️ Cara Menonton di Cinevu</div>
+    <div class="fpopup-body">
+      <h4>Langkah 1 — Cari Film</h4>
+      <p>Gunakan kolom pencarian di navbar atau jelajahi kategori/genre di halaman utama.</p>
+      <h4>Langkah 2 — Pilih Film</h4>
+      <p>Klik poster film yang ingin kamu tonton. Kamu akan diarahkan ke halaman detail film.</p>
+      <h4>Langkah 3 — Klik Tonton</h4>
+      <p>Tekan tombol <strong style="color:#fff;">▶ Tonton</strong> atau klik langsung pada area player untuk memulai streaming.</p>
+      <h4>Langkah 4 — Pilih Server</h4>
+      <p>Jika video tidak muncul atau buffering lama, coba pilih server lain yang tersedia di bawah player.</p>
+      <h4>Langkah 5 — Nikmati! 🎉</h4>
+      <p>Selamat menonton! Gunakan mode fullscreen untuk pengalaman terbaik.</p>
+      <h4>Tips Tambahan</h4>
+      <ul>
+        <li>Gunakan WiFi atau data 4G/5G untuk kualitas terbaik</li>
+        <li>Chrome & Firefox direkomendasikan untuk kompatibilitas maksimal</li>
+        <li>Aktifkan mode landscape di HP untuk tampilan lebih lebar</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Popup: Laporkan Masalah -->
+<div class="fpopup-overlay" id="popup-lapor" onclick="if(event.target===this)closePopup('lapor')">
+  <div class="fpopup-box">
+    <button class="fpopup-close" onclick="closePopup('lapor')">✕</button>
+    <div class="fpopup-title">🚨 Laporkan Masalah</div>
+    <div class="fpopup-body">
+      <p>Temukan bug atau konten bermasalah? Laporkan ke kami!</p>
+    </div>
+    <div class="fpopup-form" id="form-lapor">
+      <label>Jenis Masalah</label>
+      <select>
+        <option>Video tidak bisa diputar</option>
+        <option>Subtitle tidak muncul</option>
+        <option>Link rusak / error 404</option>
+        <option>Konten tidak sesuai</option>
+        <option>Iklan mengganggu</option>
+        <option>Masalah lainnya</option>
+      </select>
+      <label>URL Halaman Bermasalah</label>
+      <input type="text" id="lapor-url" placeholder="https://cinevu.vercel.app/...">
+      <label>Deskripsi Masalah</label>
+      <textarea placeholder="Ceritakan masalah yang kamu alami..."></textarea>
+      <label>Email (opsional, untuk follow-up)</label>
+      <input type="email" placeholder="email@contoh.com">
+      <button class="fpopup-btn" onclick="submitForm('lapor')">Kirim Laporan</button>
+    </div>
+    <div class="fpopup-success" id="success-lapor">
+      <div class="check">✅</div>
+      <p>Laporan terkirim!<br><span style="color:#aaa;font-weight:400;font-size:13px;">Terima kasih, kami akan segera memeriksa masalah ini.</span></p>
+    </div>
+  </div>
+</div>
 
 <script>
 // Navbar: gradient transparent → solid on scroll
@@ -593,6 +781,42 @@ document.querySelectorAll('.slider-wrap').forEach(wrap => {
   const next = wrap.querySelector('.slider-btn.next');
   if (prev) prev.addEventListener('click', () => slider.scrollBy({ left: -Math.floor(slider.offsetWidth * 0.85), behavior: 'smooth' }));
   if (next) next.addEventListener('click', () => slider.scrollBy({ left: Math.floor(slider.offsetWidth * 0.85), behavior: 'smooth' }));
+});
+
+// Footer popups
+function showPopup(id) {
+  const el = document.getElementById('popup-' + id);
+  if (!el) return;
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Auto-fill URL untuk laporan
+  if (id === 'lapor') {
+    const urlInput = document.getElementById('lapor-url');
+    if (urlInput && !urlInput.value) urlInput.value = window.location.href;
+  }
+}
+function closePopup(id) {
+  const el = document.getElementById('popup-' + id);
+  if (!el) return;
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function submitForm(id) {
+  const form = document.getElementById('form-' + id);
+  const success = document.getElementById('success-' + id);
+  if (!form || !success) return;
+  form.style.display = 'none';
+  success.style.display = 'block';
+  setTimeout(() => closePopup(id), 3000);
+}
+// Tutup popup dengan ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.fpopup-overlay.open').forEach(el => {
+      const id = el.id.replace('popup-', '');
+      closePopup(id);
+    });
+  }
 });
 </script>
 {% block extra_js %}{% endblock %}
