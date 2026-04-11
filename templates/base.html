@@ -818,8 +818,6 @@ document.addEventListener('keydown', e => {
   }
 });
 </script>
-{% block extra_js %}{% endblock %}
-
 <!-- ═══════════════════════════════════════════ -->
 <!-- WATCHLIST ENGINE (localStorage)             -->
 <!-- ═══════════════════════════════════════════ -->
@@ -890,5 +888,7 @@ document.addEventListener('DOMContentLoaded', wlSyncAll);
 <style>
 .wl-active { border-color: #46d369 !important; color: #46d369 !important; }
 </style>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>
