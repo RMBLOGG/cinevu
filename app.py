@@ -246,19 +246,40 @@ def parse_detail(url):
 
     return data
 
-def get_players(post_id):
+def get_players(post_id, source_url=None):
+    from urllib.parse import urlparse
     session_r = requests.Session()
+
+    # Deteksi domain sumber (bisa beda dari BASE_URL)
+    if source_url:
+        p = urlparse(source_url)
+        origin = f"{p.scheme}://{p.netloc}"
+        referer = source_url
+    else:
+        origin = BASE_URL
+        referer = BASE_URL + "/"
+
+    ajax_url = f"{origin}/wp-admin/admin-ajax.php"
+
     session_r.headers.update({
         **HEADERS,
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         "X-Requested-With": "XMLHttpRequest",
-        "Origin": BASE_URL,
-        "Referer": BASE_URL + "/",
+        "Origin": origin,
+        "Referer": referer,
     })
+
+    # Ambil cookie dulu dari halaman sumber biar dianggap browser beneran
+    if source_url:
+        try:
+            session_r.get(source_url, timeout=10)
+        except:
+            pass
+
     players = []
     for tab in ["p1","p2","p3","p4","p5","p6"]:
         try:
-            r = session_r.post(AJAX_URL, data={"action":"muvipro_player_content","tab":tab,"post_id":post_id}, timeout=10)
+            r = session_r.post(ajax_url, data={"action":"muvipro_player_content","tab":tab,"post_id":post_id}, timeout=10)
             text = r.text.strip()
             # WordPress AJAX return "0" atau "-1" kalau gagal
             if r.status_code == 200 and text and text not in ("0", "-1", "false", "null"):
@@ -421,9 +442,10 @@ def watch():
 @app.route("/api/player")
 def api_player():
     post_id = request.args.get("post_id", "")
+    source_url = request.args.get("source_url", "")
     if not post_id:
         return jsonify({"error": "post_id required"}), 400
-    players = get_players(post_id)
+    players = get_players(post_id, source_url=source_url or None)
     return jsonify({"players": players})
 
 @app.route("/api/debug")
