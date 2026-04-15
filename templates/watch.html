@@ -198,6 +198,7 @@
 {% block extra_js %}
 <script>
 const POST_ID = "{{ movie.post_id or '' }}";
+const SOURCE_URL = "{{ movie.url or '' }}";
 let players = [];
 
 async function fetchPlayers() {
@@ -206,7 +207,7 @@ async function fetchPlayers() {
     return;
   }
   try {
-    const res = await fetch(`/api/player?post_id=${POST_ID}`);
+    const res = await fetch(`/api/player?post_id=${POST_ID}&source_url=${encodeURIComponent(SOURCE_URL)}`);
     const data = await res.json();
     players = data.players || [];
     const tabs = document.getElementById('serverTabs');
