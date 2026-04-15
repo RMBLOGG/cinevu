@@ -185,8 +185,35 @@ def parse_detail(url):
             spans = [txt(el) for el in div.find_all(["span","time"]) if txt(el)]
             meta[label] = ", ".join(spans) if spans else div.get_text(strip=True).replace(txt(strong),"").strip()
     data["meta"] = meta
+    # Cari post_id: coba beberapa cara karena halaman episode bisa beda struktur
     sw = soup.find(id="muvipro_player_content_id")
-    data["post_id"] = sw.get("data-id") if sw else None
+    post_id = sw.get("data-id") if sw else None
+
+    # Fallback 1: cari elemen lain dengan data-id (misal div.muvipro-player)
+    if not post_id:
+        el = soup.find(attrs={"data-id": True})
+        if el:
+            post_id = el.get("data-id")
+
+    # Fallback 2: ambil dari class body tag WordPress (postid-XXXX)
+    if not post_id:
+        body = soup.find("body")
+        if body:
+            for c in (body.get("class") or []):
+                if c.startswith("postid-"):
+                    post_id = c.replace("postid-", "")
+                    break
+
+    # Fallback 3: cari di inline script (var post_id = "XXXX" atau "post_id":"XXXX")
+    if not post_id:
+        for script in soup.find_all("script"):
+            st = script.string or ""
+            m = re.search(r'["\']?post_id["\']?\s*[:=]\s*["\']?(\d+)["\']?', st)
+            if m:
+                post_id = m.group(1)
+                break
+
+    data["post_id"] = post_id
     trailer = soup.find("a", class_="gmr-trailer-popup")
     data["trailer"] = trailer["href"] if trailer else None
     episodes = []
@@ -221,17 +248,25 @@ def parse_detail(url):
 
 def get_players(post_id):
     session_r = requests.Session()
-    session_r.headers.update(HEADERS)
+    session_r.headers.update({
+        **HEADERS,
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": BASE_URL,
+        "Referer": BASE_URL + "/",
+    })
     players = []
-    for tab in ["p1","p2","p3","p4"]:
+    for tab in ["p1","p2","p3","p4","p5","p6"]:
         try:
             r = session_r.post(AJAX_URL, data={"action":"muvipro_player_content","tab":tab,"post_id":post_id}, timeout=10)
-            if r.status_code == 200 and r.text.strip():
-                inner = BeautifulSoup(r.text, "html.parser")
+            text = r.text.strip()
+            # WordPress AJAX return "0" atau "-1" kalau gagal
+            if r.status_code == 200 and text and text not in ("0", "-1", "false", "null"):
+                inner = BeautifulSoup(text, "html.parser")
                 iframe = inner.find("iframe")
                 if iframe:
-                    src = iframe.get("src") or iframe.get("SRC") or ""
-                    if src:
+                    src = iframe.get("src") or iframe.get("data-src") or iframe.get("SRC") or ""
+                    if src and src.startswith("http"):
                         players.append({"server": tab.upper(), "url": src})
         except:
             pass
@@ -390,6 +425,59 @@ def api_player():
         return jsonify({"error": "post_id required"}), 400
     players = get_players(post_id)
     return jsonify({"players": players})
+
+@app.route("/api/debug")
+def api_debug():
+    """Debug endpoint: cek post_id dari URL halaman"""
+    url = request.args.get("url", "")
+    if not url:
+        return jsonify({"error": "url required"})
+    soup = get_soup(url)
+    if not soup:
+        return jsonify({"error": "gagal fetch URL"})
+
+    # Cara 1: element id
+    sw = soup.find(id="muvipro_player_content_id")
+    post_id_elem = sw.get("data-id") if sw else None
+
+    # Cara 2: data-id attribute lain
+    el = soup.find(attrs={"data-id": True})
+    post_id_attr = el.get("data-id") if el else None
+
+    # Cara 3: body class
+    body = soup.find("body")
+    body_classes = body.get("class", []) if body else []
+    post_id_body = next((c.replace("postid-","") for c in body_classes if c.startswith("postid-")), None)
+
+    # Cara 4: inline script
+    post_id_script = None
+    for script in soup.find_all("script"):
+        st = script.string or ""
+        m = re.search(r'["\']?post_id["\']?\s*[:=]\s*["\']?(\d+)["\']?', st)
+        if m:
+            post_id_script = m.group(1)
+            break
+
+    final_id = post_id_elem or post_id_attr or post_id_body or post_id_script
+
+    # Test AJAX kalau post_id ditemukan
+    ajax_test = None
+    if final_id:
+        try:
+            r = requests.post(AJAX_URL, data={"action":"muvipro_player_content","tab":"p1","post_id":final_id},
+                              headers={**HEADERS,"X-Requested-With":"XMLHttpRequest"}, timeout=10)
+            ajax_test = {"status": r.status_code, "response_preview": r.text[:200]}
+        except Exception as e:
+            ajax_test = {"error": str(e)}
+
+    return jsonify({
+        "post_id_from_element": post_id_elem,
+        "post_id_from_attr":    post_id_attr,
+        "post_id_from_body":    post_id_body,
+        "post_id_from_script":  post_id_script,
+        "final_post_id":        final_id,
+        "ajax_test_p1":         ajax_test,
+    })
 
 # ── Pasang Iklan (publik) ──
 
