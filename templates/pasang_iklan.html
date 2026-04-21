@@ -3,46 +3,46 @@
 
 {% block extra_css %}
 <style>
-.iklan-page{padding:90px 4% 100px;max-width:720px;margin:0 auto;}
-.iklan-hero{text-align:center;margin-bottom:32px;}
-.iklan-label{display:inline-block;background:rgba(232,0,29,.15);color:var(--red);border:1px solid rgba(232,0,29,.3);font-size:10px;font-weight:700;padding:5px 16px;border-radius:20px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
-.iklan-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,8vw,48px);font-weight:400;letter-spacing:2px;margin-bottom:10px;color:#fff;}
-.iklan-hero p{color:var(--muted2);font-size:14px;line-height:1.65;}
-.paket-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:28px;}
-.paket-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 12px;text-align:center;cursor:pointer;transition:all .2s;}
-.paket-card:hover,.paket-card.selected{border-color:var(--red);background:rgba(232,0,29,.08);}
+.iklan-page{padding:84px 4% 60px;max-width:760px;margin:0 auto;}
+.iklan-hero{text-align:center;margin-bottom:36px;}
+.iklan-hero .hero-badge{display:inline-block;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.5px;margin-bottom:14px;}
+.iklan-hero h1{font-size:clamp(22px,5vw,36px);font-weight:900;margin-bottom:10px;}
+.iklan-hero p{color:#aaa;font-size:14px;line-height:1.65;}
+.paket-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:32px;}
+.paket-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px 12px;text-align:center;cursor:pointer;transition:all .2s;}
+.paket-card:hover,.paket-card.selected{border-color:var(--red);background:rgba(229,9,20,.08);}
 .paket-icon{font-size:26px;margin-bottom:7px;}
-.paket-name{font-size:12px;font-weight:700;color:var(--text);}
-.paket-price{font-size:11px;color:var(--muted);margin-top:2px;}
-.iklan-form{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px 20px;}
-.fsec{font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:1px;margin:0 0 16px;display:flex;align-items:center;gap:10px;}
-.fsec::after{content:'';flex:1;height:1px;background:var(--border);}
+.paket-name{font-size:12px;font-weight:700;}
+.paket-price{font-size:11px;color:#666;margin-top:2px;}
+.iklan-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px 20px;}
+.fsec{font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+.fsec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
 .fgroup{margin-bottom:16px;}
-.fgroup label{display:block;font-size:12px;font-weight:600;color:var(--muted2);margin-bottom:6px;}
+.fgroup label{display:block;font-size:12px;font-weight:600;color:#bbb;margin-bottom:6px;}
 .req{color:var(--red);}
-.fctl{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font,sans-serif);font-size:13px;padding:11px 14px;border-radius:7px;outline:none;transition:border-color .2s;box-sizing:border-box;}
-.fctl:focus{border-color:rgba(232,0,29,.5);}
-.fctl option{background:var(--bg2);}
+.fctl{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;font-family:var(--font,sans-serif);font-size:13px;padding:10px 13px;border-radius:7px;outline:none;transition:border-color .2s;box-sizing:border-box;}
+.fctl:focus{border-color:var(--red);}
+.fctl option{background:#1a1a1a;}
 textarea.fctl{resize:vertical;min-height:90px;}
 .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.fhint{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5;}
-.btn-submit{width:100%;background:var(--red);color:#fff;border:none;font-family:var(--font,sans-serif);font-size:14px;font-weight:700;padding:14px;border-radius:8px;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .15s;letter-spacing:.5px;}
-.btn-submit:hover{background:#ff1744;transform:translateY(-1px);}
-.btn-submit:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+.fhint{font-size:11px;color:#555;margin-top:4px;}
+.btn-submit{width:100%;background:var(--red);color:#fff;border:none;font-family:var(--font,sans-serif);font-size:14px;font-weight:700;padding:13px;border-radius:8px;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;}
+.btn-submit:hover{opacity:.85;}
+.btn-submit:disabled{opacity:.45;cursor:not-allowed;}
 .falert{padding:13px 15px;border-radius:8px;font-size:13px;margin-bottom:18px;display:none;}
-.falert.success{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:#00e676;}
-.falert.error{background:rgba(232,0,29,.08);border:1px solid rgba(232,0,29,.2);color:#ff6b6b;}
-.kontak-box{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-top:24px;text-align:center;}
-.kontak-box p{font-size:13px;color:var(--muted);margin:0 0 6px;}
-.kontak-box a{color:var(--red);font-weight:700;text-decoration:none;}
-@media(max-width:600px){.frow{grid-template-columns:1fr;}.iklan-page{padding:80px 16px 100px;}.iklan-form{padding:18px 16px;}}
+.falert.success{background:rgba(70,211,105,.1);border:1px solid rgba(70,211,105,.25);color:#46d369;}
+.falert.error{background:rgba(229,9,20,.1);border:1px solid rgba(229,9,20,.25);color:#ff6b6b;}
+.kontak-box{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:18px;margin-top:28px;text-align:center;}
+.kontak-box p{font-size:13px;color:#666;margin:0 0 6px;}
+.kontak-box a{color:var(--red);font-weight:600;text-decoration:none;}
+@media(max-width:600px){.frow{grid-template-columns:1fr;}.iklan-page{padding:76px 16px 40px;}.iklan-form{padding:18px 16px;}}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="iklan-page">
   <div class="iklan-hero">
-    <div class="iklan-label">📢 Pasang Iklan</div>
+    <div class="hero-badge">📢 PASANG IKLAN</div>
     <h1>Jangkau Jutaan Penonton</h1>
     <p>Promosikan brand kamu kepada jutaan pengunjung Cinevu setiap bulannya.</p>
   </div>
