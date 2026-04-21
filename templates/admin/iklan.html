@@ -1,64 +1,126 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Kelola Iklan{% endblock %}
 {% block page_title %}Kelola Iklan{% endblock %}
+{% block page_subtitle %}Atur semua slot iklan yang tayang di platform{% endblock %}
 
 {% block content %}
-<div class="sec-header">
-  <div class="sec-title sec-title-bar">
-    <i class="fa-solid fa-rectangle-ad"></i> Semua Iklan
-    <span style="font-size:11px;background:var(--surface3);color:var(--muted2);padding:3px 9px;border-radius:20px;border:1px solid var(--border);font-weight:600;">{{ rows | length }}</span>
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">Kelola Iklan</h1>
+    <p style="font-size:13px;color:var(--muted2);margin-top:3px;">{{ rows | length }} iklan terdaftar</p>
+  </div>
+  <button class="btn btn-primary" onclick="openModal('addModal')">
+    <i class="fa-solid fa-plus"></i> Tambah Iklan
+  </button>
+</div>
+
+<!-- Desktop Table -->
+<div class="panel desktop-only">
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Nama / Label</th>
+          <th>Posisi</th>
+          <th>Tipe</th>
+          <th>Prioritas</th>
+          <th>Tanggal</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr id="iklan-row-{{ r.id }}">
+          <td>
+            <div class="td-brand">
+              <div class="brand-avatar" style="background:var(--surface3);color:var(--blue);">
+                <i class="fa-solid fa-rectangle-ad" style="font-size:11px;"></i>
+              </div>
+              <div>
+                <div class="td-name">{{ r.nama }}</div>
+                {% if r.catatan %}<div class="td-sub">{{ r.catatan[:40] }}</div>{% endif %}
+              </div>
+            </div>
+          </td>
+          <td style="font-size:12px;color:var(--text-dim);">{{ r.posisi }}</td>
+          <td>
+            <span style="font-size:11px;font-weight:600;color:var(--blue);background:rgba(91,141,239,.1);padding:3px 8px;border-radius:5px;border:1px solid rgba(91,141,239,.2);">
+              {% if r.tipe == 'gambar' %}<i class="fa-regular fa-image"></i>
+              {% elif r.tipe == 'html' %}<i class="fa-solid fa-code"></i>
+              {% else %}<i class="fa-solid fa-scroll"></i>{% endif %}
+              {{ r.tipe }}
+            </span>
+          </td>
+          <td style="font-size:13px;font-weight:700;color:var(--text);">{{ r.prioritas }}</td>
+          <td style="font-size:11px;color:var(--muted2);">
+            {% if r.tanggal_mulai %}{{ r.tanggal_mulai }}{% endif %}
+            {% if r.tanggal_selesai %} – {{ r.tanggal_selesai }}{% endif %}
+            {% if not r.tanggal_mulai %}—{% endif %}
+          </td>
+          <td>
+            <button onclick="toggleAktif('{{ r.id }}', {{ 'false' if r.aktif else 'true' }})"
+              class="badge {% if r.aktif %}badge-aktif{% else %}badge-nonaktif{% endif %}"
+              style="cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;">
+              {% if r.aktif %}
+                <i class="fa-solid fa-circle" style="font-size:6px;"></i> AKTIF
+              {% else %}
+                <i class="fa-regular fa-circle" style="font-size:6px;"></i> OFF
+              {% endif %}
+            </button>
+          </td>
+          <td>
+            <div style="display:flex;gap:5px;">
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="openEdit('{{ r.id }}')" title="Edit">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button class="btn btn-danger btn-sm btn-icon" onclick="deleteIklan('{{ r.id }}')" title="Hapus">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">
+          <div class="empty-state" style="padding:48px;">
+            <div class="empty-icon"><i class="fa-solid fa-rectangle-ad"></i></div>
+            <p>Belum ada iklan. Klik "Tambah Iklan" untuk mulai.</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 
-<div class="card-list">
+<!-- Mobile Cards -->
+<div class="card-list" style="display:none;" id="mobileIklanCards">
   {% for r in rows %}
-  <div class="item-card" id="iklan-row-{{ r.id }}">
+  <div class="item-card" id="miklan-{{ r.id }}">
     <div class="item-card-top">
       <div>
         <div class="item-card-title">{{ r.nama }}</div>
-        <div class="item-card-sub">
-          <i class="fa-solid fa-location-dot" style="font-size:9px;"></i> {{ r.posisi }}
-          &nbsp;·&nbsp;
-          <i class="fa-solid fa-layer-group" style="font-size:9px;"></i> {{ r.tipe }}
-        </div>
+        <div class="item-card-sub">{{ r.posisi }} · {{ r.tipe }}</div>
       </div>
       <button onclick="toggleAktif('{{ r.id }}', {{ 'false' if r.aktif else 'true' }})"
         class="badge {% if r.aktif %}badge-aktif{% else %}badge-nonaktif{% endif %}"
         style="cursor:pointer;border:none;">
-        {% if r.aktif %}
-          <i class="fa-solid fa-circle" style="font-size:6px;"></i> AKTIF
-        {% else %}
-          <i class="fa-regular fa-circle" style="font-size:6px;"></i> OFF
-        {% endif %}
+        {% if r.aktif %}<i class="fa-solid fa-circle" style="font-size:6px;"></i> AKTIF{% else %}<i class="fa-regular fa-circle" style="font-size:6px;"></i> OFF{% endif %}
       </button>
     </div>
     <div class="item-card-meta">
-      <span class="meta-chip"><i class="fa-solid fa-arrow-up" style="font-size:9px;"></i> Prioritas: {{ r.prioritas }}</span>
-      {% if r.tanggal_mulai %}<span class="meta-chip"><i class="fa-regular fa-calendar-check" style="font-size:9px;"></i> {{ r.tanggal_mulai }}</span>{% endif %}
-      {% if r.tanggal_selesai %}<span class="meta-chip"><i class="fa-regular fa-calendar-xmark" style="font-size:9px;"></i> s/d {{ r.tanggal_selesai }}</span>{% endif %}
-      {% if r.catatan %}<span class="meta-chip">{{ r.catatan[:30] }}</span>{% endif %}
+      <span class="meta-chip"><i class="fa-solid fa-arrow-up" style="font-size:9px;"></i> P{{ r.prioritas }}</span>
+      {% if r.tanggal_mulai %}<span class="meta-chip">{{ r.tanggal_mulai }}</span>{% endif %}
     </div>
     <div class="item-card-actions">
-      <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">
-        <i class="fa-solid fa-pen"></i> Edit
-      </button>
-      <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">
-        <i class="fa-solid fa-trash"></i> Hapus
-      </button>
+      <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')"><i class="fa-solid fa-pen"></i> Edit</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')"><i class="fa-solid fa-trash"></i> Hapus</button>
     </div>
   </div>
   {% else %}
-  <div class="empty-state">
-    <div class="empty-icon"><i class="fa-solid fa-rectangle-ad"></i></div>
-    <p>Belum ada iklan. Tap + untuk tambah.</p>
-  </div>
+  <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-rectangle-ad"></i></div><p>Belum ada iklan</p></div>
   {% endfor %}
 </div>
-
-<!-- FAB -->
-<button class="fab" onclick="openModal('addModal')">
-  <i class="fa-solid fa-plus"></i>
-</button>
 
 <!-- Modal Tambah -->
 <div class="modal-overlay" id="addModal">
@@ -222,14 +284,15 @@
 
 {% block extra_js %}
 <script>
+if(window.innerWidth <= 768) {
+  document.getElementById('mobileIklanCards').style.display = 'flex';
+}
+
 const iklanRows = {{ rows | tojson }};
 const iklanMap = {};
 iklanRows.forEach(r => iklanMap[r.id] = r);
-const hints = {
-  gambar: 'Masukkan URL gambar (JPG/PNG/GIF)',
-  html: 'Masukkan kode HTML bebas',
-  script: 'Masukkan kode script/embed (Adsterra, dll)'
-};
+const hints = {gambar:'Masukkan URL gambar (JPG/PNG/GIF)',html:'Masukkan kode HTML bebas',script:'Masukkan kode script/embed (Adsterra, dll)'};
+
 function updateHint(p) {
   const tipe = document.getElementById(`${p}_tipe`).value;
   document.getElementById(`${p}_hint`).textContent = hints[tipe] || '';
@@ -272,19 +335,7 @@ function openEdit(id) {
 }
 async function simpanEdit() {
   const id = document.getElementById('edit_id').value;
-  const data = {
-    id,
-    nama: document.getElementById('edit_nama').value.trim(),
-    posisi: document.getElementById('edit_posisi').value,
-    tipe: document.getElementById('edit_tipe').value,
-    konten: document.getElementById('edit_konten').value.trim(),
-    link_url: document.getElementById('edit_link_url').value.trim(),
-    aktif: document.getElementById('edit_aktif').value === 'true',
-    prioritas: parseInt(document.getElementById('edit_prioritas').value) || 1,
-    tanggal_mulai: document.getElementById('edit_mulai').value || null,
-    tanggal_selesai: document.getElementById('edit_selesai').value || null,
-    catatan: document.getElementById('edit_catatan').value.trim(),
-  };
+  const data = {id,nama:document.getElementById('edit_nama').value.trim(),posisi:document.getElementById('edit_posisi').value,tipe:document.getElementById('edit_tipe').value,konten:document.getElementById('edit_konten').value.trim(),link_url:document.getElementById('edit_link_url').value.trim(),aktif:document.getElementById('edit_aktif').value==='true',prioritas:parseInt(document.getElementById('edit_prioritas').value)||1,tanggal_mulai:document.getElementById('edit_mulai').value||null,tanggal_selesai:document.getElementById('edit_selesai').value||null,catatan:document.getElementById('edit_catatan').value.trim()};
   const res = await apiPost('/admin/iklan/update', data);
   if (res.ok) { showToast('Iklan diperbarui!'); closeModal('editModal'); setTimeout(() => location.reload(), 700); }
   else showToast('Gagal update', 'error');
@@ -298,8 +349,11 @@ async function toggleAktif(id, newVal) {
 async function deleteIklan(id) {
   if (!confirm('Hapus iklan ini?')) return;
   const res = await apiPost('/admin/iklan/delete', {id});
-  if (res.ok) { document.getElementById(`iklan-row-${id}`)?.remove(); showToast('Dihapus'); }
-  else showToast('Gagal hapus', 'error');
+  if (res.ok) {
+    document.getElementById(`iklan-row-${id}`)?.remove();
+    document.getElementById(`miklan-${id}`)?.remove();
+    showToast('Dihapus');
+  } else showToast('Gagal hapus', 'error');
 }
 </script>
 {% endblock %}

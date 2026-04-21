@@ -1,8 +1,16 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Request Iklan{% endblock %}
 {% block page_title %}Request Iklan{% endblock %}
+{% block page_subtitle %}Kelola semua permintaan pengiklanan masuk{% endblock %}
 
 {% block content %}
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px;">
+  <div>
+    <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">Request Iklan</h1>
+    <p style="font-size:13px;color:var(--muted2);margin-top:3px;">Tinjau dan kelola permintaan pengiklanan</p>
+  </div>
+</div>
+
 <div class="filter-tabs">
   <a href="/admin/requests?status=all" class="filter-tab {% if status_filter=='all' %}active{% endif %}">
     <i class="fa-solid fa-layer-group"></i> Semua
@@ -21,60 +29,107 @@
   </a>
 </div>
 
-<div class="card-list">
+<!-- Desktop Table -->
+<div class="panel desktop-only">
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Brand / Kontak</th>
+          <th>Jenis Iklan</th>
+          <th>Budget</th>
+          <th>Durasi</th>
+          <th>Masuk</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr id="row-{{ r.id }}">
+          <td>
+            <div class="td-brand">
+              <div class="brand-avatar">{{ r.nama_brand[0] | upper }}</div>
+              <div>
+                <div class="td-name">{{ r.nama_brand }}</div>
+                <div class="td-sub"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }}</div>
+                <div class="td-sub"><i class="fa-solid fa-phone" style="font-size:9px;"></i> {{ r.no_hp }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--text-dim);font-size:12px;">{{ r.jenis_iklan }}</td>
+          <td style="color:var(--yellow);font-weight:700;">{{ r.budget }}</td>
+          <td style="color:var(--text-dim);font-size:12px;">{{ r.durasi_tayang }}</td>
+          <td style="color:var(--muted2);font-size:11px;">{{ r.created_at[:10] if r.created_at else '—' }}</td>
+          <td>
+            <span class="badge badge-{{ r.status }}">
+              {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
+              {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
+              {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
+              {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
+              {{ r.status | upper }}
+            </span>
+          </td>
+          <td>
+            <div style="display:flex;gap:5px;align-items:center;">
+              <button class="btn btn-ghost btn-sm btn-icon" onclick="openDetail('{{ r.id }}')" title="Detail">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button class="btn btn-success btn-sm btn-icon" onclick="updateStatus('{{ r.id }}','approved')" title="Approve">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button class="btn btn-info btn-sm btn-icon" onclick="updateStatus('{{ r.id }}','contacted')" title="Contacted">
+                <i class="fa-solid fa-phone"></i>
+              </button>
+              <button class="btn btn-danger btn-sm btn-icon" onclick="updateStatus('{{ r.id }}','rejected')" title="Reject">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+              <button class="btn btn-danger btn-sm btn-icon" onclick="deleteRequest('{{ r.id }}')" title="Hapus">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7">
+          <div class="empty-state" style="padding:40px;">
+            <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+            <p>Tidak ada request ditemukan</p>
+          </div>
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Mobile Cards -->
+<div class="card-list" style="display:none;" id="mobileCards">
   {% for r in rows %}
-  <div class="item-card" id="row-{{ r.id }}">
+  <div class="item-card" id="mrow-{{ r.id }}">
     <div class="item-card-top">
       <div>
         <div class="item-card-title">{{ r.nama_brand }}</div>
-        <div class="item-card-sub">
-          <i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }}
-          &nbsp;·&nbsp;
-          <i class="fa-solid fa-phone" style="font-size:9px;"></i> {{ r.no_hp }}
-        </div>
+        <div class="item-card-sub"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }} · {{ r.no_hp }}</div>
       </div>
-      <span class="badge badge-{{ r.status }}">
-        {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
-        {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
-        {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
-        {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
-        {{ r.status | upper }}
-      </span>
+      <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
     </div>
     <div class="item-card-meta">
-      <span class="meta-chip"><i class="fa-solid fa-tag" style="font-size:9px;"></i> {{ r.jenis_iklan }}</span>
-      <span class="meta-chip yellow"><i class="fa-solid fa-coins" style="font-size:9px;"></i> {{ r.budget }}</span>
-      <span class="meta-chip"><i class="fa-solid fa-clock" style="font-size:9px;"></i> {{ r.durasi_tayang }}</span>
-      <span class="meta-chip"><i class="fa-regular fa-calendar" style="font-size:9px;"></i> {{ r.created_at[:10] if r.created_at else '-' }}</span>
+      <span class="meta-chip">{{ r.jenis_iklan }}</span>
+      <span class="meta-chip yellow">{{ r.budget }}</span>
+      <span class="meta-chip">{{ r.durasi_tayang }}</span>
     </div>
-    {% if r.pesan %}
-    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;line-height:1.6;padding:10px;background:var(--surface3);border-radius:8px;border:1px solid var(--border);">
-      <i class="fa-solid fa-quote-left" style="font-size:9px;color:var(--muted);margin-right:4px;"></i>{{ r.pesan[:100] }}{% if r.pesan|length > 100 %}...{% endif %}
-    </div>
-    {% endif %}
+    {% if r.pesan %}<div style="font-size:12px;color:var(--muted2);margin-bottom:10px;padding:8px 10px;background:var(--surface3);border-radius:8px;">{{ r.pesan[:80] }}{% if r.pesan|length > 80 %}...{% endif %}</div>{% endif %}
     <div class="item-card-actions">
-      <button class="btn btn-ghost btn-sm" onclick="openDetail('{{ r.id }}')">
-        <i class="fa-solid fa-file-lines"></i> Detail
-      </button>
-      <button class="btn btn-success btn-sm" onclick="updateStatus('{{ r.id }}','approved')">
-        <i class="fa-solid fa-check"></i>
-      </button>
-      <button class="btn btn-info btn-sm" onclick="updateStatus('{{ r.id }}','contacted')">
-        <i class="fa-solid fa-phone"></i>
-      </button>
-      <button class="btn btn-danger btn-sm" onclick="updateStatus('{{ r.id }}','rejected')">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <button class="btn btn-danger btn-sm" onclick="deleteRequest('{{ r.id }}')">
-        <i class="fa-solid fa-trash"></i>
-      </button>
+      <button class="btn btn-ghost btn-sm" onclick="openDetail('{{ r.id }}')"><i class="fa-solid fa-eye"></i> Detail</button>
+      <button class="btn btn-success btn-sm" onclick="updateStatus('{{ r.id }}','approved')"><i class="fa-solid fa-check"></i></button>
+      <button class="btn btn-info btn-sm" onclick="updateStatus('{{ r.id }}','contacted')"><i class="fa-solid fa-phone"></i></button>
+      <button class="btn btn-danger btn-sm" onclick="updateStatus('{{ r.id }}','rejected')"><i class="fa-solid fa-xmark"></i></button>
+      <button class="btn btn-danger btn-sm" onclick="deleteRequest('{{ r.id }}')"><i class="fa-solid fa-trash"></i></button>
     </div>
   </div>
   {% else %}
-  <div class="empty-state">
-    <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
-    <p>Tidak ada request ditemukan</p>
-  </div>
+  <div class="empty-state"><div class="empty-icon"><i class="fa-solid fa-inbox"></i></div><p>Tidak ada request</p></div>
   {% endfor %}
 </div>
 
@@ -92,6 +147,10 @@
 
 {% block extra_js %}
 <script>
+if(window.innerWidth <= 768) {
+  document.getElementById('mobileCards').style.display = 'flex';
+}
+
 const rows = {{ rows | tojson }};
 const rowMap = {};
 rows.forEach(r => rowMap[r.id] = r);
@@ -100,20 +159,20 @@ function openDetail(id) {
   const r = rowMap[id];
   if (!r) return;
   document.getElementById('detailContent').innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-building" style="font-size:9px;"></i> Brand</div><div style="font-weight:700;font-size:14px;">${r.nama_brand}</div></div>
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;"><i class="fa-solid fa-building" style="margin-right:4px;font-size:9px;"></i>Brand</div><div style="font-weight:700;font-size:15px;">${r.nama_brand}</div></div>
         <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Status</div><span class="badge badge-${r.status}">${r.status.toUpperCase()}</span></div>
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> Email</div><div style="font-size:12px;color:var(--text-dim);">${r.email}</div></div>
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-phone" style="font-size:9px;"></i> No. HP</div><div style="font-size:12px;color:var(--text-dim);">${r.no_hp}</div></div>
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Jenis</div><div style="font-size:12px;">${r.jenis_iklan}</div></div>
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-coins" style="font-size:9px;"></i> Budget</div><div style="font-size:14px;color:var(--yellow);font-weight:700;">${r.budget}</div></div>
-        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Durasi</div><div style="font-size:12px;">${r.durasi_tayang}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;"><i class="fa-solid fa-envelope" style="margin-right:4px;font-size:9px;"></i>Email</div><div style="font-size:12px;color:var(--text-dim);">${r.email}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;"><i class="fa-solid fa-phone" style="margin-right:4px;font-size:9px;"></i>No. HP</div><div style="font-size:12px;color:var(--text-dim);">${r.no_hp}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Jenis</div><div style="font-size:13px;">${r.jenis_iklan}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;"><i class="fa-solid fa-coins" style="margin-right:4px;font-size:9px;"></i>Budget</div><div style="font-size:15px;color:var(--yellow);font-weight:700;">${r.budget}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Durasi</div><div style="font-size:13px;">${r.durasi_tayang}</div></div>
       </div>
-      ${r.pesan ? `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;"><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-comment" style="font-size:9px;"></i> Pesan</div><div style="font-size:13px;color:var(--text-dim);line-height:1.6;">${r.pesan}</div></div>` : ''}
+      ${r.pesan ? `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;"><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;"><i class="fa-solid fa-comment" style="margin-right:4px;font-size:9px;"></i>Pesan</div><div style="font-size:13px;color:var(--text-dim);line-height:1.6;">${r.pesan}</div></div>` : ''}
       ${r.materi_url ? `<a href="${r.materi_url}" target="_blank" class="btn btn-ghost" style="justify-content:center;"><i class="fa-solid fa-link"></i> Lihat Materi</a>` : ''}
       <div>
-        <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-note-sticky" style="font-size:9px;"></i> Catatan Admin</div>
+        <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;"><i class="fa-solid fa-note-sticky" style="margin-right:4px;font-size:9px;"></i>Catatan Admin</div>
         <textarea id="catatanInput_${r.id}" class="form-control" placeholder="Tambahkan catatan...">${r.catatan_admin || ''}</textarea>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -125,7 +184,6 @@ function openDetail(id) {
     </div>`;
   openModal('detailModal');
 }
-
 async function updateStatus(id, status) {
   const res = await apiPost('/admin/requests/update', {id, status});
   if (res.ok) { showToast(`Status: ${status}`); setTimeout(() => location.reload(), 700); }
@@ -145,8 +203,11 @@ async function saveCatatan(id) {
 async function deleteRequest(id) {
   if (!confirm('Hapus request ini?')) return;
   const res = await apiPost('/admin/requests/delete', {id});
-  if (res.ok) { document.getElementById(`row-${id}`)?.remove(); showToast('Dihapus'); }
-  else showToast('Gagal hapus', 'error');
+  if (res.ok) {
+    document.getElementById(`row-${id}`)?.remove();
+    document.getElementById(`mrow-${id}`)?.remove();
+    showToast('Dihapus');
+  } else showToast('Gagal hapus', 'error');
 }
 </script>
 {% endblock %}

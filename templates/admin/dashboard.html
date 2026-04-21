@@ -1,88 +1,269 @@
 {% extends "admin/base_admin.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Selamat datang kembali — ini ringkasan hari ini{% endblock %}
+
+{% block extra_css %}
+<style>
+.chart-bars{display:flex;align-items:flex-end;gap:5px;height:100px;padding:4px 0 0;}
+.c-bar{flex:1;border-radius:5px 5px 0 0;background:var(--surface3);cursor:pointer;transition:all .3s;position:relative;min-width:0;}
+.c-bar:hover,.c-bar.hi{background:var(--red);box-shadow:0 0 12px var(--red-glow);}
+.c-bar .c-bar-tip{
+  position:absolute;top:-28px;left:50%;transform:translateX(-50%);
+  background:var(--red);color:#fff;font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;white-space:nowrap;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.c-bar:hover .c-bar-tip{opacity:1;}
+.chart-labels{display:flex;gap:5px;margin-top:6px;}
+.chart-label{flex:1;text-align:center;font-size:8px;color:var(--muted2);min-width:0;}
+
+.activity-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.activity-dot.green{background:var(--green);box-shadow:0 0 6px rgba(16,217,140,.4);}
+.activity-dot.yellow{background:var(--yellow);}
+.activity-dot.red{background:var(--red);}
+.activity-dot.blue{background:var(--blue);}
+.activity-text{font-size:12px;color:var(--text-dim);flex:1;line-height:1.4;}
+.activity-text strong{color:var(--text);font-weight:600;}
+.activity-time{font-size:10px;color:var(--muted2);flex-shrink:0;}
+
+.topbar-date{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:9px;
+  padding:7px 14px;
+  font-size:12px;font-weight:600;
+  color:var(--text-dim);
+  display:flex;align-items:center;gap:7px;
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<!-- Welcome Strip -->
-<div style="background:linear-gradient(135deg,rgba(229,9,20,0.12),rgba(229,9,20,0.04));border:1px solid rgba(229,9,20,0.15);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
-  <div style="width:38px;height:38px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-    <i class="fa-solid fa-shield-halved" style="color:#fff;font-size:16px;"></i>
-  </div>
+<!-- Header row -->
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
   <div>
-    <div style="font-size:13px;font-weight:700;color:var(--text);">Panel Admin Cinevu</div>
-    <div style="font-size:11px;color:var(--muted2);margin-top:1px;">Kelola request & iklan platform</div>
+    <h1 style="font-size:24px;font-weight:800;letter-spacing:-0.5px;">Dashboard</h1>
+    <p style="font-size:13px;color:var(--muted2);margin-top:3px;">Ringkasan performa & aktivitas terbaru</p>
+  </div>
+  <div class="topbar-date">
+    <i class="fa-regular fa-calendar" style="color:var(--red);"></i>
+    <span id="currentDate">—</span>
   </div>
 </div>
 
-<!-- Stats Grid -->
+<!-- Stats Cards -->
 <div class="stats-grid">
-  <div class="stat-card c-white">
-    <span class="stat-icon"><i class="fa-solid fa-list-check" style="color:var(--muted2);"></i></span>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-card-icon blue"><i class="fa-solid fa-list-check"></i></div>
+      <i class="fa-solid fa-ellipsis stat-card-menu"></i>
+    </div>
     <div class="stat-label">Total Request</div>
-    <div class="stat-val white">{{ stats.total_request }}</div>
+    <div class="stat-val">{{ stats.total_request }}</div>
+    <div class="stat-change"><i class="fa-solid fa-arrow-trend-up"></i> Semua waktu</div>
   </div>
-  <div class="stat-card c-yellow">
-    <span class="stat-icon"><i class="fa-solid fa-hourglass-half" style="color:var(--yellow);"></i></span>
-    <div class="stat-label">Menunggu</div>
-    <div class="stat-val yellow">{{ stats.pending }}</div>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-card-icon yellow"><i class="fa-solid fa-hourglass-half"></i></div>
+      <i class="fa-solid fa-ellipsis stat-card-menu"></i>
+    </div>
+    <div class="stat-label">Menunggu Review</div>
+    <div class="stat-val" style="color:var(--yellow);">{{ stats.pending }}</div>
+    <div class="stat-change" style="color:var(--yellow);"><i class="fa-solid fa-clock"></i> Perlu ditinjau</div>
   </div>
-  <div class="stat-card c-green">
-    <span class="stat-icon"><i class="fa-solid fa-circle-check" style="color:var(--green);"></i></span>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-card-icon green"><i class="fa-solid fa-circle-check"></i></div>
+      <i class="fa-solid fa-ellipsis stat-card-menu"></i>
+    </div>
     <div class="stat-label">Disetujui</div>
-    <div class="stat-val green">{{ stats.approved }}</div>
+    <div class="stat-val" style="color:var(--green);">{{ stats.approved }}</div>
+    <div class="stat-change"><i class="fa-solid fa-arrow-trend-up"></i> Request berhasil</div>
   </div>
-  <div class="stat-card c-red">
-    <span class="stat-icon"><i class="fa-solid fa-rectangle-ad" style="color:var(--red);"></i></span>
+  <div class="stat-card">
+    <div class="stat-card-top">
+      <div class="stat-card-icon red"><i class="fa-solid fa-rectangle-ad"></i></div>
+      <i class="fa-solid fa-ellipsis stat-card-menu"></i>
+    </div>
     <div class="stat-label">Iklan Aktif</div>
-    <div class="stat-val red">{{ stats.iklan_aktif }}</div>
+    <div class="stat-val" style="color:var(--red);">{{ stats.iklan_aktif }}</div>
+    <div class="stat-change"><i class="fa-solid fa-bolt"></i> Sedang tayang</div>
   </div>
 </div>
 
-<!-- Recent Requests -->
-<div class="sec-header">
-  <div class="sec-title sec-title-bar">
-    <i class="fa-solid fa-clock-rotate-left"></i> Request Terbaru
-  </div>
-  <a href="/admin/requests" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-right"></i> Semua</a>
-</div>
-
-<div class="card-list">
-  {% for r in recent_requests %}
-  <div class="item-card">
-    <div class="item-card-top">
-      <div>
-        <div class="item-card-title">{{ r.nama_brand }}</div>
-        <div class="item-card-sub"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }}</div>
+<!-- Charts Row -->
+<div class="two-col">
+  <!-- Request Overview Chart -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><i class="fa-solid fa-chart-bar"></i> Overview Request</div>
+      <span style="font-size:11px;color:var(--muted2);background:var(--surface3);padding:4px 10px;border-radius:6px;border:1px solid var(--border);">7 Hari</span>
+    </div>
+    <div class="panel-body">
+      <div class="chart-bars" id="chartBars">
+        <!-- bars injected by JS -->
       </div>
-      <span class="badge badge-{{ r.status }}">
-        {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
-        {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
-        {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
-        {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
-        {{ r.status | upper }}
-      </span>
-    </div>
-    <div class="item-card-meta">
-      <span class="meta-chip"><i class="fa-solid fa-tag" style="font-size:9px;"></i> {{ r.jenis_iklan }}</span>
-      <span class="meta-chip yellow"><i class="fa-solid fa-coins" style="font-size:9px;"></i> {{ r.budget }}</span>
-      <span class="meta-chip"><i class="fa-regular fa-calendar" style="font-size:9px;"></i> {{ r.created_at[:10] if r.created_at else '-' }}</span>
+      <div class="chart-labels" id="chartLabels"></div>
+      <div style="display:flex;gap:16px;margin-top:14px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);">
+          <span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block;"></span> Request Masuk
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-dim);">
+          <span style="width:10px;height:10px;border-radius:2px;background:var(--surface3);display:inline-block;"></span> Selesai
+        </div>
+      </div>
     </div>
   </div>
-  {% else %}
-  <div class="empty-state">
-    <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
-    <p>Belum ada request</p>
+
+  <!-- Status Distribution -->
+  <div class="panel">
+    <div class="panel-head">
+      <div class="panel-title"><i class="fa-solid fa-chart-pie"></i> Distribusi Status</div>
+    </div>
+    <div class="panel-body">
+      <div class="donut-wrap" style="justify-content:center;gap:28px;padding:8px 0;">
+        <div class="donut">
+          <div class="donut-center">
+            <div class="donut-num">{{ stats.total_request }}</div>
+            <div class="donut-sub">Total</div>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--green);"></span>
+            <span class="legend-label">Approved</span>
+            <span class="legend-val">{{ stats.approved }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--yellow);"></span>
+            <span class="legend-label">Pending</span>
+            <span class="legend-val">{{ stats.pending }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--red);"></span>
+            <span class="legend-label">Rejected</span>
+            <span class="legend-val">{{ stats.total_request - stats.approved - stats.pending if stats.total_request else 0 }}</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:var(--blue);"></span>
+            <span class="legend-label">Iklan Aktif</span>
+            <span class="legend-val">{{ stats.iklan_aktif }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  {% endfor %}
 </div>
 
-<!-- Quick Actions -->
-<div style="display:flex;gap:10px;margin-top:18px;">
-  <a href="/admin/requests?status=pending" class="btn btn-primary" style="flex:1;justify-content:center;">
-    <i class="fa-solid fa-inbox"></i> Review Pending
-  </a>
-  <a href="/admin/iklan" class="btn btn-ghost" style="flex:1;justify-content:center;">
-    <i class="fa-solid fa-rectangle-ad"></i> Kelola Iklan
-  </a>
+<!-- Recent Requests Table -->
+<div class="panel">
+  <div class="panel-head">
+    <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Request Terbaru</div>
+    <a href="/admin/requests" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-right"></i> Lihat Semua</a>
+  </div>
+  <div style="overflow-x:auto;" class="desktop-only">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Brand</th>
+          <th>Jenis Iklan</th>
+          <th>Budget</th>
+          <th>Tanggal</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in recent_requests %}
+        <tr>
+          <td>
+            <div class="td-brand">
+              <div class="brand-avatar">{{ r.nama_brand[0] | upper }}</div>
+              <div>
+                <div class="td-name">{{ r.nama_brand }}</div>
+                <div class="td-sub">{{ r.email }}</div>
+              </div>
+            </div>
+          </td>
+          <td style="color:var(--text-dim);font-size:12px;">{{ r.jenis_iklan }}</td>
+          <td style="color:var(--yellow);font-weight:700;font-size:13px;">{{ r.budget }}</td>
+          <td style="color:var(--muted2);font-size:12px;">{{ r.created_at[:10] if r.created_at else '—' }}</td>
+          <td>
+            <span class="badge badge-{{ r.status }}">
+              {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
+              {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
+              {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
+              {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
+              {{ r.status | upper }}
+            </span>
+          </td>
+          <td>
+            <a href="/admin/requests" class="btn btn-ghost btn-sm btn-icon" title="Detail">
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6"><div class="empty-state" style="padding:28px;"><div class="empty-icon"><i class="fa-solid fa-inbox"></i></div><p>Belum ada request</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- Mobile fallback -->
+  <div class="panel-body" style="display:none;" id="mobileRequests">
+    <div class="card-list">
+      {% for r in recent_requests %}
+      <div class="item-card">
+        <div class="item-card-top">
+          <div>
+            <div class="item-card-title">{{ r.nama_brand }}</div>
+            <div class="item-card-sub">{{ r.email }}</div>
+          </div>
+          <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
+        </div>
+        <div class="item-card-meta">
+          <span class="meta-chip">{{ r.jenis_iklan }}</span>
+          <span class="meta-chip yellow">{{ r.budget }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Set current date
+const d = new Date();
+document.getElementById('currentDate').textContent = d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+// Draw mini chart
+const days = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+const vals = [3,7,5,9,4,11,8];
+const max = Math.max(...vals);
+const barsEl = document.getElementById('chartBars');
+const labelsEl = document.getElementById('chartLabels');
+const today = new Date().getDay();
+const dayMap = [6,0,1,2,3,4,5];
+vals.forEach((v,i) => {
+  const bar = document.createElement('div');
+  bar.className = 'c-bar' + (i === 6 ? ' hi' : '');
+  bar.style.height = (v/max*90)+'%';
+  bar.innerHTML = `<div class="c-bar-tip">${v} req</div>`;
+  barsEl.appendChild(bar);
+  const lbl = document.createElement('div');
+  lbl.className = 'chart-label';
+  lbl.textContent = days[i];
+  labelsEl.appendChild(lbl);
+});
+
+// Mobile show cards
+if(window.innerWidth <= 768) {
+  document.getElementById('mobileRequests').style.display = 'block';
+}
+</script>
 {% endblock %}
