@@ -42,6 +42,9 @@
       <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">
         <i class="fa-solid fa-pen"></i> Edit
       </button>
+      <a class="btn btn-ghost btn-sm" href="/admin/iklan/konten/{{ r.id }}" style="text-decoration:none;">
+        <i class="fa-solid fa-code"></i> Editor
+      </a>
       <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">
         <i class="fa-solid fa-trash"></i> Hapus
       </button>
@@ -101,9 +104,17 @@
         <input type="url" class="form-control" id="add_link_url" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label><i class="fa-solid fa-code"></i> Konten *</label>
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span><i class="fa-solid fa-code"></i> Konten *</span>
+          <button type="button" class="btn-editor-expand" onclick="openFullEditor('add')" title="Buka full editor">
+            <i class="fa-solid fa-expand"></i> Full Editor
+          </button>
+        </label>
         <div class="form-hint" id="add_hint" style="margin-bottom:6px;color:var(--red);"></div>
-        <textarea class="form-control" id="add_konten" placeholder="URL gambar / kode HTML / script embed"></textarea>
+        <div class="codemirror-wrap" id="add_konten_wrap">
+          <div id="add_konten_cm"></div>
+          <textarea id="add_konten" style="display:none;" placeholder="URL gambar / kode HTML / script embed"></textarea>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -180,9 +191,17 @@
         <input type="url" class="form-control" id="edit_link_url" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label><i class="fa-solid fa-code"></i> Konten *</label>
+        <label style="display:flex;align-items:center;justify-content:space-between;">
+          <span><i class="fa-solid fa-code"></i> Konten *</span>
+          <button type="button" class="btn-editor-expand" onclick="openFullEditor('edit')" title="Buka full editor">
+            <i class="fa-solid fa-expand"></i> Full Editor
+          </button>
+        </label>
         <div class="form-hint" id="edit_hint" style="margin-bottom:6px;color:var(--red);"></div>
-        <textarea class="form-control" id="edit_konten"></textarea>
+        <div class="codemirror-wrap" id="edit_konten_wrap">
+          <div id="edit_konten_cm"></div>
+          <textarea id="edit_konten" style="display:none;"></textarea>
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -221,6 +240,207 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/fold/foldcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+
+<style>
+/* CodeMirror Styling */
+.codemirror-wrap {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #282a36;
+}
+.CodeMirror {
+  height: 180px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  background: #282a36 !important;
+  color: #f8f8f2 !important;
+  border-radius: 10px;
+}
+.CodeMirror-scroll { min-height: 180px; }
+.CodeMirror-focused { outline: none; }
+.codemirror-wrap:focus-within {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px rgba(229,57,53,0.18);
+}
+
+/* Btn expand */
+.btn-editor-expand {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  color: var(--muted2);
+  font-size: 11px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+.btn-editor-expand:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+
+/* Full Editor Overlay */
+#fullEditorOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #1a1a2e;
+  display: none;
+  flex-direction: column;
+}
+#fullEditorOverlay.open { display: flex; }
+.fed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #16213e;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  gap: 10px;
+}
+.fed-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f8f8f2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fed-title i { color: var(--red); }
+.fed-actions { display: flex; gap: 8px; }
+.fed-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s;
+}
+.fed-btn-cancel {
+  background: rgba(255,255,255,0.07);
+  color: #a0a0b0;
+}
+.fed-btn-cancel:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.fed-btn-save {
+  background: var(--red, #e53935);
+  color: #fff;
+}
+.fed-btn-save:hover { opacity: 0.85; }
+.fed-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #0f3460;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-wrap: wrap;
+}
+.fed-toolbar-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ccd6f6;
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fed-toolbar-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.fed-toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); margin: 0 2px; }
+.fed-lang-badge {
+  margin-left: auto;
+  font-size: 10px;
+  background: rgba(255,255,255,0.06);
+  color: #64ffda;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid rgba(100,255,218,0.2);
+  font-family: monospace;
+}
+.fed-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+.fed-body .CodeMirror {
+  height: 100% !important;
+  font-size: 14px;
+  border-radius: 0;
+}
+.fed-body .CodeMirror-scroll { min-height: unset; }
+#fullEditorCm { height: 100%; }
+.fed-statusbar {
+  padding: 5px 16px;
+  background: #16213e;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 10px;
+  color: #555;
+  display: flex;
+  gap: 16px;
+}
+</style>
+
+<!-- Full Editor Overlay DOM -->
+<div id="fullEditorOverlay">
+  <div class="fed-header">
+    <div class="fed-title">
+      <i class="fa-solid fa-code"></i>
+      <span id="fed_title">Konten Editor</span>
+    </div>
+    <div class="fed-actions">
+      <button class="fed-btn fed-btn-cancel" onclick="closeFullEditor(false)">
+        <i class="fa-solid fa-xmark"></i> Batal
+      </button>
+      <button class="fed-btn fed-btn-save" onclick="closeFullEditor(true)">
+        <i class="fa-solid fa-check"></i> Terapkan
+      </button>
+    </div>
+  </div>
+  <div class="fed-toolbar">
+    <button class="fed-toolbar-btn" onclick="fedInsert('&lt;div&gt;&lt;/div&gt;')" title="div">div</button>
+    <button class="fed-toolbar-btn" onclick="fedInsert('&lt;img src=\"\" alt=\"\"&gt;')" title="img">img</button>
+    <button class="fed-toolbar-btn" onclick="fedInsert('&lt;a href=\"\"&gt;&lt;/a&gt;')" title="link">a</button>
+    <button class="fed-toolbar-btn" onclick="fedInsert('&lt;script&gt;\n\n&lt;/script&gt;')" title="script">script</button>
+    <button class="fed-toolbar-btn" onclick="fedInsert('&lt;style&gt;\n\n&lt;/style&gt;')" title="style">style</button>
+    <div class="fed-toolbar-sep"></div>
+    <button class="fed-toolbar-btn" onclick="fedFormat()" title="Format">
+      <i class="fa-solid fa-indent"></i> Format
+    </button>
+    <button class="fed-toolbar-btn" onclick="fedClear()" title="Clear">
+      <i class="fa-solid fa-trash"></i> Clear
+    </button>
+    <button class="fed-toolbar-btn" onclick="fedCopy()" title="Salin semua">
+      <i class="fa-solid fa-copy"></i> Salin
+    </button>
+    <span class="fed-lang-badge" id="fed_lang_badge">html</span>
+  </div>
+  <div class="fed-body">
+    <div id="fullEditorCm"></div>
+  </div>
+  <div class="fed-statusbar">
+    <span id="fed_chars">0 karakter</span>
+    <span id="fed_lines">0 baris</span>
+    <span>CodeMirror · Dracula</span>
+  </div>
+</div>
+
 <script>
 const iklanRows = {{ rows | tojson }};
 const iklanMap = {};
@@ -230,12 +450,134 @@ const hints = {
   html: 'Masukkan kode HTML bebas',
   script: 'Masukkan kode script/embed (Adsterra, dll)'
 };
+
+// ---- CodeMirror instances ----
+let cmAdd = null, cmEdit = null, cmFull = null;
+let fullEditorTarget = null; // 'add' | 'edit'
+
+function getModeForTipe(tipe) {
+  if (tipe === 'html' || tipe === 'script') return 'htmlmixed';
+  return 'null';
+}
+
+function initCM(elId, mode) {
+  return CodeMirror(document.getElementById(elId), {
+    mode: mode || 'htmlmixed',
+    theme: 'dracula',
+    lineNumbers: true,
+    lineWrapping: true,
+    matchBrackets: true,
+    autoCloseTags: true,
+    styleActiveLine: true,
+    extraKeys: { 'Ctrl-Space': 'autocomplete' }
+  });
+}
+
+function initEditors() {
+  if (!cmAdd) {
+    cmAdd = initCM('add_konten_cm', 'htmlmixed');
+    cmAdd.on('change', () => {
+      document.getElementById('add_konten').value = cmAdd.getValue();
+      updateStatusBar(cmAdd);
+    });
+  }
+  if (!cmEdit) {
+    cmEdit = initCM('edit_konten_cm', 'htmlmixed');
+    cmEdit.on('change', () => {
+      document.getElementById('edit_konten').value = cmEdit.getValue();
+    });
+  }
+  if (!cmFull) {
+    cmFull = initCM('fullEditorCm', 'htmlmixed');
+    cmFull.on('change', () => {
+      const v = cmFull.getValue();
+      document.getElementById('fed_chars').textContent = v.length + ' karakter';
+      document.getElementById('fed_lines').textContent = cmFull.lineCount() + ' baris';
+    });
+    // make it fill height
+    setTimeout(() => cmFull.refresh(), 50);
+  }
+}
+
 function updateHint(p) {
   const tipe = document.getElementById(`${p}_tipe`).value;
   document.getElementById(`${p}_hint`).textContent = hints[tipe] || '';
   if (p === 'add') document.getElementById('add_link_wrap').style.display = tipe === 'gambar' ? 'block' : 'none';
+  const cm = p === 'add' ? cmAdd : cmEdit;
+  if (cm) cm.setOption('mode', getModeForTipe(tipe));
 }
+
+// ---- Full Editor ----
+function openFullEditor(prefix) {
+  fullEditorTarget = prefix;
+  const cm = prefix === 'add' ? cmAdd : cmEdit;
+  const tipe = document.getElementById(`${prefix}_tipe`).value;
+  const lang = getModeForTipe(tipe);
+
+  document.getElementById('fed_title').textContent =
+    prefix === 'add' ? 'Tambah Iklan — Konten Editor' : 'Edit Iklan — Konten Editor';
+  document.getElementById('fed_lang_badge').textContent = lang === 'htmlmixed' ? 'html/script' : tipe || 'text';
+
+  const currentVal = cm ? cm.getValue() : document.getElementById(`${prefix}_konten`).value;
+  cmFull.setValue(currentVal);
+  cmFull.setOption('mode', lang);
+  setTimeout(() => { cmFull.refresh(); cmFull.focus(); }, 80);
+
+  document.getElementById('fullEditorOverlay').classList.add('open');
+}
+
+function closeFullEditor(apply) {
+  if (apply) {
+    const val = cmFull.getValue();
+    const cm = fullEditorTarget === 'add' ? cmAdd : cmEdit;
+    cm.setValue(val);
+    document.getElementById(`${fullEditorTarget}_konten`).value = val;
+  }
+  document.getElementById('fullEditorOverlay').classList.remove('open');
+}
+
+function fedInsert(snippet) {
+  const doc = cmFull.getDoc();
+  const cursor = doc.getCursor();
+  doc.replaceRange(snippet, cursor);
+  cmFull.focus();
+}
+
+function fedFormat() {
+  const val = cmFull.getValue();
+  // Simple HTML formatter: add newlines after tags
+  try {
+    const formatted = val
+      .replace(/></g, '>\n<')
+      .replace(/(\s*\n\s*){2,}/g, '\n');
+    cmFull.setValue(formatted);
+  } catch(e) {}
+}
+
+function fedClear() {
+  if (confirm('Kosongkan editor?')) cmFull.setValue('');
+}
+
+function fedCopy() {
+  navigator.clipboard.writeText(cmFull.getValue()).then(() => showToast('Tersalin!'));
+}
+
+function updateStatusBar(cm) {
+  const v = cm.getValue();
+  document.getElementById('fed_chars').textContent = v.length + ' karakter';
+  document.getElementById('fed_lines').textContent = cm.lineCount() + ' baris';
+}
+
+// Init when modals open
+const origOpenModal = window.openModal;
+window.openModal = function(id) {
+  origOpenModal && origOpenModal(id);
+  setTimeout(initEditors, 50);
+};
+
+// ---- CRUD functions ----
 async function tambahIklan() {
+  if (cmAdd) document.getElementById('add_konten').value = cmAdd.getValue();
   const data = {
     nama: document.getElementById('add_nama').value.trim(),
     posisi: document.getElementById('add_posisi').value,
@@ -253,6 +595,7 @@ async function tambahIklan() {
   if (res.ok) { showToast('Iklan ditambahkan!'); closeModal('addModal'); setTimeout(() => location.reload(), 700); }
   else showToast('Gagal: ' + (res.error || ''), 'error');
 }
+
 function openEdit(id) {
   const r = iklanMap[id];
   if (!r) return;
@@ -260,17 +603,26 @@ function openEdit(id) {
   document.getElementById('edit_nama').value = r.nama || '';
   document.getElementById('edit_posisi').value = r.posisi || '';
   document.getElementById('edit_tipe').value = r.tipe || '';
-  document.getElementById('edit_konten').value = r.konten || '';
   document.getElementById('edit_link_url').value = r.link_url || '';
   document.getElementById('edit_aktif').value = r.aktif ? 'true' : 'false';
   document.getElementById('edit_prioritas').value = r.prioritas || 1;
   document.getElementById('edit_mulai').value = r.tanggal_mulai || '';
   document.getElementById('edit_selesai').value = r.tanggal_selesai || '';
   document.getElementById('edit_catatan').value = r.catatan || '';
+  document.getElementById('edit_konten').value = r.konten || '';
   updateHint('edit');
   openModal('editModal');
+  setTimeout(() => {
+    if (cmEdit) {
+      cmEdit.setValue(r.konten || '');
+      cmEdit.setOption('mode', getModeForTipe(r.tipe));
+      cmEdit.refresh();
+    }
+  }, 100);
 }
+
 async function simpanEdit() {
+  if (cmEdit) document.getElementById('edit_konten').value = cmEdit.getValue();
   const id = document.getElementById('edit_id').value;
   const data = {
     id,
@@ -289,12 +641,14 @@ async function simpanEdit() {
   if (res.ok) { showToast('Iklan diperbarui!'); closeModal('editModal'); setTimeout(() => location.reload(), 700); }
   else showToast('Gagal update', 'error');
 }
+
 async function toggleAktif(id, newVal) {
   const aktif = newVal === 'true' || newVal === true;
   const res = await apiPost('/admin/iklan/toggle', {id, aktif});
   if (res.ok) { showToast(aktif ? 'Diaktifkan' : 'Dinonaktifkan'); setTimeout(() => location.reload(), 600); }
   else showToast('Gagal', 'error');
 }
+
 async function deleteIklan(id) {
   if (!confirm('Hapus iklan ini?')) return;
   const res = await apiPost('/admin/iklan/delete', {id});

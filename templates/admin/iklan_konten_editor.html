@@ -1,0 +1,395 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Konten Editor — {{ iklan.nama }}{% endblock %}
+{% block page_title %}Konten Editor{% endblock %}
+
+{% block content %}
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closetag.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.css">
+
+<style>
+/* Full-page editor layout */
+.ked-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: calc(100vh - 120px);
+  min-height: 500px;
+}
+
+/* Info bar */
+.ked-infobar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px 12px 0 0;
+  flex-wrap: wrap;
+}
+.ked-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text1);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ked-badge {
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ked-badge-html { background: rgba(255,87,34,0.12); color: #ff5722; border-color: rgba(255,87,34,0.2); }
+.ked-badge-script { background: rgba(100,255,218,0.08); color: #64ffda; border-color: rgba(100,255,218,0.2); }
+.ked-badge-gambar { background: rgba(103,80,164,0.1); color: #9c7ef0; border-color: rgba(103,80,164,0.2); }
+.ked-posisi {
+  font-size: 11px;
+  color: var(--muted2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Toolbar */
+.ked-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 14px;
+  background: #0f3460;
+  flex-wrap: wrap;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.ked-tb-btn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #ccd6f6;
+  padding: 5px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+.ked-tb-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.ked-tb-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.1); margin: 0 3px; }
+.ked-tb-right { margin-left: auto; display: flex; gap: 5px; }
+.ked-tb-btn-primary {
+  background: var(--red, #e53935);
+  color: #fff;
+  border-color: var(--red);
+}
+.ked-tb-btn-primary:hover { opacity: 0.82; }
+
+/* Editor container */
+.ked-editor-container {
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-top: none;
+  position: relative;
+}
+.ked-editor-container .CodeMirror {
+  height: 100%;
+  font-size: 14px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  background: #1e1f29 !important;
+  color: #f8f8f2 !important;
+  border-radius: 0;
+  line-height: 1.65;
+}
+.ked-editor-container .CodeMirror-scroll { min-height: unset; }
+.ked-editor-container .CodeMirror-gutters {
+  background: #1a1b24 !important;
+  border-right: 1px solid #2d2e3f !important;
+}
+.ked-editor-container .CodeMirror-linenumber { color: #484a6a; }
+
+/* Status bar */
+.ked-statusbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 6px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  font-size: 10px;
+  color: var(--muted2);
+}
+.ked-statusbar span { display: flex; align-items: center; gap: 4px; }
+.ked-statusbar i { font-size: 9px; opacity: 0.6; }
+.ked-status-right { margin-left: auto; color: #64ffda; font-weight: 600; opacity: 0.7; }
+
+/* Preview pane */
+.ked-preview-wrap {
+  margin-top: 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: none;
+}
+.ked-preview-wrap.open { display: block; }
+.ked-preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--surface3);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted2);
+}
+.ked-preview-close {
+  background: none;
+  border: none;
+  color: var(--muted2);
+  cursor: pointer;
+  font-size: 14px;
+}
+.ked-preview-frame {
+  width: 100%;
+  min-height: 200px;
+  max-height: 300px;
+  border: none;
+  background: #fff;
+  display: block;
+}
+
+/* Snippets modal */
+.snippet-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 16px;
+}
+.snippet-card {
+  background: var(--surface3);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.snippet-card:hover { border-color: var(--red); background: rgba(229,57,53,0.06); }
+.snippet-card-name { font-size: 12px; font-weight: 700; color: var(--text1); }
+.snippet-card-desc { font-size: 10px; color: var(--muted2); margin-top: 2px; }
+</style>
+
+<div class="ked-page">
+  <!-- Info bar -->
+  <div class="ked-infobar">
+    <div class="ked-name">
+      <i class="fa-solid fa-rectangle-ad" style="color:var(--red);margin-right:6px;font-size:12px;"></i>
+      {{ iklan.nama }}
+    </div>
+    <span class="ked-badge ked-badge-{{ iklan.tipe }}">{{ iklan.tipe }}</span>
+    <div class="ked-posisi">
+      <i class="fa-solid fa-location-dot" style="font-size:10px;"></i>
+      {{ iklan.posisi }}
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="ked-toolbar">
+    <!-- Insert snippets -->
+    <button class="ked-tb-btn" onclick="insertSnippet('<div class=\"\">\n  \n</div>')">
+      <i class="fa-solid fa-code"></i> div
+    </button>
+    <button class="ked-tb-btn" onclick="insertSnippet('<img src=\"\" alt=\"\" style=\"width:100%;\">')">
+      <i class="fa-regular fa-image"></i> img
+    </button>
+    <button class="ked-tb-btn" onclick="insertSnippet('<a href=\"\" target=\"_blank\">\n  \n</a>')">
+      <i class="fa-solid fa-link"></i> a
+    </button>
+    <button class="ked-tb-btn" onclick="insertSnippet('<script type=\"text/javascript\">\n  \n<\/script>')">
+      &lt;script&gt;
+    </button>
+    <button class="ked-tb-btn" onclick="insertSnippet('<style>\n  \n</style>')">
+      &lt;style&gt;
+    </button>
+    <div class="ked-tb-sep"></div>
+    <button class="ked-tb-btn" onclick="formatCode()">
+      <i class="fa-solid fa-indent"></i> Format
+    </button>
+    <button class="ked-tb-btn" onclick="togglePreview()">
+      <i class="fa-solid fa-eye"></i> Preview
+    </button>
+    <button class="ked-tb-btn" onclick="copyAll()">
+      <i class="fa-solid fa-copy"></i> Salin
+    </button>
+    <div class="ked-tb-sep"></div>
+    <button class="ked-tb-btn" onclick="clearEditor()" title="Kosongkan editor">
+      <i class="fa-solid fa-trash"></i>
+    </button>
+
+    <div class="ked-tb-right">
+      <a href="/admin/iklan" class="ked-tb-btn">
+        <i class="fa-solid fa-arrow-left"></i> Kembali
+      </a>
+      <button class="ked-tb-btn ked-tb-btn-primary" onclick="saveKonten()">
+        <i class="fa-solid fa-floppy-disk"></i> Simpan
+      </button>
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div class="ked-editor-container">
+    <textarea id="mainEditor">{{ iklan.konten or '' }}</textarea>
+  </div>
+
+  <!-- Status bar -->
+  <div class="ked-statusbar">
+    <span><i class="fa-solid fa-text-width"></i> <span id="sb_chars">0</span> karakter</span>
+    <span><i class="fa-solid fa-list"></i> <span id="sb_lines">0</span> baris</span>
+    <span><i class="fa-solid fa-i-cursor"></i> Baris <span id="sb_row">1</span>, Kol <span id="sb_col">1</span></span>
+    <span class="ked-status-right">CodeMirror · Dracula · {{ iklan.tipe }}</span>
+  </div>
+</div>
+
+<!-- Preview panel -->
+<div class="ked-preview-wrap" id="previewWrap">
+  <div class="ked-preview-head">
+    <span><i class="fa-solid fa-eye" style="margin-right:6px;"></i>Preview Output</span>
+    <button class="ked-preview-close" onclick="togglePreview()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <iframe class="ked-preview-frame" id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+</div>
+
+<script>
+let cm;
+const tipe = '{{ iklan.tipe }}';
+const iklanId = '{{ iklan.id }}';
+
+function getMode(t) {
+  if (t === 'html' || t === 'script') return 'htmlmixed';
+  return 'null';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const el = document.getElementById('mainEditor');
+  cm = CodeMirror.fromTextArea(el, {
+    mode: getMode(tipe),
+    theme: 'dracula',
+    lineNumbers: true,
+    lineWrapping: true,
+    matchBrackets: true,
+    autoCloseTags: true,
+    styleActiveLine: true,
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: {
+      'Ctrl-S': () => saveKonten(),
+      'Ctrl-F': 'findPersistent',
+      'Ctrl-/': 'toggleComment',
+    }
+  });
+
+  // make fill container
+  cm.setSize('100%', '100%');
+
+  cm.on('change', updateStatusBar);
+  cm.on('cursorActivity', updateCursor);
+  updateStatusBar();
+  updateCursor();
+});
+
+function updateStatusBar() {
+  if (!cm) return;
+  const v = cm.getValue();
+  document.getElementById('sb_chars').textContent = v.length;
+  document.getElementById('sb_lines').textContent = cm.lineCount();
+}
+function updateCursor() {
+  if (!cm) return;
+  const c = cm.getCursor();
+  document.getElementById('sb_row').textContent = c.line + 1;
+  document.getElementById('sb_col').textContent = c.ch + 1;
+}
+
+function insertSnippet(code) {
+  const doc = cm.getDoc();
+  const cursor = doc.getCursor();
+  const sel = doc.getSelection();
+  if (sel) doc.replaceSelection(code);
+  else doc.replaceRange(code, cursor);
+  cm.focus();
+}
+
+function formatCode() {
+  let val = cm.getValue();
+  try {
+    val = val
+      .replace(/>\s*</g, '>\n<')
+      .replace(/(\s*\n){2,}/g, '\n')
+      .trim();
+    cm.setValue(val);
+  } catch(e) {}
+}
+
+function clearEditor() {
+  if (confirm('Kosongkan semua konten?')) cm.setValue('');
+}
+
+function copyAll() {
+  navigator.clipboard.writeText(cm.getValue())
+    .then(() => showToast && showToast('Tersalin!'));
+}
+
+function togglePreview() {
+  const wrap = document.getElementById('previewWrap');
+  const isOpen = wrap.classList.toggle('open');
+  if (isOpen) {
+    const frame = document.getElementById('previewFrame');
+    const html = cm.getValue();
+    frame.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;font-family:sans-serif;}</style></head><body>${html}</body></html>`;
+  }
+}
+
+async function saveKonten() {
+  const konten = cm.getValue().trim();
+  if (!konten) { showToast && showToast('Konten kosong', 'error'); return; }
+  try {
+    const res = await fetch('/admin/iklan/update-konten', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: iklanId, konten })
+    });
+    const data = await res.json();
+    if (data.ok) showToast && showToast('Konten disimpan!');
+    else showToast && showToast('Gagal: ' + (data.error || ''), 'error');
+  } catch(e) {
+    showToast && showToast('Error: ' + e.message, 'error');
+  }
+}
+</script>
+{% endblock %}
