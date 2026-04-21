@@ -75,15 +75,6 @@
 <!-- CONTENT AREA -->
 <div class="content-area">
 
-  {% if iklan is defined and iklan.get('header_banner') %}
-  <div class="ad-slot" style="padding-top:16px;">
-  {% for ad in iklan['header_banner'] %}
-    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
-    {% else %}{{ ad.konten | safe }}{% endif %}
-  {% endfor %}
-  </div>
-  {% endif %}
-
   <!-- FILTER TABS -->
   <div class="filter-tabs">
     <button class="filter-tab active"><i class="fa-solid fa-arrow-trend-up"></i> Trending</button>
@@ -119,6 +110,15 @@
   <!-- SECTIONS -->
   {% for sec in sections %}
   {% if sec.movies %}
+
+  {% if loop.index == 1 and iklan is defined and iklan.get('header_banner') %}
+  <div class="ad-slot" style="padding:16px 0;">
+  {% for ad in iklan['header_banner'] %}
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
+    {% else %}{{ ad.konten | safe }}{% endif %}
+  {% endfor %}
+  </div>
+  {% endif %}
 
   {% if loop.index == 4 and iklan is defined and iklan.get('home_mid') %}
   <div class="ad-slot" style="margin-bottom:16px;">
