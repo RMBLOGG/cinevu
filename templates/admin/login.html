@@ -5,91 +5,65 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Login — Cinevu</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-:root{--red:#e5173f;--red-glow:rgba(229,23,63,0.25);--bg:#0b0d14;--surface:#131620;--surface2:#181c28;--surface3:#1e2334;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.10);--muted2:#6b7494;--text:#dde2f0;}
+:root{--red:#e50914;--bg:#070709;--surface:#0e0e12;--surface2:#13131a;--border:#1e1e2c;--border2:#28283a;--muted2:#78789a;--text:#e6e6f0;}
 body{
-  background:var(--bg);color:var(--text);
-  font-family:'Plus Jakarta Sans',sans-serif;
-  min-height:100vh;display:flex;
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Sora',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
-/* Side decoration */
-.login-deco{
-  flex:1;
-  background:linear-gradient(135deg,#0d1020 0%,#130a18 50%,#0b0d14 100%);
-  display:flex;align-items:center;justify-content:center;
-  padding:40px;position:relative;overflow:hidden;
+/* subtle grid bg */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(229,9,20,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(229,9,20,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
 }
-.login-deco::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(ellipse at 30% 60%, rgba(229,23,63,0.12) 0%, transparent 60%),
-             radial-gradient(ellipse at 70% 30%, rgba(91,141,239,0.08) 0%, transparent 50%);
-}
-/* dot grid */
-.login-deco::after{
-  content:'';position:absolute;inset:0;
-  background-image:radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
-  background-size:28px 28px;
-}
-.deco-content{position:relative;z-index:1;text-align:center;}
-.deco-logo{width:64px;height:64px;background:linear-gradient(135deg,var(--red),#8b0e23);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 8px 40px var(--red-glow);}
-.deco-logo i{font-size:28px;color:#fff;}
-.deco-title{font-size:32px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#fff,#8b93b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.deco-sub{font-size:14px;color:var(--muted2);margin-top:10px;line-height:1.6;}
-.deco-chips{display:flex;gap:8px;justify-content:center;margin-top:24px;flex-wrap:wrap;}
-.deco-chip{font-size:11px;font-weight:600;color:var(--muted2);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:5px 12px;border-radius:20px;display:flex;align-items:center;gap:5px;}
-.deco-chip i{color:var(--red);}
-
-/* Login form side */
-.login-form-side{
-  width:420px;min-height:100vh;
-  background:var(--surface);
-  border-left:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  padding:40px 36px;
-}
-.login-box{width:100%;max-width:340px;}
-.login-box h2{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px;}
-.login-box p{font-size:13px;color:var(--muted2);margin-bottom:28px;}
+.login-wrap{width:100%;max-width:360px;position:relative;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .logo-text{font-size:30px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#e50914,#ff5533);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.login-logo .logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#e50914,#c00710);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 20px rgba(229,9,20,0.35);}
+.login-logo .logo-icon i{font-size:22px;color:#fff;}
+.login-logo p{font-size:11px;color:var(--muted2);margin-top:5px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.login-box h2{font-size:18px;font-weight:700;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.login-box h2 i{color:var(--red);font-size:16px;}
 .form-group{margin-bottom:16px;}
 .form-group label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--muted2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;}
+.form-group label i{font-size:10px;color:var(--muted2);opacity:.7;}
 .input-wrap{position:relative;}
-.input-wrap i.input-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--muted2);pointer-events:none;}
-.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;padding:12px 14px 12px 40px;border-radius:10px;outline:none;transition:border-color .2s;}
+.input-wrap i.input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted2);pointer-events:none;}
+.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:12px 14px 12px 38px;border-radius:10px;outline:none;transition:border-color .2s;}
 .form-group input:focus{border-color:var(--red);}
-.btn-login{width:100%;background:linear-gradient(135deg,var(--red),#b5102d);color:#fff;border:none;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;margin-top:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px var(--red-glow);}
-.btn-login:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px var(--red-glow);}
-.error-msg{background:rgba(229,23,63,.08);border:1px solid rgba(229,23,63,.2);color:#ff6b6b;font-size:12px;font-weight:600;padding:10px 14px;border-radius:9px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
-
-@media(max-width:700px){
-  .login-deco{display:none;}
-  .login-form-side{width:100%;border:none;}
-}
+.btn-login{width:100%;background:linear-gradient(135deg,#e50914,#c00710);color:#fff;border:none;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;margin-top:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(229,9,20,0.3);}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(229,9,20,0.4);}
+.error-msg{background:rgba(229,9,20,.08);border:1px solid rgba(229,9,20,.25);color:#ff6b6b;font-size:12px;font-weight:600;padding:10px 14px;border-radius:9px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 </style>
 </head>
 <body>
-<!-- Decoration Side -->
-<div class="login-deco">
-  <div class="deco-content">
-    <div class="deco-logo"><i class="fa-solid fa-clapperboard"></i></div>
-    <div class="deco-title">Cinevu Admin</div>
-    <div class="deco-sub">Panel kontrol untuk mengelola<br>iklan dan permintaan platform</div>
-    <div class="deco-chips">
-      <div class="deco-chip"><i class="fa-solid fa-chart-pie"></i> Analytics</div>
-      <div class="deco-chip"><i class="fa-solid fa-rectangle-ad"></i> Kelola Iklan</div>
-      <div class="deco-chip"><i class="fa-solid fa-inbox"></i> Request</div>
-    </div>
+<div class="login-wrap">
+  <div class="login-logo">
+    <div class="logo-icon"><i class="fa-solid fa-clapperboard"></i></div>
+    <div class="logo-text">Cinevu</div>
+    <p>Admin Panel</p>
   </div>
-</div>
-
-<!-- Login Form Side -->
-<div class="login-form-side">
   <div class="login-box">
-    <h2>Selamat Datang</h2>
-    <p>Masuk ke panel admin Cinevu</p>
+    <h2><i class="fa-solid fa-lock"></i> Masuk ke Dashboard</h2>
     {% if error %}
-    <div class="error-msg"><i class="fa-solid fa-triangle-exclamation"></i> {{ error }}</div>
+    <div class="error-msg">
+      <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+    </div>
     {% endif %}
     <form method="POST">
       <div class="form-group">
@@ -107,7 +81,7 @@ body{
         </div>
       </div>
       <button type="submit" class="btn-login">
-        <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk ke Dashboard
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
       </button>
     </form>
   </div>
