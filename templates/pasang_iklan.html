@@ -13,7 +13,7 @@
 .paket-card:hover,.paket-card.selected{border-color:var(--red);background:rgba(229,9,20,.08);}
 .paket-icon{font-size:26px;margin-bottom:7px;}
 .paket-name{font-size:12px;font-weight:700;}
-.paket-price{font-size:11px;color:#666;margin-top:2px;}
+.paket-price{font-size:10px;color:#888;margin-top:4px;line-height:1.4;}
 .iklan-form{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:14px;padding:24px 20px;}
 .fsec{font-size:11px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
 .fsec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
@@ -47,11 +47,13 @@ textarea.fctl{resize:vertical;min-height:90px;}
     <p>Promosikan brand kamu kepada jutaan pengunjung Cinevu setiap bulannya.</p>
   </div>
   <div class="paket-grid">
-    <div class="paket-card" onclick="pilihPaket(this,'Banner Atas')"><div class="paket-icon">🏔️</div><div class="paket-name">Banner Atas</div><div class="paket-price">Premium slot</div></div>
-    <div class="paket-card" onclick="pilihPaket(this,'Banner Bawah')"><div class="paket-icon">📌</div><div class="paket-name">Banner Bawah</div><div class="paket-price">High visibility</div></div>
-    <div class="paket-card" onclick="pilihPaket(this,'Sidebar')"><div class="paket-icon">📋</div><div class="paket-name">Sidebar</div><div class="paket-price">Selalu terlihat</div></div>
-    <div class="paket-card" onclick="pilihPaket(this,'Popup')"><div class="paket-icon">💥</div><div class="paket-name">Popup</div><div class="paket-price">100% attention</div></div>
-    <div class="paket-card" onclick="pilihPaket(this,'Sponsor Konten')"><div class="paket-icon">🎬</div><div class="paket-name">Sponsor</div><div class="paket-price">Branded content</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Header Banner')"><div class="paket-icon">🏔️</div><div class="paket-name">Header Banner</div><div class="paket-price">Muncul di atas daftar film, langsung kelihatan saat buka beranda</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Footer Banner')"><div class="paket-icon">📌</div><div class="paket-name">Footer Banner</div><div class="paket-price">Tampil di bagian bawah halaman, dilihat setelah pengguna scroll</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Sidebar')"><div class="paket-icon">📋</div><div class="paket-name">Sidebar</div><div class="paket-price">Kolom samping, terlihat selama pengguna browsing film</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Popup')"><div class="paket-icon">💥</div><div class="paket-name">Popup</div><div class="paket-price">Muncul otomatis di tengah layar saat pengunjung buka situs</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Watch — Sebelum Player')"><div class="paket-icon">▶️</div><div class="paket-name">Watch — Sebelum Player</div><div class="paket-price">Tampil di halaman nonton sebelum video player dimuat</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Watch — Setelah Player')"><div class="paket-icon">🎞️</div><div class="paket-name">Watch — Setelah Player</div><div class="paket-price">Tampil di bawah video player saat pengguna sedang nonton</div></div>
+    <div class="paket-card" onclick="pilihPaket(this,'Home — Tengah')"><div class="paket-icon">🎬</div><div class="paket-name">Home — Tengah</div><div class="paket-price">Selip di antara section film di tengah halaman beranda</div></div>
   </div>
   <div class="iklan-form">
     <div id="formAlert" class="falert"></div>
@@ -63,8 +65,8 @@ textarea.fctl{resize:vertical;min-height:90px;}
     <div class="fgroup"><label>No. HP / WhatsApp <span class="req">*</span></label><input type="tel" class="fctl" id="noHp" placeholder="08xxxxxxxxxx"><div class="fhint">Akan dihubungi via WhatsApp untuk konfirmasi</div></div>
     <div class="fsec">Detail Iklan</div>
     <div class="frow">
-      <div class="fgroup"><label>Jenis Iklan <span class="req">*</span></label><select class="fctl" id="jenisIklan"><option value="">-- Pilih --</option><option>Banner Atas</option><option>Banner Bawah</option><option>Sidebar</option><option>Popup</option><option>Sponsor Konten</option></select></div>
-      <div class="fgroup"><label>Budget <span class="req">*</span></label><select class="fctl" id="budget"><option value="">-- Pilih --</option><option>Di bawah Rp 500.000</option><option>Rp 500.000 - 1.000.000</option><option>Rp 1.000.000 - 3.000.000</option><option>Rp 3.000.000 - 5.000.000</option><option>Di atas Rp 5.000.000</option><option>Negosiasi</option></select></div>
+      <div class="fgroup"><label>Jenis Iklan <span class="req">*</span></label><select class="fctl" id="jenisIklan"><option value="">-- Pilih --</option><option>Header Banner</option><option>Footer Banner</option><option>Sidebar</option><option>Popup</option><option>Watch — Sebelum Player</option><option>Watch — Setelah Player</option><option>Home — Tengah</option></select></div>
+      <div class="fgroup"><label>Budget <span class="req">*</span></label><select class="fctl" id="budget"><option value="">-- Pilih --</option><option>Di bawah Rp 100.000</option><option>Rp 100.000 - 300.000</option><option>Rp 300.000 - 500.000</option><option>Rp 500.000 - 1.000.000</option><option>Rp 1.000.000 - 1.500.000</option><option>Negosiasi</option></select></div>
     </div>
     <div class="fgroup"><label>Durasi Tayang <span class="req">*</span></label><select class="fctl" id="durasiTayang"><option value="">-- Pilih --</option><option>1 Minggu</option><option>2 Minggu</option><option>1 Bulan</option><option>3 Bulan</option><option>6 Bulan</option><option>1 Tahun</option><option>Negosiasi</option></select></div>
     <div class="fgroup"><label>Pesan / Keterangan</label><textarea class="fctl" id="pesan" placeholder="Ceritakan kebutuhan iklan kamu..."></textarea></div>
