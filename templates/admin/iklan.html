@@ -4,7 +4,10 @@
 
 {% block content %}
 <div class="sec-header">
-  <div class="sec-title">Semua Iklan ({{ rows | length }})</div>
+  <div class="sec-title sec-title-bar">
+    <i class="fa-solid fa-rectangle-ad"></i> Semua Iklan
+    <span style="font-size:11px;background:var(--surface3);color:var(--muted2);padding:3px 9px;border-radius:20px;border:1px solid var(--border);font-weight:600;">{{ rows | length }}</span>
+  </div>
 </div>
 
 <div class="card-list">
@@ -13,51 +16,65 @@
     <div class="item-card-top">
       <div>
         <div class="item-card-title">{{ r.nama }}</div>
-        <div class="item-card-sub">{{ r.posisi }} · {{ r.tipe }}</div>
+        <div class="item-card-sub">
+          <i class="fa-solid fa-location-dot" style="font-size:9px;"></i> {{ r.posisi }}
+          &nbsp;·&nbsp;
+          <i class="fa-solid fa-layer-group" style="font-size:9px;"></i> {{ r.tipe }}
+        </div>
       </div>
       <button onclick="toggleAktif('{{ r.id }}', {{ 'false' if r.aktif else 'true' }})"
         class="badge {% if r.aktif %}badge-aktif{% else %}badge-nonaktif{% endif %}"
-        style="cursor:pointer;border:none;font-size:10px;">
-        {% if r.aktif %}● AKTIF{% else %}○ OFF{% endif %}
+        style="cursor:pointer;border:none;">
+        {% if r.aktif %}
+          <i class="fa-solid fa-circle" style="font-size:6px;"></i> AKTIF
+        {% else %}
+          <i class="fa-regular fa-circle" style="font-size:6px;"></i> OFF
+        {% endif %}
       </button>
     </div>
     <div class="item-card-meta">
-      <span class="meta-chip">Prioritas: {{ r.prioritas }}</span>
-      {% if r.tanggal_mulai %}<span class="meta-chip">{{ r.tanggal_mulai }}</span>{% endif %}
-      {% if r.tanggal_selesai %}<span class="meta-chip">s/d {{ r.tanggal_selesai }}</span>{% endif %}
+      <span class="meta-chip"><i class="fa-solid fa-arrow-up" style="font-size:9px;"></i> Prioritas: {{ r.prioritas }}</span>
+      {% if r.tanggal_mulai %}<span class="meta-chip"><i class="fa-regular fa-calendar-check" style="font-size:9px;"></i> {{ r.tanggal_mulai }}</span>{% endif %}
+      {% if r.tanggal_selesai %}<span class="meta-chip"><i class="fa-regular fa-calendar-xmark" style="font-size:9px;"></i> s/d {{ r.tanggal_selesai }}</span>{% endif %}
       {% if r.catatan %}<span class="meta-chip">{{ r.catatan[:30] }}</span>{% endif %}
     </div>
     <div class="item-card-actions">
-      <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">✏️ Edit</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">🗑 Hapus</button>
+      <button class="btn btn-ghost btn-sm" onclick="openEdit('{{ r.id }}')">
+        <i class="fa-solid fa-pen"></i> Edit
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="deleteIklan('{{ r.id }}')">
+        <i class="fa-solid fa-trash"></i> Hapus
+      </button>
     </div>
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">📢</div>
+    <div class="empty-icon"><i class="fa-solid fa-rectangle-ad"></i></div>
     <p>Belum ada iklan. Tap + untuk tambah.</p>
   </div>
   {% endfor %}
 </div>
 
-<!-- FAB tambah -->
-<button class="fab" onclick="openModal('addModal')">＋</button>
+<!-- FAB -->
+<button class="fab" onclick="openModal('addModal')">
+  <i class="fa-solid fa-plus"></i>
+</button>
 
 <!-- Modal Tambah -->
 <div class="modal-overlay" id="addModal">
   <div class="modal">
     <div class="modal-head">
-      <h3>＋ Tambah Iklan</h3>
-      <button class="modal-close" onclick="closeModal('addModal')">✕</button>
+      <h3><i class="fa-solid fa-plus"></i> Tambah Iklan</h3>
+      <button class="modal-close" onclick="closeModal('addModal')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <div class="form-group">
-        <label>Nama / Label *</label>
+        <label><i class="fa-solid fa-tag"></i> Nama / Label *</label>
         <input type="text" class="form-control" id="add_nama" placeholder="Contoh: Banner Tokopedia">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Posisi *</label>
+          <label><i class="fa-solid fa-location-dot"></i> Posisi *</label>
           <select class="form-control" id="add_posisi">
             <option value="">-- Pilih --</option>
             <option value="header_banner">Header Banner</option>
@@ -70,31 +87,31 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Tipe *</label>
+          <label><i class="fa-solid fa-layer-group"></i> Tipe *</label>
           <select class="form-control" id="add_tipe" onchange="updateHint('add')">
             <option value="">-- Pilih --</option>
-            <option value="gambar">🖼 Gambar</option>
-            <option value="html">📄 HTML</option>
-            <option value="script">⚙️ Script</option>
+            <option value="gambar">Gambar</option>
+            <option value="html">HTML</option>
+            <option value="script">Script</option>
           </select>
         </div>
       </div>
       <div class="form-group" id="add_link_wrap" style="display:none;">
-        <label>URL Tujuan Klik</label>
+        <label><i class="fa-solid fa-link"></i> URL Tujuan Klik</label>
         <input type="url" class="form-control" id="add_link_url" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label>Konten *</label>
-        <div class="form-hint" id="add_hint" style="margin-bottom:6px;color:#e50914;"></div>
+        <label><i class="fa-solid fa-code"></i> Konten *</label>
+        <div class="form-hint" id="add_hint" style="margin-bottom:6px;color:var(--red);"></div>
         <textarea class="form-control" id="add_konten" placeholder="URL gambar / kode HTML / script embed"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Prioritas</label>
+          <label><i class="fa-solid fa-arrow-up"></i> Prioritas</label>
           <input type="number" class="form-control" id="add_prioritas" value="1" min="1">
         </div>
         <div class="form-group">
-          <label>Status</label>
+          <label><i class="fa-solid fa-toggle-on"></i> Status</label>
           <select class="form-control" id="add_aktif">
             <option value="true">● Aktif</option>
             <option value="false">○ Nonaktif</option>
@@ -103,21 +120,21 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Tgl Mulai</label>
+          <label><i class="fa-regular fa-calendar-check"></i> Tgl Mulai</label>
           <input type="date" class="form-control" id="add_mulai">
         </div>
         <div class="form-group">
-          <label>Tgl Selesai</label>
+          <label><i class="fa-regular fa-calendar-xmark"></i> Tgl Selesai</label>
           <input type="date" class="form-control" id="add_selesai">
         </div>
       </div>
       <div class="form-group">
-        <label>Catatan</label>
+        <label><i class="fa-solid fa-note-sticky"></i> Catatan</label>
         <input type="text" class="form-control" id="add_catatan" placeholder="Opsional">
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('addModal')">Batal</button>
-        <button class="btn btn-primary" onclick="tambahIklan()">💾 Simpan</button>
+        <button class="btn btn-ghost" onclick="closeModal('addModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
+        <button class="btn btn-primary" onclick="tambahIklan()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
       </div>
     </div>
   </div>
@@ -127,18 +144,18 @@
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <div class="modal-head">
-      <h3>✏️ Edit Iklan</h3>
-      <button class="modal-close" onclick="closeModal('editModal')">✕</button>
+      <h3><i class="fa-solid fa-pen"></i> Edit Iklan</h3>
+      <button class="modal-close" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="edit_id">
       <div class="form-group">
-        <label>Nama / Label *</label>
+        <label><i class="fa-solid fa-tag"></i> Nama / Label *</label>
         <input type="text" class="form-control" id="edit_nama">
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Posisi *</label>
+          <label><i class="fa-solid fa-location-dot"></i> Posisi *</label>
           <select class="form-control" id="edit_posisi">
             <option value="header_banner">Header Banner</option>
             <option value="footer_banner">Footer Banner</option>
@@ -150,30 +167,30 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Tipe *</label>
+          <label><i class="fa-solid fa-layer-group"></i> Tipe *</label>
           <select class="form-control" id="edit_tipe" onchange="updateHint('edit')">
-            <option value="gambar">🖼 Gambar</option>
-            <option value="html">📄 HTML</option>
-            <option value="script">⚙️ Script</option>
+            <option value="gambar">Gambar</option>
+            <option value="html">HTML</option>
+            <option value="script">Script</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label>URL Tujuan Klik</label>
+        <label><i class="fa-solid fa-link"></i> URL Tujuan Klik</label>
         <input type="url" class="form-control" id="edit_link_url" placeholder="https://...">
       </div>
       <div class="form-group">
-        <label>Konten *</label>
-        <div class="form-hint" id="edit_hint" style="margin-bottom:6px;color:#e50914;"></div>
+        <label><i class="fa-solid fa-code"></i> Konten *</label>
+        <div class="form-hint" id="edit_hint" style="margin-bottom:6px;color:var(--red);"></div>
         <textarea class="form-control" id="edit_konten"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Prioritas</label>
+          <label><i class="fa-solid fa-arrow-up"></i> Prioritas</label>
           <input type="number" class="form-control" id="edit_prioritas" min="1">
         </div>
         <div class="form-group">
-          <label>Status</label>
+          <label><i class="fa-solid fa-toggle-on"></i> Status</label>
           <select class="form-control" id="edit_aktif">
             <option value="true">● Aktif</option>
             <option value="false">○ Nonaktif</option>
@@ -182,21 +199,21 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Tgl Mulai</label>
+          <label><i class="fa-regular fa-calendar-check"></i> Tgl Mulai</label>
           <input type="date" class="form-control" id="edit_mulai">
         </div>
         <div class="form-group">
-          <label>Tgl Selesai</label>
+          <label><i class="fa-regular fa-calendar-xmark"></i> Tgl Selesai</label>
           <input type="date" class="form-control" id="edit_selesai">
         </div>
       </div>
       <div class="form-group">
-        <label>Catatan</label>
+        <label><i class="fa-solid fa-note-sticky"></i> Catatan</label>
         <input type="text" class="form-control" id="edit_catatan">
       </div>
       <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="closeModal('editModal')">Batal</button>
-        <button class="btn btn-primary" onclick="simpanEdit()">💾 Update</button>
+        <button class="btn btn-ghost" onclick="closeModal('editModal')"><i class="fa-solid fa-xmark"></i> Batal</button>
+        <button class="btn btn-primary" onclick="simpanEdit()"><i class="fa-solid fa-floppy-disk"></i> Update</button>
       </div>
     </div>
   </div>
@@ -208,19 +225,16 @@
 const iklanRows = {{ rows | tojson }};
 const iklanMap = {};
 iklanRows.forEach(r => iklanMap[r.id] = r);
-
 const hints = {
   gambar: 'Masukkan URL gambar (JPG/PNG/GIF)',
   html: 'Masukkan kode HTML bebas',
   script: 'Masukkan kode script/embed (Adsterra, dll)'
 };
-
 function updateHint(p) {
   const tipe = document.getElementById(`${p}_tipe`).value;
   document.getElementById(`${p}_hint`).textContent = hints[tipe] || '';
   if (p === 'add') document.getElementById('add_link_wrap').style.display = tipe === 'gambar' ? 'block' : 'none';
 }
-
 async function tambahIklan() {
   const data = {
     nama: document.getElementById('add_nama').value.trim(),
@@ -239,7 +253,6 @@ async function tambahIklan() {
   if (res.ok) { showToast('Iklan ditambahkan!'); closeModal('addModal'); setTimeout(() => location.reload(), 700); }
   else showToast('Gagal: ' + (res.error || ''), 'error');
 }
-
 function openEdit(id) {
   const r = iklanMap[id];
   if (!r) return;
@@ -257,7 +270,6 @@ function openEdit(id) {
   updateHint('edit');
   openModal('editModal');
 }
-
 async function simpanEdit() {
   const id = document.getElementById('edit_id').value;
   const data = {
@@ -277,14 +289,12 @@ async function simpanEdit() {
   if (res.ok) { showToast('Iklan diperbarui!'); closeModal('editModal'); setTimeout(() => location.reload(), 700); }
   else showToast('Gagal update', 'error');
 }
-
 async function toggleAktif(id, newVal) {
   const aktif = newVal === 'true' || newVal === true;
   const res = await apiPost('/admin/iklan/toggle', {id, aktif});
   if (res.ok) { showToast(aktif ? 'Diaktifkan' : 'Dinonaktifkan'); setTimeout(() => location.reload(), 600); }
   else showToast('Gagal', 'error');
 }
-
 async function deleteIklan(id) {
   if (!confirm('Hapus iklan ini?')) return;
   const res = await apiPost('/admin/iklan/delete', {id});

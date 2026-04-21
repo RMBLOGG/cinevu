@@ -3,28 +3,47 @@
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
+<!-- Welcome Strip -->
+<div style="background:linear-gradient(135deg,rgba(229,9,20,0.12),rgba(229,9,20,0.04));border:1px solid rgba(229,9,20,0.15);border-radius:14px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;">
+  <div style="width:38px;height:38px;background:var(--red);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+    <i class="fa-solid fa-shield-halved" style="color:#fff;font-size:16px;"></i>
+  </div>
+  <div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);">Panel Admin Cinevu</div>
+    <div style="font-size:11px;color:var(--muted2);margin-top:1px;">Kelola request & iklan platform</div>
+  </div>
+</div>
+
+<!-- Stats Grid -->
 <div class="stats-grid">
-  <div class="stat-card">
+  <div class="stat-card c-white">
+    <span class="stat-icon"><i class="fa-solid fa-list-check" style="color:var(--muted2);"></i></span>
     <div class="stat-label">Total Request</div>
     <div class="stat-val white">{{ stats.total_request }}</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-label">Menunggu Review</div>
+  <div class="stat-card c-yellow">
+    <span class="stat-icon"><i class="fa-solid fa-hourglass-half" style="color:var(--yellow);"></i></span>
+    <div class="stat-label">Menunggu</div>
     <div class="stat-val yellow">{{ stats.pending }}</div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card c-green">
+    <span class="stat-icon"><i class="fa-solid fa-circle-check" style="color:var(--green);"></i></span>
     <div class="stat-label">Disetujui</div>
     <div class="stat-val green">{{ stats.approved }}</div>
   </div>
-  <div class="stat-card">
+  <div class="stat-card c-red">
+    <span class="stat-icon"><i class="fa-solid fa-rectangle-ad" style="color:var(--red);"></i></span>
     <div class="stat-label">Iklan Aktif</div>
     <div class="stat-val red">{{ stats.iklan_aktif }}</div>
   </div>
 </div>
 
+<!-- Recent Requests -->
 <div class="sec-header">
-  <div class="sec-title">📨 Request Terbaru</div>
-  <a href="/admin/requests" class="btn btn-ghost btn-sm">Semua →</a>
+  <div class="sec-title sec-title-bar">
+    <i class="fa-solid fa-clock-rotate-left"></i> Request Terbaru
+  </div>
+  <a href="/admin/requests" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-right"></i> Semua</a>
 </div>
 
 <div class="card-list">
@@ -33,26 +52,37 @@
     <div class="item-card-top">
       <div>
         <div class="item-card-title">{{ r.nama_brand }}</div>
-        <div class="item-card-sub">{{ r.email }}</div>
+        <div class="item-card-sub"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }}</div>
       </div>
-      <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
+      <span class="badge badge-{{ r.status }}">
+        {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
+        {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
+        {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
+        {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
+        {{ r.status | upper }}
+      </span>
     </div>
     <div class="item-card-meta">
-      <span class="meta-chip">{{ r.jenis_iklan }}</span>
-      <span class="meta-chip yellow">{{ r.budget }}</span>
-      <span class="meta-chip">{{ r.created_at[:10] if r.created_at else '-' }}</span>
+      <span class="meta-chip"><i class="fa-solid fa-tag" style="font-size:9px;"></i> {{ r.jenis_iklan }}</span>
+      <span class="meta-chip yellow"><i class="fa-solid fa-coins" style="font-size:9px;"></i> {{ r.budget }}</span>
+      <span class="meta-chip"><i class="fa-regular fa-calendar" style="font-size:9px;"></i> {{ r.created_at[:10] if r.created_at else '-' }}</span>
     </div>
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">📭</div>
+    <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
     <p>Belum ada request</p>
   </div>
   {% endfor %}
 </div>
 
-<div style="display:flex;gap:10px;margin-top:20px;">
-  <a href="/admin/requests?status=pending" class="btn btn-primary" style="flex:1;justify-content:center;">📨 Review Pending</a>
-  <a href="/admin/iklan" class="btn btn-ghost" style="flex:1;justify-content:center;">📢 Kelola Iklan</a>
+<!-- Quick Actions -->
+<div style="display:flex;gap:10px;margin-top:18px;">
+  <a href="/admin/requests?status=pending" class="btn btn-primary" style="flex:1;justify-content:center;">
+    <i class="fa-solid fa-inbox"></i> Review Pending
+  </a>
+  <a href="/admin/iklan" class="btn btn-ghost" style="flex:1;justify-content:center;">
+    <i class="fa-solid fa-rectangle-ad"></i> Kelola Iklan
+  </a>
 </div>
 {% endblock %}

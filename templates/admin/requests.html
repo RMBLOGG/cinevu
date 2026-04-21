@@ -4,11 +4,21 @@
 
 {% block content %}
 <div class="filter-tabs">
-  <a href="/admin/requests?status=all" class="filter-tab {% if status_filter=='all' %}active{% endif %}">Semua</a>
-  <a href="/admin/requests?status=pending" class="filter-tab {% if status_filter=='pending' %}active{% endif %}">⏳ Pending</a>
-  <a href="/admin/requests?status=approved" class="filter-tab {% if status_filter=='approved' %}active{% endif %}">✅ Approved</a>
-  <a href="/admin/requests?status=contacted" class="filter-tab {% if status_filter=='contacted' %}active{% endif %}">📞 Contacted</a>
-  <a href="/admin/requests?status=rejected" class="filter-tab {% if status_filter=='rejected' %}active{% endif %}">❌ Rejected</a>
+  <a href="/admin/requests?status=all" class="filter-tab {% if status_filter=='all' %}active{% endif %}">
+    <i class="fa-solid fa-layer-group"></i> Semua
+  </a>
+  <a href="/admin/requests?status=pending" class="filter-tab {% if status_filter=='pending' %}active{% endif %}">
+    <i class="fa-solid fa-hourglass-half"></i> Pending
+  </a>
+  <a href="/admin/requests?status=approved" class="filter-tab {% if status_filter=='approved' %}active{% endif %}">
+    <i class="fa-solid fa-circle-check"></i> Approved
+  </a>
+  <a href="/admin/requests?status=contacted" class="filter-tab {% if status_filter=='contacted' %}active{% endif %}">
+    <i class="fa-solid fa-phone"></i> Contacted
+  </a>
+  <a href="/admin/requests?status=rejected" class="filter-tab {% if status_filter=='rejected' %}active{% endif %}">
+    <i class="fa-solid fa-ban"></i> Rejected
+  </a>
 </div>
 
 <div class="card-list">
@@ -17,31 +27,53 @@
     <div class="item-card-top">
       <div>
         <div class="item-card-title">{{ r.nama_brand }}</div>
-        <div class="item-card-sub">{{ r.email }} · {{ r.no_hp }}</div>
+        <div class="item-card-sub">
+          <i class="fa-solid fa-envelope" style="font-size:9px;"></i> {{ r.email }}
+          &nbsp;·&nbsp;
+          <i class="fa-solid fa-phone" style="font-size:9px;"></i> {{ r.no_hp }}
+        </div>
       </div>
-      <span class="badge badge-{{ r.status }}">{{ r.status | upper }}</span>
+      <span class="badge badge-{{ r.status }}">
+        {% if r.status == 'pending' %}<i class="fa-solid fa-hourglass-half"></i>
+        {% elif r.status == 'approved' %}<i class="fa-solid fa-check"></i>
+        {% elif r.status == 'rejected' %}<i class="fa-solid fa-xmark"></i>
+        {% else %}<i class="fa-solid fa-phone"></i>{% endif %}
+        {{ r.status | upper }}
+      </span>
     </div>
     <div class="item-card-meta">
-      <span class="meta-chip">{{ r.jenis_iklan }}</span>
-      <span class="meta-chip yellow">{{ r.budget }}</span>
-      <span class="meta-chip">{{ r.durasi_tayang }}</span>
-      <span class="meta-chip">{{ r.created_at[:10] if r.created_at else '-' }}</span>
+      <span class="meta-chip"><i class="fa-solid fa-tag" style="font-size:9px;"></i> {{ r.jenis_iklan }}</span>
+      <span class="meta-chip yellow"><i class="fa-solid fa-coins" style="font-size:9px;"></i> {{ r.budget }}</span>
+      <span class="meta-chip"><i class="fa-solid fa-clock" style="font-size:9px;"></i> {{ r.durasi_tayang }}</span>
+      <span class="meta-chip"><i class="fa-regular fa-calendar" style="font-size:9px;"></i> {{ r.created_at[:10] if r.created_at else '-' }}</span>
     </div>
     {% if r.pesan %}
-    <div style="font-size:12px;color:#777;margin-bottom:10px;line-height:1.5;">{{ r.pesan[:100] }}{% if r.pesan|length > 100 %}...{% endif %}</div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:10px;line-height:1.6;padding:10px;background:var(--surface3);border-radius:8px;border:1px solid var(--border);">
+      <i class="fa-solid fa-quote-left" style="font-size:9px;color:var(--muted);margin-right:4px;"></i>{{ r.pesan[:100] }}{% if r.pesan|length > 100 %}...{% endif %}
+    </div>
     {% endif %}
     <div class="item-card-actions">
-      <button class="btn btn-ghost btn-sm" onclick="openDetail('{{ r.id }}')">📋 Detail</button>
-      <button class="btn btn-success btn-sm" onclick="updateStatus('{{ r.id }}','approved')">✅</button>
-      <button class="btn btn-ghost btn-sm" onclick="updateStatus('{{ r.id }}','contacted')" style="color:#6495ed;">📞</button>
-      <button class="btn btn-danger btn-sm" onclick="updateStatus('{{ r.id }}','rejected')">❌</button>
-      <button class="btn btn-danger btn-sm" onclick="deleteRequest('{{ r.id }}')">🗑</button>
+      <button class="btn btn-ghost btn-sm" onclick="openDetail('{{ r.id }}')">
+        <i class="fa-solid fa-file-lines"></i> Detail
+      </button>
+      <button class="btn btn-success btn-sm" onclick="updateStatus('{{ r.id }}','approved')">
+        <i class="fa-solid fa-check"></i>
+      </button>
+      <button class="btn btn-info btn-sm" onclick="updateStatus('{{ r.id }}','contacted')">
+        <i class="fa-solid fa-phone"></i>
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="updateStatus('{{ r.id }}','rejected')">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <button class="btn btn-danger btn-sm" onclick="deleteRequest('{{ r.id }}')">
+        <i class="fa-solid fa-trash"></i>
+      </button>
     </div>
   </div>
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">📭</div>
-    <p>Tidak ada request</p>
+    <div class="empty-icon"><i class="fa-solid fa-inbox"></i></div>
+    <p>Tidak ada request ditemukan</p>
   </div>
   {% endfor %}
 </div>
@@ -50,8 +82,8 @@
 <div class="modal-overlay" id="detailModal">
   <div class="modal">
     <div class="modal-head">
-      <h3>📋 Detail Request</h3>
-      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+      <h3><i class="fa-solid fa-file-lines"></i> Detail Request</h3>
+      <button class="modal-close" onclick="closeModal('detailModal')"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body" id="detailContent"></div>
   </div>
@@ -70,26 +102,26 @@ function openDetail(id) {
   document.getElementById('detailContent').innerHTML = `
     <div style="display:flex;flex-direction:column;gap:12px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Brand</div><div style="font-weight:700;">${r.nama_brand}</div></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Status</div><span class="badge badge-${r.status}">${r.status.toUpperCase()}</span></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Email</div><div style="font-size:13px;">${r.email}</div></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">No. HP</div><div style="font-size:13px;">${r.no_hp}</div></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Jenis</div><div style="font-size:13px;">${r.jenis_iklan}</div></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Budget</div><div style="font-size:13px;color:#f5c518;font-weight:700;">${r.budget}</div></div>
-        <div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:3px;">Durasi</div><div style="font-size:13px;">${r.durasi_tayang}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-building" style="font-size:9px;"></i> Brand</div><div style="font-weight:700;font-size:14px;">${r.nama_brand}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Status</div><span class="badge badge-${r.status}">${r.status.toUpperCase()}</span></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-envelope" style="font-size:9px;"></i> Email</div><div style="font-size:12px;color:var(--text-dim);">${r.email}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-phone" style="font-size:9px;"></i> No. HP</div><div style="font-size:12px;color:var(--text-dim);">${r.no_hp}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Jenis</div><div style="font-size:12px;">${r.jenis_iklan}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-coins" style="font-size:9px;"></i> Budget</div><div style="font-size:14px;color:var(--yellow);font-weight:700;">${r.budget}</div></div>
+        <div><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Durasi</div><div style="font-size:12px;">${r.durasi_tayang}</div></div>
       </div>
-      ${r.pesan ? `<div><div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:4px;">Pesan</div><div style="font-size:13px;color:#ccc;line-height:1.6;">${r.pesan}</div></div>` : ''}
-      ${r.materi_url ? `<div><a href="${r.materi_url}" target="_blank" style="color:#e50914;font-size:13px;font-weight:600;">🔗 Lihat Materi</a></div>` : ''}
+      ${r.pesan ? `<div style="background:var(--surface3);border:1px solid var(--border);border-radius:10px;padding:12px;"><div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-comment" style="font-size:9px;"></i> Pesan</div><div style="font-size:13px;color:var(--text-dim);line-height:1.6;">${r.pesan}</div></div>` : ''}
+      ${r.materi_url ? `<a href="${r.materi_url}" target="_blank" class="btn btn-ghost" style="justify-content:center;"><i class="fa-solid fa-link"></i> Lihat Materi</a>` : ''}
       <div>
-        <div style="font-size:10px;color:#666;text-transform:uppercase;margin-bottom:6px;">Catatan Admin</div>
+        <div style="font-size:10px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-note-sticky" style="font-size:9px;"></i> Catatan Admin</div>
         <textarea id="catatanInput_${r.id}" class="form-control" placeholder="Tambahkan catatan...">${r.catatan_admin || ''}</textarea>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-success" style="flex:1;justify-content:center;" onclick="updateStatusDetail('${r.id}','approved')">✅ Approve</button>
-        <button class="btn btn-ghost" style="flex:1;justify-content:center;color:#6495ed;" onclick="updateStatusDetail('${r.id}','contacted')">📞 Contacted</button>
-        <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="updateStatusDetail('${r.id}','rejected')">❌ Reject</button>
+        <button class="btn btn-success" style="flex:1;justify-content:center;" onclick="updateStatusDetail('${r.id}','approved')"><i class="fa-solid fa-check"></i> Approve</button>
+        <button class="btn btn-info" style="flex:1;justify-content:center;" onclick="updateStatusDetail('${r.id}','contacted')"><i class="fa-solid fa-phone"></i> Contacted</button>
+        <button class="btn btn-danger" style="flex:1;justify-content:center;" onclick="updateStatusDetail('${r.id}','rejected')"><i class="fa-solid fa-xmark"></i> Reject</button>
       </div>
-      <button class="btn btn-primary btn-full" onclick="saveCatatan('${r.id}')">💾 Simpan Catatan</button>
+      <button class="btn btn-primary btn-full" onclick="saveCatatan('${r.id}')"><i class="fa-solid fa-floppy-disk"></i> Simpan Catatan</button>
     </div>`;
   openModal('detailModal');
 }

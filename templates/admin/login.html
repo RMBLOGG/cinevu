@@ -4,45 +4,85 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Admin Login — Cinevu</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0a0a0a;color:#fff;font-family:'Segoe UI',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;}
-.login-wrap{width:100%;max-width:380px;padding:20px;}
-.login-logo{text-align:center;margin-bottom:32px;}
-.login-logo span{font-size:28px;font-weight:900;color:#e50914;letter-spacing:-1px;}
-.login-logo p{font-size:12px;color:#555;margin-top:4px;text-transform:uppercase;letter-spacing:1px;}
-.login-box{background:#111;border:1px solid #222;border-radius:14px;padding:32px 28px;}
-.login-box h2{font-size:18px;font-weight:700;margin-bottom:24px;color:#fff;}
-.form-group{margin-bottom:18px;}
-.form-group label{display:block;font-size:12px;font-weight:600;color:#888;margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;}
-.form-group input{width:100%;background:#1a1a1a;border:1px solid #2a2a2a;color:#fff;font-size:14px;padding:12px 14px;border-radius:8px;outline:none;transition:border-color .2s;}
-.form-group input:focus{border-color:#e50914;}
-.btn-login{width:100%;background:#e50914;color:#fff;border:none;font-size:14px;font-weight:700;padding:13px;border-radius:8px;cursor:pointer;margin-top:4px;transition:opacity .2s;}
-.btn-login:hover{opacity:.88;}
-.error-msg{background:rgba(229,9,20,.12);border:1px solid rgba(229,9,20,.3);color:#ff6b6b;font-size:13px;padding:10px 14px;border-radius:7px;margin-bottom:18px;}
+:root{--red:#e50914;--bg:#070709;--surface:#0e0e12;--surface2:#13131a;--border:#1e1e2c;--border2:#28283a;--muted2:#78789a;--text:#e6e6f0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Sora',sans-serif;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+/* subtle grid bg */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(229,9,20,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(229,9,20,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+}
+.login-wrap{width:100%;max-width:360px;position:relative;}
+.login-logo{text-align:center;margin-bottom:28px;}
+.login-logo .logo-text{font-size:30px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#e50914,#ff5533);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.login-logo .logo-icon{width:52px;height:52px;background:linear-gradient(135deg,#e50914,#c00710);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 20px rgba(229,9,20,0.35);}
+.login-logo .logo-icon i{font-size:22px;color:#fff;}
+.login-logo p{font-size:11px;color:var(--muted2);margin-top:5px;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;}
+.login-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:28px 24px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.login-box h2{font-size:18px;font-weight:700;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.login-box h2 i{color:var(--red);font-size:16px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--muted2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px;}
+.form-group label i{font-size:10px;color:var(--muted2);opacity:.7;}
+.input-wrap{position:relative;}
+.input-wrap i.input-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--muted2);pointer-events:none;}
+.form-group input{width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:'Sora',sans-serif;font-size:13px;padding:12px 14px 12px 38px;border-radius:10px;outline:none;transition:border-color .2s;}
+.form-group input:focus{border-color:var(--red);}
+.btn-login{width:100%;background:linear-gradient(135deg,#e50914,#c00710);color:#fff;border:none;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;padding:13px;border-radius:10px;cursor:pointer;margin-top:8px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 20px rgba(229,9,20,0.3);}
+.btn-login:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 28px rgba(229,9,20,0.4);}
+.error-msg{background:rgba(229,9,20,.08);border:1px solid rgba(229,9,20,.25);color:#ff6b6b;font-size:12px;font-weight:600;padding:10px 14px;border-radius:9px;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
 </style>
 </head>
 <body>
 <div class="login-wrap">
   <div class="login-logo">
-    <span>Cinevu</span>
+    <div class="logo-icon"><i class="fa-solid fa-clapperboard"></i></div>
+    <div class="logo-text">Cinevu</div>
     <p>Admin Panel</p>
   </div>
   <div class="login-box">
-    <h2>🔐 Masuk ke Dashboard</h2>
+    <h2><i class="fa-solid fa-lock"></i> Masuk ke Dashboard</h2>
     {% if error %}
-    <div class="error-msg">⚠️ {{ error }}</div>
+    <div class="error-msg">
+      <i class="fa-solid fa-triangle-exclamation"></i> {{ error }}
+    </div>
     {% endif %}
     <form method="POST">
       <div class="form-group">
-        <label>Username</label>
-        <input type="text" name="username" placeholder="admin" autocomplete="username" required>
+        <label><i class="fa-solid fa-user"></i> Username</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user input-icon"></i>
+          <input type="text" name="username" placeholder="admin" autocomplete="username" required>
+        </div>
       </div>
       <div class="form-group">
-        <label>Password</label>
-        <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+        <label><i class="fa-solid fa-key"></i> Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-key input-icon"></i>
+          <input type="password" name="password" placeholder="••••••••" autocomplete="current-password" required>
+        </div>
       </div>
-      <button type="submit" class="btn-login">Masuk →</button>
+      <button type="submit" class="btn-login">
+        <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
+      </button>
     </form>
   </div>
 </div>
