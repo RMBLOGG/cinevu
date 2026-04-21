@@ -1,138 +1,52 @@
 {% extends "base.html" %}
-{% block title %}My List – Cinevu{% endblock %}
-
+{% block title %}My List — Cinevu{% endblock %}
 {% block content %}
-<div style="min-height:100vh;padding:88px 4% 60px;">
-
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1 style="font-size:28px;font-weight:900;color:#fff;letter-spacing:-.5px;">
-        My List
-      </h1>
-      <p style="color:#999;font-size:13px;margin-top:4px;">
-        <span id="wl-count">0</span> film tersimpan
-      </p>
+<div class="list-wrap">
+  <div class="list-heading">My List</div>
+  <div id="wl-grid" class="grid-movies"></div>
+  <div id="wl-empty" style="display:none;">
+    <div style="text-align:center;padding:60px 0;">
+      <div style="font-size:52px;margin-bottom:16px;opacity:.3;">🎬</div>
+      <div style="font-family:var(--display);font-size:24px;letter-spacing:2px;margin-bottom:10px;">LIST KOSONG</div>
+      <div style="color:var(--muted);font-size:14px;margin-bottom:24px;">Tambahkan film ke My List dari halaman utama</div>
+      <a href="/" style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;text-decoration:none;padding:12px 28px;border-radius:6px;font-weight:700;font-size:14px;letter-spacing:.5px;"><i class="fa-solid fa-house"></i> Jelajahi Film</a>
     </div>
-    <button onclick="clearAll()"
-      style="background:transparent;border:1px solid rgba(255,255,255,.25);color:#aaa;font-family:var(--font);font-size:12px;font-weight:600;padding:8px 18px;border-radius:4px;cursor:pointer;transition:all .2s;"
-      onmouseover="this.style.borderColor='#e50914';this.style.color='#e50914';"
-      onmouseout="this.style.borderColor='rgba(255,255,255,.25)';this.style.color='#aaa';">
-      <i class="fa-solid fa-trash-can"></i> Hapus Semua
-    </button>
   </div>
-
-  <!-- Empty state -->
-  <div id="wl-empty" style="display:none;text-align:center;padding:80px 20px;">
-    <div style="font-size:64px;margin-bottom:20px;">🎬</div>
-    <h2 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:10px;">Daftar tontonmu kosong</h2>
-    <p style="color:#999;font-size:14px;margin-bottom:28px;">Tambahkan film atau series yang ingin kamu tonton nanti.</p>
-    <a href="/" style="display:inline-flex;align-items:center;gap:8px;background:var(--red);color:#fff;text-decoration:none;font-size:14px;font-weight:700;padding:12px 28px;border-radius:4px;">
-      <i class="fa-solid fa-film"></i> Jelajahi Film
-    </a>
-  </div>
-
-  <!-- Grid -->
-  <div id="wl-grid" class="grid-movies" style="display:none;"></div>
-
 </div>
-
-<style>
-.wl-card {
-  position: relative;
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  background: #1a1a1a;
-  text-decoration: none;
-  color: inherit;
-  display: block;
-  transition: transform .2s;
-}
-.wl-card:hover { transform: scale(1.03); }
-.wl-card img { width: 100%; height: 240px; object-fit: cover; display: block; }
-.wl-card-overlay {
-  position: absolute; inset: 0;
-  background: linear-gradient(0deg, rgba(0,0,0,.9) 0%, rgba(0,0,0,.1) 60%, transparent 100%);
-  opacity: 0; transition: opacity .25s;
-  display: flex; flex-direction: column; justify-content: flex-end; padding: 12px;
-}
-.wl-card:hover .wl-card-overlay { opacity: 1; }
-.wl-card-title { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; }
-.wl-card-actions { display: flex; gap: 8px; }
-.wl-card-play {
-  flex: 1; background: #fff; color: #000; border: none; font-family: var(--font);
-  font-size: 12px; font-weight: 700; padding: 7px; border-radius: 4px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  text-decoration: none;
-}
-.wl-card-play:hover { background: rgba(255,255,255,.8); }
-.wl-card-del {
-  width: 34px; height: 34px; background: rgba(255,255,255,.15);
-  border: 1.5px solid rgba(255,255,255,.5); border-radius: 50%; color: #fff;
-  font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: border-color .2s, background .2s;
-}
-.wl-card-del:hover { border-color: var(--red); background: rgba(229,9,20,.2); color: var(--red); }
-.wl-badge { position: absolute; top: 8px; left: 8px; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 2px; }
-.wl-star  { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.7); color: #f5c518; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
-</style>
 {% endblock %}
-
 {% block extra_js %}
 <script>
-function renderWatchlist() {
+document.addEventListener('DOMContentLoaded', function() {
   const list = wlGet();
-  const grid  = document.getElementById('wl-grid');
+  const grid = document.getElementById('wl-grid');
   const empty = document.getElementById('wl-empty');
-  const count = document.getElementById('wl-count');
-
-  count.textContent = list.length;
-
-  if (!list.length) {
-    grid.style.display  = 'none';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  grid.style.display  = 'grid';
-
-  grid.innerHTML = list.map(m => `
-    <div class="wl-card">
-      <a href="/watch?url=${encodeURIComponent(m.url)}">
-        <img src="${m.poster||''}" alt="${m.title}"
-          onerror="this.src='https://placehold.co/190x240/1a1a1a/333?text=No+Image'">
-        ${m.quality ? `<div class="wl-badge">${m.quality}</div>` : ''}
-        ${m.rating  ? `<div class="wl-star">⭐ ${m.rating}</div>` : ''}
-      </a>
-      <div class="wl-card-overlay">
-        <div class="wl-card-title">${m.title}</div>
-        <div class="wl-card-actions">
-          <a href="/watch?url=${encodeURIComponent(m.url)}" class="wl-card-play">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="#000"><path d="M8 5v14l11-7z"/></svg>
-            Tonton
-          </a>
-          <button class="wl-card-del" title="Hapus" onclick="removeItem('${m.url.replace(/'/g,"\\'")}')">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+  if (!list.length) { grid.style.display='none'; empty.style.display='block'; return; }
+  grid.innerHTML = list.map((m, i) => `
+    <a href="/watch?url=${encodeURIComponent(m.url)}" class="ncard fade-in" style="width:100%;animation-delay:${i*0.02}s">
+      <div class="ncard-poster-wrap">
+        <img class="ncard-img" src="${m.poster || ''}" alt="${m.title}" loading="lazy"
+             onerror="this.src='https://placehold.co/165x245/1a1a24/333?text=No+Image'">
+        ${m.quality ? `<div class="ncard-badge">${m.quality}</div>` : ''}
+        ${m.rating ? `<div class="ncard-star"><i class="fa-solid fa-star" style="font-size:8px;"></i> ${m.rating}</div>` : ''}
+        <div class="ncard-overlay">
+          <div class="ncard-overlay-play"><i class="fa-solid fa-play"></i></div>
+          <div class="ncard-overlay-title">${m.title}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+            <button onclick="event.preventDefault();wlRemove('${m.url}')" style="background:rgba(232,0,29,.2);border:1px solid rgba(232,0,29,.4);color:var(--red);padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font);">Hapus</button>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="ncard-foot">
+        <div class="ncard-foot-title">${m.title}</div>
+        <div class="ncard-foot-meta">${m.quality ? `<span class="ncard-foot-hd">${m.quality}</span>` : ''}</div>
+      </div>
+    </a>
   `).join('');
+});
+function wlRemove(url) {
+  const list = wlGet().filter(i => i.url !== url);
+  localStorage.setItem('cinevu_watchlist', JSON.stringify(list));
+  location.reload();
 }
-
-function removeItem(url) {
-  wlRemove(url);
-  renderWatchlist();
-}
-
-function clearAll() {
-  if (!wlGet().length) return;
-  if (!confirm('Hapus semua film dari My List?')) return;
-  localStorage.removeItem('cinevu_watchlist');
-  wlToast('🗑️ My List dikosongkan');
-  renderWatchlist();
-}
-
-document.addEventListener('DOMContentLoaded', renderWatchlist);
 </script>
 {% endblock %}

@@ -1,60 +1,41 @@
 {% extends "base.html" %}
 {% block title %}{{ title }} — Cinevu{% endblock %}
-
 {% block content %}
 <div class="list-wrap">
   <div class="list-heading">{{ title }}</div>
 
   {% if query %}
-  <p style="color:var(--muted);margin-bottom:20px;font-size:14px;">
-    Hasil pencarian untuk <strong style="color:#fff">"{{ query }}"</strong>
-    {% if movies %}— {{ movies|length }} film ditemukan{% endif %}
+  <p style="color:var(--muted);margin-bottom:24px;font-size:13px;letter-spacing:.3px;">
+    Hasil pencarian untuk <strong style="color:var(--text)">"{{ query }}"</strong>
+    {% if movies %}<span style="color:var(--muted);"> — {{ movies|length }} film ditemukan</span>{% endif %}
   </p>
   {% endif %}
 
   {% if movies %}
   <div class="grid-movies">
     {% for m in movies %}
-    <a href="/watch?url={{ m.url | urlencode }}" class="ncard fade-in" style="width:100%;animation-delay:{{ loop.index0 * 0.025 }}s">
+    <a href="/watch?url={{ m.url | urlencode }}" class="ncard fade-in" style="width:100%;animation-delay:{{ loop.index0 * 0.02 }}s">
       <div class="ncard-poster-wrap">
-        <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy" style="height:240px;"
-             onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
+        <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
+             onerror="this.src='https://placehold.co/165x245/1a1a24/333?text=No+Image'">
         {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
-        {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
-        <div class="ncard-overlay">
-          <div class="ncard-actions">
-            <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-            <button class="ncard-play" data-wl-url="{{ m.url }}" title="My List"
-              style="background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.6);"
-              onclick="event.preventDefault();wlToggle({url:'{{ m.url }}',title:{{ m.title|tojson }},poster:'{{ m.poster }}',quality:'{{ m.quality }}',rating:'{{ m.rating }}'})">
-              <i class="fa-solid fa-plus" style="font-size:13px;color:#fff;margin-left:0;"></i>
-            </button>
-          </div>
-          <div class="ncard-info">
-            <div class="ncard-title-h">{{ m.title | truncate(30) }}</div>
-            <div class="ncard-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
-            <div class="ncard-meta-h">
-              {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
-              {% if m.quality %}<span class="ncard-qlabel">{{ m.quality }}</span>{% endif %}
-              {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
-            </div>
-          </div>
-        </div>
+        {% if m.rating %}<div class="ncard-star"><i class="fa-solid fa-star" style="font-size:8px;"></i> {{ m.rating }}</div>{% endif %}
       </div>
       <div class="ncard-foot">
-        <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
-        <div class="ncard-foot-match">{{ [92,94,96,97,98,99]|random }}% Match</div>
+        <div class="ncard-foot-title">{{ m.title | truncate(24) }}</div>
         <div class="ncard-foot-meta">
-          {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+          {% if m.year %}<span class="ncard-foot-year">{{ m.year }}</span>{% endif %}
           {% if m.quality %}<span class="ncard-foot-hd">{{ m.quality }}</span>{% endif %}
-          {% if m.episodes %}<span>{{ m.episodes }} Eps</span>{% endif %}
+        </div>
+        <div class="ncard-foot-icons">
+          {% if m.duration %}<span class="ncard-foot-icon"><i class="fa-regular fa-clock"></i> {{ m.duration }}</span>{% endif %}
+          {% if m.episodes %}<span class="ncard-foot-icon"><i class="fa-solid fa-film"></i> {{ m.episodes }} Eps</span>{% endif %}
         </div>
       </div>
     </a>
     {% endfor %}
   </div>
 
-  <!-- PAGINATION -->
   <div class="pagination">
     {% if page > 1 %}
     <a class="pag-btn" href="?{% if query %}q={{ query }}&{% endif %}page={{ page - 1 }}">← Sebelumnya</a>
@@ -69,8 +50,8 @@
   <div class="loading-screen">
     {% if query %}
     <div style="text-align:center;">
-      <div style="font-size:48px;margin-bottom:16px;">🔍</div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:8px;">Tidak ditemukan</div>
+      <div style="font-size:52px;margin-bottom:16px;opacity:.4;">🔍</div>
+      <div style="font-family:var(--display);font-size:24px;letter-spacing:2px;margin-bottom:8px;">TIDAK DITEMUKAN</div>
       <div style="color:var(--muted);font-size:14px;">Coba kata kunci lain</div>
     </div>
     {% else %}

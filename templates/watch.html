@@ -6,17 +6,12 @@
 
   <!-- PLAYER -->
   <div class="watch-player-wrap">
-    <div class="watch-player-inner">
-      <div class="player-frame" id="playerFrame">
-        <div class="player-placeholder" id="playerPlaceholder" onclick="loadFirstPlayer()">
-          <div class="big-play">
-            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-          </div>
-          <div class="placeholder-label">Klik untuk streaming</div>
-        </div>
+    <div class="player-frame" id="playerFrame">
+      <div class="player-placeholder" id="playerPlaceholder" onclick="loadFirstPlayer()">
+        <div class="big-play"><i class="fa-solid fa-play"></i></div>
+        <div class="placeholder-label">Klik untuk mulai streaming</div>
       </div>
     </div>
-    <!-- Server tabs -->
     <div class="player-controls">
       <span class="server-label">Server:</span>
       <div id="serverTabs" style="display:flex;gap:8px;flex-wrap:wrap;flex:1;">
@@ -24,30 +19,24 @@
           <div class="spin"></div> Memuat server...
         </div>
       </div>
-      <button onclick="goFullscreen()" title="Fullscreen" style="
-        background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
-        color:#ccc;padding:6px 10px;border-radius:4px;cursor:pointer;
-        font-size:16px;line-height:1;flex-shrink:0;transition:all .2s;
-      ">⛶</button>
+      <button onclick="goFullscreen()" title="Fullscreen" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted2);padding:7px 12px;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;flex-shrink:0;transition:all .2s;" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">⛶</button>
     </div>
   </div>
 
   <div class="watch-body">
 
-    <!-- SLOT IKLAN: watch_before -->
     {% if iklan is defined and iklan.get('watch_before') %}
-    <div class="ad-slot" style="margin-bottom:16px;text-align:center;">
+    <div style="margin-bottom:20px;text-align:center;">
     {% for ad in iklan['watch_before'] %}
-      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
       {% else %}{{ ad.konten | safe }}{% endif %}
     {% endfor %}
     </div>
     {% endif %}
 
-    <!-- EPISODES -->
     {% if movie.episodes %}
     <div class="eps-section fade-in">
-      <div class="eps-title">Daftar Episode</div>
+      <div class="eps-title">DAFTAR EPISODE</div>
       <div class="eps-grid">
         {% for ep in movie.episodes %}
         <a class="eps-btn" href="/watch?url={{ ep.url | urlencode }}">{{ ep.label }}</a>
@@ -57,123 +46,101 @@
     {% endif %}
 
     <!-- DETAIL -->
-    <div class="watch-detail fade-in">
-
-      <!-- Hero row: poster kiri + info kanan -->
-      <div class="wd-hero">
-        <img class="watch-poster" src="{{ movie.poster }}" alt="{{ movie.title }}"
-             onerror="this.src='https://placehold.co/220x330/1a1a1a/333?text=No+Image'">
-        <div class="wd-hero-info">
-          <div class="watch-title">{{ movie.title }}</div>
-          <div class="watch-badges">
-            {% if movie.rating %}
-            <div class="badge-rating">⭐ {{ movie.rating }}<span style="color:var(--muted);font-weight:400;font-size:11px">/10</span></div>
-            {% endif %}
-            <span class="badge-match">{{ [92,95,97,98,99]|random }}% Match</span>
-            {% if movie.meta.get('year') %}<span class="badge-year">{{ movie.meta.year }}</span>{% endif %}
-            {% if movie.meta.get('quality') %}<span class="badge-quality">{{ movie.meta.quality }}</span>{% endif %}
-          </div>
-          {% if movie.meta.get('duration') %}<div class="wd-dur">⏱ {{ movie.meta.duration }}</div>{% endif %}
-          <div class="wd-cta">
-            <button onclick="loadFirstPlayer()" class="btn-play-main">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
-              Tonton
-            </button>
-            <button id="wl-watch-btn" class="btn-trailer"
-              data-wl-url="{{ movie.url }}"
-              onclick="wlToggle({url:'{{ movie.url }}',title:{{ movie.title|tojson }},poster:'{{ movie.poster }}',quality:'{{ movie.meta.get('quality','') }}',rating:'{{ movie.rating }}'});updateWlWatchBtn()">
-              <i class="fa-solid fa-plus"></i> My List
-            </button>
-            {% if movie.trailer %}
-            <a href="{{ movie.trailer }}" target="_blank" class="btn-trailer">🎬 Trailer</a>
-            {% endif %}
-          </div>
+    <div class="wd-hero fade-in">
+      <img class="watch-poster" src="{{ movie.poster }}" alt="{{ movie.title }}"
+           onerror="this.src='https://placehold.co/210x315/1a1a24/333?text=No+Image'">
+      <div>
+        <div class="watch-title">{{ movie.title }}</div>
+        <div class="watch-badges">
+          {% if movie.rating %}
+          <div class="badge-rating"><i class="fa-solid fa-star" style="font-size:11px;"></i> {{ movie.rating }}<span style="color:var(--muted);font-weight:400;font-size:11px;">/10</span></div>
+          {% endif %}
+          <span class="badge-match">{{ [92,95,97,98,99]|random }}% Match</span>
+          {% if movie.meta.get('year') %}<span class="badge-year">{{ movie.meta.year }}</span>{% endif %}
+          {% if movie.meta.get('quality') %}<span class="badge-quality">{{ movie.meta.quality }}</span>{% endif %}
+        </div>
+        {% if movie.meta.get('duration') %}<div class="wd-dur"><i class="fa-regular fa-clock" style="font-size:11px;"></i> {{ movie.meta.duration }}</div>{% endif %}
+        <div class="wd-cta">
+          <button onclick="loadFirstPlayer()" class="btn-play-main">
+            <i class="fa-solid fa-play"></i> Tonton
+          </button>
+          <button id="wl-watch-btn" class="btn-mylist"
+            data-wl-url="{{ movie.url }}"
+            onclick="wlToggle({url:'{{ movie.url }}',title:{{ movie.title|tojson }},poster:'{{ movie.poster }}',quality:'{{ movie.meta.get('quality','') }}',rating:'{{ movie.rating }}'});updateWlWatchBtn()">
+            <i class="fa-solid fa-plus"></i> My List
+          </button>
+          {% if movie.trailer %}
+          <a href="{{ movie.trailer }}" target="_blank" class="btn-trailer-link"><i class="fa-solid fa-film"></i> Trailer</a>
+          {% endif %}
         </div>
       </div>
-
-      <!-- Synopsis collapsible -->
-      {% if movie.synopsis %}
-      <div class="wd-syn-wrap">
-        <p class="watch-synopsis collapsed" id="synText">{{ movie.synopsis }}</p>
-        <button class="syn-toggle" id="synBtn" onclick="toggleSyn()">Baca selengkapnya ▾</button>
-      </div>
-      {% endif %}
-
-      <!-- Meta info -->
-      <div class="meta-pills">
-        {% if movie.meta.get('genre') %}
-        <div class="meta-pill"><strong>Genre</strong><span>{{ movie.meta.genre }}</span></div>
-        {% endif %}
-        {% if movie.meta.get('country') %}
-        <div class="meta-pill"><strong>Negara</strong><span>{{ movie.meta.country }}</span></div>
-        {% endif %}
-        {% if movie.meta.get('director') %}
-        <div class="meta-pill"><strong>Sutradara</strong><span>{{ movie.meta.director }}</span></div>
-        {% endif %}
-        {% if movie.meta.get('cast') %}
-        <div class="meta-pill"><strong>Pemain</strong><span>{{ movie.meta.cast | truncate(80) }}</span></div>
-        {% endif %}
-        {% if movie.meta.get('language') %}
-        <div class="meta-pill"><strong>Bahasa</strong><span>{{ movie.meta.language }}</span></div>
-        {% endif %}
-      </div>
-
     </div>
 
-    <!-- DOWNLOAD -->
+    {% if movie.synopsis %}
+    <div class="wd-syn-wrap">
+      <p class="watch-synopsis collapsed" id="synText">{{ movie.synopsis }}</p>
+      <button class="syn-toggle" id="synBtn" onclick="toggleSyn()">Baca selengkapnya ▾</button>
+    </div>
+    {% endif %}
+
+    <div class="meta-pills" style="margin-bottom:24px;">
+      {% if movie.meta.get('genre') %}
+      <div class="meta-pill"><strong>Genre</strong><span>{{ movie.meta.genre }}</span></div>
+      {% endif %}
+      {% if movie.meta.get('country') %}
+      <div class="meta-pill"><strong>Negara</strong><span>{{ movie.meta.country }}</span></div>
+      {% endif %}
+      {% if movie.meta.get('director') %}
+      <div class="meta-pill"><strong>Sutradara</strong><span>{{ movie.meta.director }}</span></div>
+      {% endif %}
+      {% if movie.meta.get('cast') %}
+      <div class="meta-pill"><strong>Pemain</strong><span>{{ movie.meta.cast | truncate(80) }}</span></div>
+      {% endif %}
+      {% if movie.meta.get('language') %}
+      <div class="meta-pill"><strong>Bahasa</strong><span>{{ movie.meta.language }}</span></div>
+      {% endif %}
+    </div>
+
     {% if movie.downloads %}
-    <div style="margin-top:20px;margin-bottom:24px;">
-      <div style="font-size:18px;font-weight:700;color:#e5e5e5;margin-bottom:12px;
-                  display:flex;align-items:center;gap:10px;">
-        <span style="width:4px;height:18px;background:#22c55e;border-radius:2px;display:inline-block;"></span>
-        Download Film
+    <div style="margin-bottom:28px;">
+      <div style="font-family:var(--display);font-size:20px;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+        <span style="width:4px;height:20px;background:var(--green);border-radius:2px;display:inline-block;"></span>
+        DOWNLOAD FILM
       </div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         {% for dl in movie.downloads %}
         <a href="{{ dl.url }}" target="_blank" rel="nofollow"
-           style="display:flex;align-items:center;gap:12px;
-                  background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);
-                  color:#86efac;padding:12px 16px;border-radius:8px;text-decoration:none;
-                  font-size:13px;font-weight:600;transition:all .2s;"
-           onmouseover="this.style.background='rgba(34,197,94,.15)'"
-           onmouseout="this.style.background='rgba(34,197,94,.08)'">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-            <path clip-rule="evenodd" d="M3 17a1 1 0 0 1 1-1h12a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1zm3.293-7.707a1 1 0 0 1 1.414 0L9 10.586V3a1 1 0 1 1 2 0v7.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 0-1.414z" fill-rule="evenodd"/>
-          </svg>
-          Download {{ loop.index }}
+           style="display:flex;align-items:center;gap:12px;background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.15);color:#86efac;padding:12px 16px;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;transition:all .2s;letter-spacing:.3px;"
+           onmouseover="this.style.background='rgba(0,230,118,.12)'" onmouseout="this.style.background='rgba(0,230,118,.06)'">
+          <i class="fa-solid fa-download"></i>
+          {{ dl.label or ('Download ' + loop.index|string) }}
         </a>
         {% endfor %}
       </div>
     </div>
     {% endif %}
 
-    <!-- RELATED -->
     {% if movie.related %}
-    <div style="margin-top:20px;">
-      <div style="font-size:20px;font-weight:700;color:#e5e5e5;margin-bottom:14px;
-                  display:flex;align-items:center;gap:10px;">
+    <div style="margin-top:8px;">
+      <div style="font-family:var(--display);font-size:20px;letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
         <span style="width:4px;height:20px;background:var(--red);border-radius:2px;display:inline-block;"></span>
-        Film Terkait
+        FILM TERKAIT
       </div>
       <div class="grid-movies">
         {% for m in movie.related %}
         <a href="/watch?url={{ m.url | urlencode }}" class="ncard" style="width:100%;">
           <div class="ncard-poster-wrap">
             <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
-                 onerror="this.src='https://placehold.co/160x240/1a1a1a/333?text=No+Image'">
+                 onerror="this.src='https://placehold.co/165x245/1a1a24/333?text=No+Image'">
             {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
-            {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
-            <div class="ncard-overlay">
-              <div class="ncard-actions">
-                <button class="ncard-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-              </div>
-              <div class="ncard-info">
-                <div class="ncard-title-h">{{ m.title | truncate(28) }}</div>
-              </div>
-            </div>
+            {% if m.rating %}<div class="ncard-star"><i class="fa-solid fa-star" style="font-size:8px;"></i> {{ m.rating }}</div>{% endif %}
           </div>
           <div class="ncard-foot">
-            <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
+            <div class="ncard-foot-title">{{ m.title | truncate(24) }}</div>
+            <div class="ncard-foot-meta">
+              {% if m.year %}<span class="ncard-foot-year">{{ m.year }}</span>{% endif %}
+              {% if m.quality %}<span class="ncard-foot-hd">{{ m.quality }}</span>{% endif %}
+            </div>
           </div>
         </a>
         {% endfor %}
@@ -181,11 +148,10 @@
     </div>
     {% endif %}
 
-    <!-- SLOT IKLAN: watch_after -->
     {% if iklan is defined and iklan.get('watch_after') %}
-    <div class="ad-slot" style="margin-top:20px;text-align:center;">
+    <div style="margin-top:24px;text-align:center;">
     {% for ad in iklan['watch_after'] %}
-      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+      {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
       {% else %}{{ ad.konten | safe }}{% endif %}
     {% endfor %}
     </div>
@@ -230,21 +196,16 @@ function loadPlayer(idx) {
   const p = players[idx];
   if (!p) return;
   _currentIdx = idx;
-
-  // Clear auto-skip timer sebelumnya
   if (_autoSkipTimer) { clearTimeout(_autoSkipTimer); _autoSkipTimer = null; }
-
   document.querySelectorAll('.server-tab').forEach((b,i) => b.classList.toggle('active', i===idx));
   const frame = document.getElementById('playerFrame');
   frame.style.minHeight = Math.round(frame.offsetWidth * 0.5625) + 'px';
-
-  // Tampilkan status server
   const serverName = p.server || `Server ${idx+1}`;
   frame.innerHTML = `
-    <div style="position:absolute;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#888;z-index:2;" id="pLoad">
+    <div style="position:absolute;inset:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:var(--muted);z-index:2;" id="pLoad">
       <div class="spin"></div>
       <span style="font-size:13px;">Memuat ${serverName}...</span>
-      ${players.length > 1 ? `<span style="font-size:11px;color:#555;">Auto-skip ke server berikutnya dalam <span id="skipCount">15</span>s jika gagal</span>` : ''}
+      ${players.length > 1 ? `<span style="font-size:11px;color:var(--muted);">Auto-skip dalam <span id="skipCount">15</span>s</span>` : ''}
     </div>
     <div id="adOverlay" style="position:absolute;inset:0;z-index:3;cursor:pointer;background:transparent;" onclick="dismissOverlay(this)"></div>
     <iframe
@@ -255,10 +216,7 @@ function loadPlayer(idx) {
       style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:1;display:block;"
       onload="onIframeLoad()">
     </iframe>`;
-
   frame.scrollIntoView({behavior:'smooth', block:'start'});
-
-  // Auto-skip: countdown 15 detik, kalau onIframeLoad belum hapus pLoad → skip
   if (players.length > 1) {
     let sec = 15;
     const countEl = () => document.getElementById('skipCount');
@@ -267,24 +225,16 @@ function loadPlayer(idx) {
       if (countEl()) countEl().textContent = sec;
       if (sec <= 0) clearInterval(countdown);
     }, 1000);
-
     _autoSkipTimer = setTimeout(() => {
       clearInterval(countdown);
-      // Kalau pLoad masih ada → iframe belum berhasil load → skip
       if (document.getElementById('pLoad')) {
         const next = idx + 1;
         if (next < players.length) {
           showSkipNotif(serverName, players[next].server || `Server ${next+1}`);
           setTimeout(() => loadPlayer(next), 800);
         } else {
-          // Sudah coba semua server
           const pLoad = document.getElementById('pLoad');
-          if (pLoad) pLoad.innerHTML = `
-            <div style="text-align:center;padding:20px;">
-              <div style="font-size:32px;margin-bottom:12px;">😔</div>
-              <div style="color:#ccc;font-size:14px;margin-bottom:8px;">Semua server tidak tersedia</div>
-              <div style="color:#666;font-size:12px;">Coba lagi nanti atau cari film lain</div>
-            </div>`;
+          if (pLoad) pLoad.innerHTML = `<div style="text-align:center;padding:20px;"><div style="font-size:32px;margin-bottom:12px;">😔</div><div style="color:var(--muted2);font-size:14px;margin-bottom:8px;">Semua server tidak tersedia</div><div style="color:var(--muted);font-size:12px;">Coba lagi nanti</div></div>`;
         }
       }
     }, 15000);
@@ -293,47 +243,32 @@ function loadPlayer(idx) {
 
 function showSkipNotif(from, to) {
   const notif = document.createElement('div');
-  notif.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #6c63ff;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;animation:fadeUp .3s ease;white-space:nowrap;';
+  notif.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;font-size:13px;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5);';
   notif.innerHTML = `⚡ ${from} gagal → pindah ke ${to}`;
   document.body.appendChild(notif);
   setTimeout(() => notif.remove(), 3000);
 }
 
 function onIframeLoad() {
-  // Iframe berhasil load → cancel auto-skip
   if (_autoSkipTimer) { clearTimeout(_autoSkipTimer); _autoSkipTimer = null; }
   document.getElementById('pLoad')?.remove();
-  // Hapus overlay setelah 3 detik
-  setTimeout(() => {
-    const ov = document.getElementById('adOverlay');
-    if (ov) ov.remove();
-  }, 3000);
+  setTimeout(() => { const ov = document.getElementById('adOverlay'); if (ov) ov.remove(); }, 3000);
 }
 
-function dismissOverlay(el) {
-  el.remove();
-}
+function dismissOverlay(el) { el.remove(); }
 
-// Blokir window.open dari iframe (popup iklan)
 const _origOpen = window.open;
 window.open = function(url, target, features) {
-  // Izinkan hanya kalau dipanggil langsung oleh user gesture di halaman ini,
-  // bukan dari iframe
-  if (document.activeElement && document.activeElement.id === 'playerIframe') {
-    return null; // blok
-  }
+  if (document.activeElement && document.activeElement.id === 'playerIframe') return null;
   return _origOpen.call(window, url, target, features);
 };
 
-function loadFirstPlayer() {
-  if (players.length > 0) loadPlayer(0);
-}
-
+function loadFirstPlayer() { if (players.length > 0) loadPlayer(0); }
 fetchPlayers();
 
 function goFullscreen() {
   const iframe = document.getElementById('playerIframe');
-  const frame  = document.getElementById('playerFrame');
+  const frame = document.getElementById('playerFrame');
   const target = iframe || frame;
   if (!target) return;
   if (target.requestFullscreen) target.requestFullscreen();
@@ -356,43 +291,9 @@ function updateWlWatchBtn() {
   const url = btn.getAttribute('data-wl-url');
   const inList = wlHas(url);
   btn.innerHTML = inList ? '<i class="fa-solid fa-check"></i> Tersimpan' : '<i class="fa-solid fa-plus"></i> My List';
-  btn.style.borderColor = inList ? '#46d369' : '';
-  btn.style.color = inList ? '#46d369' : '';
+  btn.style.borderColor = inList ? 'var(--green)' : '';
+  btn.style.color = inList ? 'var(--green)' : '';
 }
 document.addEventListener('DOMContentLoaded', updateWlWatchBtn);
 </script>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-.watch-detail{display:block;margin-bottom:28px;}
-.wd-hero{display:grid;grid-template-columns:115px 1fr;gap:14px;align-items:start;margin-bottom:16px;}
-.watch-poster{width:115px;border-radius:8px;object-fit:cover;aspect-ratio:2/3;box-shadow:0 6px 24px rgba(0,0,0,.8);flex-shrink:0;}
-.wd-hero-info{display:flex;flex-direction:column;gap:8px;min-width:0;}
-.watch-title{font-size:clamp(15px,4vw,32px);font-weight:900;letter-spacing:-.3px;line-height:1.2;}
-.watch-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.badge-rating{color:var(--gold,#f5c518);font-weight:700;font-size:13px;}
-.badge-match{color:#46d369;font-weight:700;font-size:12px;}
-.badge-year,.badge-quality{color:#aaa;font-size:11px;background:rgba(255,255,255,.07);padding:2px 8px;border-radius:3px;}
-.badge-quality{border:1px solid #555;color:#ccc;font-weight:700;}
-.wd-dur{font-size:12px;color:var(--muted,#888);}
-.wd-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
-.btn-play-main{background:var(--red,#e50914);color:#fff;border:none;font-family:var(--font,sans-serif);font-size:13px;font-weight:700;padding:9px 18px;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:7px;flex:1;justify-content:center;min-width:100px;}
-.btn-trailer{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);font-family:var(--font,sans-serif);font-size:13px;font-weight:600;padding:9px 14px;border-radius:5px;text-decoration:none;display:flex;align-items:center;gap:6px;}
-.wd-syn-wrap{margin-bottom:14px;}
-.watch-synopsis{font-size:13.5px;line-height:1.72;color:#bbb;margin:0 0 4px;}
-.watch-synopsis.collapsed{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
-.syn-toggle{background:none;border:none;color:var(--red,#e50914);font-size:12px;font-weight:600;cursor:pointer;padding:0;font-family:var(--font,sans-serif);}
-.meta-pills{display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(255,255,255,.07);}
-.meta-pill{display:flex;gap:8px;font-size:12.5px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05);align-items:baseline;}
-.meta-pill strong{color:#999;font-weight:600;min-width:72px;flex-shrink:0;}
-.meta-pill span{color:#ddd;}
-@media(min-width:600px){
-  .wd-hero{grid-template-columns:180px 1fr;gap:20px;}
-  .watch-poster{width:180px;}
-  .meta-pills{flex-direction:row;flex-wrap:wrap;border-top:none;gap:8px;}
-  .meta-pill{border-bottom:none;background:rgba(255,255,255,.05);padding:5px 12px;border-radius:4px;flex-direction:column;gap:2px;}
-  .meta-pill strong{min-width:unset;}
-}
-</style>
 {% endblock %}

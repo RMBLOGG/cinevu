@@ -5,7 +5,7 @@
 {% set hero_movies = [] %}
 {% for sec in sections %}
   {% for m in sec.movies %}
-    {% if hero_movies|length < 5 %}
+    {% if hero_movies|length < 6 %}
       {% set _ = hero_movies.append(m) %}
     {% endif %}
   {% endfor %}
@@ -15,140 +15,162 @@
 {% if hero_movies %}
 <div class="hero-slider fade-in" id="heroSlider">
   {% for m in hero_movies %}
-  <div class="hero-slide{% if loop.first %} active{% endif %}" data-url="/watch?url={{ m.url | urlencode }}">
+  <div class="hero-slide{% if loop.first %} active{% endif %}">
     <div class="hero-bg">
       <img src="{{ m.poster }}" alt="{{ m.title }}" onerror="this.style.display='none'">
     </div>
     <div class="hero-grad"></div>
     <div class="hero-content">
-      <div class="hero-n-badge">FILM TERBARU</div>
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        FILM TERBARU
+      </div>
       <div class="hero-title">{{ m.title }}</div>
       <div class="hero-meta">
-        {% if m.rating %}<span class="hero-rating">⭐ {{ m.rating }}</span>{% endif %}
-        <span class="hero-match">{{ loop.index * 3 + 91 }}% Match</span>
-        {% if m.duration %}<span class="hero-dur">{{ m.duration }}</span>{% endif %}
-        {% if m.quality %}<span class="hero-qual">{{ m.quality }}</span>{% endif %}
+        {% if m.rating %}<span class="hero-rating"><i class="fa-solid fa-star" style="font-size:11px;"></i> {{ m.rating }}</span>{% endif %}
+        {% if m.quality %}<span class="hero-tag">{{ m.quality }}</span>{% endif %}
+        {% if m.duration %}<span class="hero-tag">{{ m.duration }}</span>{% endif %}
+        <span class="hero-tag">{{ loop.index * 3 + 91 }}% Match</span>
       </div>
-      {% if m.synopsis %}
-      <div class="hero-synopsis">{{ m.synopsis }}</div>
-      {% endif %}
       <div class="hero-btns">
-        <a href="/watch?url={{ m.url | urlencode }}" class="btn-play">
-          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>Tonton
+        <a href="/watch?url={{ m.url | urlencode }}" class="btn-watch">
+          <i class="fa-solid fa-play"></i> Tonton Sekarang
         </a>
-        <a href="/watch?url={{ m.url | urlencode }}" class="btn-info">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>Info Lebih
+        <a href="/watch?url={{ m.url | urlencode }}" class="btn-trailer-hero">
+          <i class="fa-regular fa-circle-play"></i> Info Lebih
         </a>
       </div>
     </div>
   </div>
   {% endfor %}
 
-  <!-- Dots — bottom left Netflix style -->
   <div class="hero-dots">
     {% for m in hero_movies %}
     <button class="hero-dot{% if loop.first %} active{% endif %}" data-idx="{{ loop.index0 }}"></button>
     {% endfor %}
   </div>
 
-  <!-- Mute & Age badge — bottom right -->
-  <button class="hero-mute-btn" id="heroMuteBtn" title="Mute/Unmute">
+  <button class="hero-vol-btn" id="heroMuteBtn">
     <i class="fa-solid fa-volume-xmark"></i>
   </button>
-  <div class="hero-age-badge">17+</div>
+  <div class="hero-age">17+</div>
 </div>
 
 <script>
 (function(){
-  const slides = document.querySelectorAll('.hero-slide');
-  const dots   = document.querySelectorAll('.hero-dot');
-  let cur = 0, timer;
-
-  function goTo(n) {
-    slides[cur].classList.remove('active');
-    dots[cur].classList.remove('active');
-    cur = (n + slides.length) % slides.length;
-    slides[cur].classList.add('active');
-    dots[cur].classList.add('active');
-  }
-  function next() { goTo(cur + 1); }
-  function startTimer() { clearInterval(timer); timer = setInterval(next, 6000); }
-
-  dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.idx); startTimer(); }));
+  const slides=document.querySelectorAll('.hero-slide'),dots=document.querySelectorAll('.hero-dot');
+  let cur=0,timer;
+  function goTo(n){slides[cur].classList.remove('active');dots[cur].classList.remove('active');cur=(n+slides.length)%slides.length;slides[cur].classList.add('active');dots[cur].classList.add('active');}
+  function next(){goTo(cur+1);}
+  function startTimer(){clearInterval(timer);timer=setInterval(next,6500);}
+  dots.forEach(d=>d.addEventListener('click',()=>{goTo(+d.dataset.idx);startTimer();}));
   startTimer();
-
-  // Mute btn toggle (visual only — no video)
-  const muteBtn = document.getElementById('heroMuteBtn');
-  let muted = true;
-  if (muteBtn) {
-    muteBtn.addEventListener('click', () => {
-      muted = !muted;
-      muteBtn.innerHTML = muted
-        ? '<i class="fa-solid fa-volume-xmark"></i>'
-        : '<i class="fa-solid fa-volume-high"></i>';
-    });
-  }
+  const muteBtn=document.getElementById('heroMuteBtn');
+  let muted=true;
+  if(muteBtn){muteBtn.addEventListener('click',()=>{muted=!muted;muteBtn.innerHTML=muted?'<i class="fa-solid fa-volume-xmark"></i>':'<i class="fa-solid fa-volume-high"></i>';});}
 })();
 </script>
 {% endif %}
 
-<!-- ROWS -->
-<div class="rows-wrap">
+<!-- CONTENT AREA -->
+<div class="content-area">
 
   {% if iklan is defined and iklan.get('header_banner') %}
-  <div style="text-align:center;padding:12px 4% 0;">
+  <div class="ad-slot" style="padding-top:16px;">
   {% for ad in iklan['header_banner'] %}
-    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
     {% else %}{{ ad.konten | safe }}{% endif %}
   {% endfor %}
   </div>
   {% endif %}
 
-  <!-- Genre pills -->
-  <div class="genre-bar">
-    <a class="genre-pill" href="/genre/action">⚡ Action</a>
-    <a class="genre-pill" href="/genre/horror">💀 Horror</a>
-    <a class="genre-pill" href="/genre/drama">🎭 Drama</a>
-    <a class="genre-pill" href="/genre/comedy">😂 Comedy</a>
-    <a class="genre-pill" href="/genre/thriller">🔪 Thriller</a>
-    <a class="genre-pill" href="/genre/science-fiction">🚀 Sci-Fi</a>
-    <a class="genre-pill" href="/genre/romance">💕 Romance</a>
-    <a class="genre-pill" href="/anime">🎌 Anime</a>
-    <a class="genre-pill" href="/genre/fantasy">🧙 Fantasy</a>
-    <a class="genre-pill" href="/genre/crime">🕵️ Crime</a>
-    <a class="genre-pill" href="/country/korea">🇰🇷 Korea</a>
-    <a class="genre-pill" href="/country/indonesia">🇮🇩 Indonesia</a>
-    <a class="genre-pill" href="/country/japan">🇯🇵 Jepang</a>
-    <a class="genre-pill" href="/year/2025">📅 2025</a>
-    <a class="genre-pill" href="/semi">🔞 Semi</a>
+  <!-- FILTER TABS -->
+  <div class="filter-tabs">
+    <button class="filter-tab active"><i class="fa-solid fa-arrow-trend-up"></i> Trending</button>
+    <div class="filter-sep"></div>
+    <button class="filter-tab"><i class="fa-regular fa-star"></i> Popular</button>
+    <div class="filter-sep"></div>
+    <button class="filter-tab"><i class="fa-solid fa-plus"></i> Baru Ditambah</button>
+    <div class="filter-sep"></div>
+    <button class="filter-tab"><i class="fa-solid fa-crown"></i> Premium</button>
   </div>
 
+  <!-- GENRE PILLS -->
+  <div class="genre-bar-wrap">
+    <div class="genre-bar">
+      <a class="genre-pill" href="/genre/action">⚡ Action</a>
+      <a class="genre-pill" href="/genre/horror">💀 Horror</a>
+      <a class="genre-pill" href="/genre/drama">🎭 Drama</a>
+      <a class="genre-pill" href="/genre/comedy">😂 Comedy</a>
+      <a class="genre-pill" href="/genre/thriller">🔪 Thriller</a>
+      <a class="genre-pill" href="/genre/science-fiction">🚀 Sci-Fi</a>
+      <a class="genre-pill" href="/genre/romance">💕 Romance</a>
+      <a class="genre-pill" href="/anime">🎌 Anime</a>
+      <a class="genre-pill" href="/genre/fantasy">🧙 Fantasy</a>
+      <a class="genre-pill" href="/genre/crime">🕵️ Crime</a>
+      <a class="genre-pill" href="/country/korea">🇰🇷 Korea</a>
+      <a class="genre-pill" href="/country/indonesia">🇮🇩 Indonesia</a>
+      <a class="genre-pill" href="/country/japan">🇯🇵 Jepang</a>
+      <a class="genre-pill" href="/year/2025">📅 2025</a>
+      <a class="genre-pill" href="/semi">🔞 Semi</a>
+    </div>
+  </div>
+
+  <!-- SECTIONS -->
   {% for sec in sections %}
   {% if sec.movies %}
 
   {% if loop.index == 4 and iklan is defined and iklan.get('home_mid') %}
-  <div style="text-align:center;padding:4px 4% 12px;">
+  <div class="ad-slot" style="margin-bottom:16px;">
   {% for ad in iklan['home_mid'] %}
-    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:6px;"></a>
+    {% if ad.tipe == 'gambar' %}<a href="{{ ad.link_url or '#' }}" target="_blank" rel="noopener"><img src="{{ ad.konten }}" style="max-width:100%;border-radius:8px;"></a>
     {% else %}{{ ad.konten | safe }}{% endif %}
   {% endfor %}
   </div>
   {% endif %}
 
-  <div class="row fade-in" style="animation-delay:{{ loop.index0 * 0.06 }}s">
-    <div class="row-header">
-      <div class="row-title">{{ sec.title }}</div>
-      <a class="see-all" href="{{ sec.more }}">Lihat Semua <span class="arrow">›</span></a>
+  <!-- FEATURED BANNER after 3rd section -->
+  {% if loop.index == 3 and sec.movies|length > 0 %}
+  {% set feat = sec.movies[0] %}
+  <div class="featured-banner fade-in">
+    <div class="featured-banner-bg">
+      <img src="{{ feat.poster }}" alt="{{ feat.title }}" onerror="this.style.display='none'">
+    </div>
+    <div class="featured-banner-grad"></div>
+    <div class="featured-banner-content">
+      <div class="featured-banner-tags">
+        <span class="featured-tag">{{ loop.index * 5 + 13 }}+ Reviews</span>
+        {% if feat.quality %}<span class="featured-tag-plain">{{ feat.quality }}</span>{% endif %}
+        {% if feat.rating %}<span class="featured-tag-plain">⭐ {{ feat.rating }}</span>{% endif %}
+      </div>
+      <div class="featured-banner-title">{{ feat.title }}</div>
+      <div class="featured-banner-desc">Film pilihan dari kategori {{ sec.title }}. Nikmati pengalaman streaming terbaik langsung di browser kamu tanpa perlu mendaftar.</div>
+      <div class="featured-banner-btns">
+        <a href="/watch?url={{ feat.url | urlencode }}" class="btn-watch">
+          <i class="fa-solid fa-play"></i> Tonton
+        </a>
+        <a href="{{ sec.more }}" class="btn-trailer-hero">
+          <i class="fa-solid fa-list"></i> Lihat Semua
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="section fade-in" style="animation-delay:{{ loop.index0 * 0.06 }}s">
+    <div class="section-header">
+      <div class="section-title">{{ sec.title }}</div>
+      <a class="section-see-all" href="{{ sec.more }}">Lihat Semua <i class="fa-solid fa-chevron-right"></i></a>
     </div>
     <div class="slider-wrap">
-      <button class="slider-btn prev"><svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></button>
+      <button class="slider-btn prev"><div class="slider-btn-inner"><i class="fa-solid fa-chevron-left"></i></div></button>
       <div class="slider">
         {% if sec.id == 'trending' %}
           {% for m in sec.movies %}
           <a href="/watch?url={{ m.url | urlencode }}" class="top10-card">
             <div class="top10-num">{{ loop.index }}</div>
             <img class="top10-img" src="{{ m.poster }}" alt="{{ m.title }}"
-                 onerror="this.src='https://placehold.co/180x260/1a1a1a/333?text={{ loop.index }}'">
+                 onerror="this.src='https://placehold.co/185x265/1a1a24/333?text={{ loop.index }}'">
           </a>
           {% endfor %}
         {% else %}
@@ -157,27 +179,26 @@
           <a href="/watch?url={{ m.url | urlencode }}" class="ncard">
             <div class="ncard-poster-wrap">
               <img class="ncard-img" src="{{ m.poster }}" alt="{{ m.title }}" loading="lazy"
-                   onerror="this.src='https://placehold.co/190x260/1a1a1a/333?text=No+Image'">
+                   onerror="this.src='https://placehold.co/185x265/1a1a24/333?text=No+Image'">
               {% if m.quality %}<div class="ncard-badge">{{ m.quality }}</div>{% endif %}
-              {% if m.rating %}<div class="ncard-star">⭐ {{ m.rating }}</div>{% endif %}
-              <div class="ncard-overlay">
-                <div class="ncard-info" style="color:#fff;font-size:11px;font-weight:700;">{{ m.title | truncate(28) }}</div>
-              </div>
+              {% if m.rating %}<div class="ncard-star"><i class="fa-solid fa-star" style="font-size:8px;"></i> {{ m.rating }}</div>{% endif %}
+
             </div>
-            <!-- Hover popup (desktop) -->
+            <!-- Hover popup desktop -->
             <div class="ncard-popup">
               <img class="ncard-popup-img" src="{{ m.poster }}" alt="{{ m.title }}"
-                   onerror="this.src='https://placehold.co/280x150/1a1a1a/333?text=No+Image'">
+                   onerror="this.src='https://placehold.co/280x150/1a1a24/333?text=No+Image'">
               <div class="ncard-popup-body">
                 <div class="ncard-popup-btns">
                   <button class="ncard-popup-play" onclick="event.preventDefault();window.location='/watch?url={{ m.url | urlencode }}'">
-                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <i class="fa-solid fa-play"></i>
                   </button>
-                  <button class="ncard-popup-icon" data-wl-url="{{ m.url }}" title="Tambah ke My List"
+                  <button class="ncard-popup-icon" data-wl-url="{{ m.url }}" title="My List"
                     onclick="event.preventDefault();wlToggle({url:'{{ m.url }}',title:{{ m.title|tojson }},poster:'{{ m.poster }}',quality:'{{ m.quality }}',rating:'{{ m.rating }}'})">
-                    <i class="fa-solid fa-plus"></i></button>
+                    <i class="fa-solid fa-plus"></i>
+                  </button>
                   <button class="ncard-popup-icon" title="Suka"><i class="fa-regular fa-thumbs-up"></i></button>
-                  <button class="ncard-popup-icon ncard-popup-chevron" title="Info lengkap"><i class="fa-solid fa-chevron-down"></i></button>
+                  <button class="ncard-popup-icon ml" title="Info"><i class="fa-solid fa-chevron-down"></i></button>
                 </div>
                 <div class="ncard-popup-match">{{ match_val }}% Cocok</div>
                 <div class="ncard-popup-meta">
@@ -191,23 +212,38 @@
                 </div>
               </div>
             </div>
-            <!-- Mobile fallback -->
+            <!-- Card footer -->
             <div class="ncard-foot">
-              <div class="ncard-foot-title">{{ m.title | truncate(28) }}</div>
-              <div class="ncard-foot-match">{{ match_val }}% Cocok</div>
+              <div class="ncard-foot-title">{{ m.title | truncate(24) }}</div>
               <div class="ncard-foot-meta">
-                {% if m.duration %}<span>{{ m.duration }}</span>{% endif %}
+                {% if m.year %}<span class="ncard-foot-year">{{ m.year }}</span>{% endif %}
                 {% if m.quality %}<span class="ncard-foot-hd">{{ m.quality }}</span>{% endif %}
+              </div>
+              <div class="ncard-foot-icons">
+                <span class="ncard-foot-icon heart"><i class="fa-solid fa-heart"></i> {{ (loop.index * 37 + 120) }}</span>
+                <span class="ncard-foot-icon"><i class="fa-solid fa-eye"></i> {{ (loop.index * 89 + 300) }}</span>
+                {% if m.rating %}<span class="ncard-foot-icon star"><i class="fa-solid fa-star"></i> {{ m.rating }}</span>{% endif %}
               </div>
             </div>
           </a>
           {% endfor %}
         {% endif %}
       </div>
-      <button class="slider-btn next"><svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></button>
+      <button class="slider-btn next"><div class="slider-btn-inner"><i class="fa-solid fa-chevron-right"></i></div></button>
     </div>
   </div>
   {% endif %}
   {% endfor %}
-</div>
+
+</div><!-- /content-area -->
+
+<script>
+// Filter tabs
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  });
+});
+</script>
 {% endblock %}
