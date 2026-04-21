@@ -697,7 +697,16 @@ def admin_iklan_konten_editor(iklan_id):
     rows = sb_get("iklan_aktif", f"id=eq.{iklan_id}", use_service=True)
     if not rows:
         return "Iklan tidak ditemukan", 404
-    return render_template("admin/iklan_konten_editor.html", iklan=rows[0])
+    all_iklan = sb_get("iklan_aktif", "order=created_at.desc&select=id,nama,tipe,posisi,konten", use_service=True) or []
+    return render_template("admin/iklan_konten_editor.html", iklan=rows[0], all_iklan=all_iklan)
+
+@app.route("/admin/iklan/get/<iklan_id>")
+@admin_required
+def admin_iklan_get_one(iklan_id):
+    rows = sb_get("iklan_aktif", f"id=eq.{iklan_id}&select=id,nama,tipe,posisi,konten", use_service=True)
+    if not rows:
+        return jsonify({"error": "not found"}), 404
+    return jsonify(rows[0])
 
 @app.route("/admin/iklan/update-konten", methods=["POST"])
 @admin_required
