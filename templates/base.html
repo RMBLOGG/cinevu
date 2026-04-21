@@ -354,6 +354,82 @@ footer{padding:56px 48px 36px;border-top:1px solid var(--border);}
   .footer-grid{flex-wrap:wrap;gap:28px;}
   .content-area{margin-top:-60px;}
 }
+/* ── BOTTOM NAV (mobile only) ── */
+.bnav{display:none;}
+@media(max-width:768px){
+  .bnav{
+    display:flex;align-items:center;justify-content:space-around;
+    position:fixed;bottom:12px;left:12px;right:12px;z-index:999;
+    background:rgba(18,18,26,.96);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:24px;
+    padding:10px 8px 14px;
+    box-shadow:0 8px 32px rgba(0,0,0,.6),0 2px 8px rgba(0,0,0,.4);
+    backdrop-filter:blur(16px);
+  }
+  .bnav-item{
+    display:flex;flex-direction:column;align-items:center;gap:4px;
+    flex:1;text-decoration:none;color:#5a5a6e;
+    font-size:10px;font-weight:600;font-family:var(--font);
+    transition:color .2s;letter-spacing:.3px;padding:0 4px;
+    background:none;border:none;cursor:pointer;
+  }
+  .bnav-item i{font-size:20px;transition:color .2s;}
+  .bnav-item.active{color:var(--red);}
+  .bnav-item.active i{color:var(--red);}
+  .bnav-center{
+    position:relative;top:-18px;
+    width:56px;height:56px;border-radius:50%;
+    background:var(--red);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 20px rgba(232,0,29,.45);
+    flex-shrink:0;flex-direction:column;gap:0;
+    text-decoration:none;border:none;cursor:pointer;
+  }
+  .bnav-center i{font-size:22px;color:#fff;}
+  /* push page content above nav */
+  body{padding-bottom:80px;}
+  footer{margin-bottom:0;}
+}
+</style>
+
+<style>
+.fpopup-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:8000;
+  opacity:0;
+  pointer-events:none;
+  visibility:hidden;
+  display:flex;
+  align-items:center;justify-content:center;
+  padding:20px;
+  backdrop-filter:blur(4px);
+  transition:opacity .25s,visibility .25s;
+}
+.fpopup-overlay.open{
+  opacity:1;
+  pointer-events:all;
+  visibility:visible;
+}
+.fpopup-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:32px 28px 28px;}
+.fpopup-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.07);border:none;color:var(--muted2);font-size:16px;cursor:pointer;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.fpopup-close:hover{background:rgba(255,255,255,.12);color:var(--text);}
+.fpopup-title{font-family:var(--display);font-size:24px;letter-spacing:2px;color:var(--text);margin-bottom:16px;padding-right:36px;}
+.fpopup-body{font-size:13px;line-height:1.8;color:var(--muted2);}
+.fpopup-body h4{color:var(--text);font-size:13px;font-weight:700;margin:16px 0 6px;}
+.fpopup-body p,.fpopup-body ul{margin-bottom:10px;}
+.fpopup-body ul{padding-left:18px;}
+.fpopup-body ul li{margin-bottom:6px;}
+.fpopup-form input,.fpopup-form textarea,.fpopup-form select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:13px;padding:10px 14px;border-radius:6px;outline:none;transition:border-color .2s;margin-bottom:12px;}
+.fpopup-form input:focus,.fpopup-form textarea:focus,.fpopup-form select:focus{border-color:rgba(255,255,255,.2);}
+.fpopup-form textarea{resize:vertical;min-height:100px;}
+.fpopup-form label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;}
+.fpopup-btn{background:var(--red);color:#fff;border:none;font-family:var(--font);font-size:13px;font-weight:700;padding:12px 28px;border-radius:6px;cursor:pointer;transition:background .15s;width:100%;letter-spacing:.5px;}
+.fpopup-btn:hover{background:var(--red2);}
+.fpopup-success{display:none;text-align:center;padding:20px 0;}
+.fpopup-success .check{font-size:48px;margin-bottom:12px;}
+.fpopup-success p{color:var(--green);font-weight:700;font-size:15px;}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
@@ -544,9 +620,39 @@ footer{padding:56px 48px 36px;border-top:1px solid var(--border);}
   </div>
   <div class="footer-bottom">
     <p class="footer-copy">© 2025 Cinevu. Streaming film & series online gratis. Semua konten untuk tujuan hiburan.</p>
-    <button class="footer-lang"><i class="fa-solid fa-globe"></i> Bahasa Indonesia <i class="fa-solid fa-chevron-down" style="font-size:9px;margin-left:4px;"></i></button>
   </div>
 </footer>
+
+<!-- BOTTOM NAV (mobile) -->
+<nav class="bnav" id="bnav">
+  <a href="/" class="bnav-item" id="bnav-home">
+    <i class="fa-solid fa-house"></i>
+    Home
+  </a>
+  <a href="/semi" class="bnav-item" id="bnav-semi">
+    <i class="fa-solid fa-fire"></i>
+    Semi
+  </a>
+  <a href="/series" class="bnav-center" id="bnav-series" title="Series & TV">
+    <i class="fa-solid fa-tv"></i>
+  </a>
+  <a href="/semi" class="bnav-item" id="bnav-all">
+    <i class="fa-solid fa-film"></i>
+    Semua
+  </a>
+  <a href="/anime" class="bnav-item" id="bnav-anime">
+    <i class="fa-solid fa-torii-gate"></i>
+    Anime
+  </a>
+</nav>
+<script>
+(function(){
+  const path=window.location.pathname;
+  const map={'/':'bnav-home','/semi':'bnav-semi','/series':'bnav-series','/anime':'bnav-anime'};
+  const activeId=map[path];
+  if(activeId){const el=document.getElementById(activeId);if(el)el.classList.add('active');}
+})();
+</script>
 
 {% if iklan is defined and iklan.get('popup') %}
 {% for ad in iklan['popup'] %}
@@ -559,29 +665,6 @@ footer{padding:56px 48px 36px;border-top:1px solid var(--border);}
 </div>
 {% endfor %}
 {% endif %}
-
-<style>
-.fpopup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:8000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px);}
-.fpopup-overlay.open{display:flex;}
-.fpopup-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;max-width:520px;width:100%;max-height:85vh;overflow-y:auto;position:relative;padding:32px 28px 28px;animation:fadeUp .25s ease;}
-.fpopup-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.07);border:none;color:var(--muted2);font-size:16px;cursor:pointer;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.fpopup-close:hover{background:rgba(255,255,255,.12);color:var(--text);}
-.fpopup-title{font-family:var(--display);font-size:24px;letter-spacing:2px;color:var(--text);margin-bottom:16px;padding-right:36px;}
-.fpopup-body{font-size:13px;line-height:1.8;color:var(--muted2);}
-.fpopup-body h4{color:var(--text);font-size:13px;font-weight:700;margin:16px 0 6px;}
-.fpopup-body p,.fpopup-body ul{margin-bottom:10px;}
-.fpopup-body ul{padding-left:18px;}
-.fpopup-body ul li{margin-bottom:6px;}
-.fpopup-form input,.fpopup-form textarea,.fpopup-form select{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:13px;padding:10px 14px;border-radius:6px;outline:none;transition:border-color .2s;margin-bottom:12px;}
-.fpopup-form input:focus,.fpopup-form textarea:focus,.fpopup-form select:focus{border-color:rgba(255,255,255,.2);}
-.fpopup-form textarea{resize:vertical;min-height:100px;}
-.fpopup-form label{font-size:10px;color:var(--muted);display:block;margin-bottom:4px;letter-spacing:.5px;text-transform:uppercase;}
-.fpopup-btn{background:var(--red);color:#fff;border:none;font-family:var(--font);font-size:13px;font-weight:700;padding:12px 28px;border-radius:6px;cursor:pointer;transition:background .15s;width:100%;letter-spacing:.5px;}
-.fpopup-btn:hover{background:var(--red2);}
-.fpopup-success{display:none;text-align:center;padding:20px 0;}
-.fpopup-success .check{font-size:48px;margin-bottom:12px;}
-.fpopup-success p{color:var(--green);font-weight:700;font-size:15px;}
-</style>
 
 <div class="fpopup-overlay" id="popup-hubungi" onclick="if(event.target===this)closePopup('hubungi')">
   <div class="fpopup-box">
@@ -664,6 +747,8 @@ document.querySelectorAll('.slider-wrap').forEach(wrap=>{
 });
 function showPopup(id){const el=document.getElementById('popup-'+id);if(!el)return;el.classList.add('open');document.body.style.overflow='hidden';if(id==='lapor'){const u=document.getElementById('lapor-url');if(u&&!u.value)u.value=window.location.href;}}
 function closePopup(id){const el=document.getElementById('popup-'+id);if(!el)return;el.classList.remove('open');document.body.style.overflow='';}
+// Force close all popups on load (prevent ghost open state)
+document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.fpopup-overlay').forEach(el=>el.classList.remove('open'));});
 function submitForm(id){const form=document.getElementById('form-'+id),success=document.getElementById('success-'+id);if(!form||!success)return;form.style.display='none';success.style.display='block';setTimeout(()=>closePopup(id),3000);}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.fpopup-overlay.open').forEach(el=>closePopup(el.id.replace('popup-','')));});
 </script>
