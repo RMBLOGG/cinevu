@@ -19,7 +19,7 @@ body { padding-bottom: 0 !important; overflow: hidden; }
   overflow: hidden;
 }
 
-/* Tab bar */
+/* ── Tab bar ── */
 .ide-tabs {
   display: flex;
   align-items: stretch;
@@ -30,25 +30,43 @@ body { padding-bottom: 0 !important; overflow: hidden; }
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
+  position: relative;
 }
 .ide-tabs::-webkit-scrollbar { display: none; }
+
 .ide-tab {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 0 16px;
-  font-size: 12px;
-  color: #f8f8f2;
+  gap: 5px;
+  padding: 0 10px 0 12px;
+  font-size: 11.5px;
+  color: #666;
   white-space: nowrap;
-  background: #1e1f2e;
+  background: #13141f;
   border-right: 1px solid #2c2d42;
-  border-bottom: 2px solid #e53935;
-  font-family: 'Sora', sans-serif;
-  font-weight: 600;
+  cursor: pointer;
   flex-shrink: 0;
+  font-family: 'Sora', sans-serif;
+  font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+  position: relative;
 }
-.ide-tab-dot {
-  width: 8px; height: 8px;
+.ide-tab:hover { background: #1a1b2e; color: #aaa; }
+.ide-tab.active {
+  background: #1e1f2e;
+  color: #f8f8f2;
+  border-bottom: 2px solid #e53935;
+}
+.ide-tab.unsaved .tab-name::after {
+  content: '●';
+  font-size: 7px;
+  color: #e53935;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+.tab-dot {
+  width: 7px; height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -56,8 +74,39 @@ body { padding-bottom: 0 !important; overflow: hidden; }
 .dot-html   { background: #ff7043; }
 .dot-gambar { background: #ab47bc; }
 .dot-other  { background: #888; }
+.tab-close {
+  display: flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  border-radius: 3px;
+  font-size: 10px;
+  color: #555;
+  margin-left: 3px;
+  flex-shrink: 0;
+  transition: background 0.1s, color 0.1s;
+}
+.ide-tab:hover .tab-close,
+.ide-tab.active .tab-close { color: #999; }
+.tab-close:hover { background: #3d3f5e; color: #fff !important; }
 
-/* Toolbar — horizontal scroll, NO wrap */
+/* + new tab button */
+.tab-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  min-width: 36px;
+  height: 100%;
+  color: #555;
+  cursor: pointer;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: color 0.1s;
+  border: none;
+  background: transparent;
+}
+.tab-add:hover { color: #f8f8f2; }
+
+/* ── Toolbar ── */
 .ide-toolbar {
   display: flex;
   align-items: center;
@@ -73,7 +122,6 @@ body { padding-bottom: 0 !important; overflow: hidden; }
   white-space: nowrap;
 }
 .ide-toolbar::-webkit-scrollbar { display: none; }
-
 .tb {
   display: inline-flex;
   align-items: center;
@@ -94,30 +142,36 @@ body { padding-bottom: 0 !important; overflow: hidden; }
   text-decoration: none;
 }
 .tb:hover, .tb:active { background: #32334d; color: #f8f8f2; }
-.tb-label { font-family: 'Sora', sans-serif; }
+.tb-lbl { font-family: 'Sora', sans-serif; }
 .tb-sep {
   display: inline-block;
-  width: 1px;
-  height: 20px;
+  width: 1px; height: 20px;
   background: #2c2d42;
   flex-shrink: 0;
   margin: 0 4px;
-  vertical-align: middle;
 }
 .tb-save {
   background: #e53935 !important;
   color: #fff !important;
   font-family: 'Sora', sans-serif !important;
   border-radius: 6px !important;
+  font-size: 11.5px !important;
 }
 .tb-save:hover { background: #c62828 !important; }
 
-/* Editor */
-.ide-editor {
+/* ── Editor pane (stacked, only active visible) ── */
+.ide-editor-wrap {
   flex: 1;
   overflow: hidden;
   position: relative;
 }
+.editor-pane {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+.editor-pane.active { display: block; }
+
 .CodeMirror {
   height: 100% !important;
   font-size: 13px !important;
@@ -136,78 +190,94 @@ body { padding-bottom: 0 !important; overflow: hidden; }
 .CodeMirror-selected { background: #393a58 !important; }
 .CodeMirror-matchingbracket { color: #ffeb3b !important; outline: 1px solid #ffeb3b; background: transparent !important; }
 .CodeMirror-dialog {
-  background: #252636 !important;
-  color: #f8f8f2 !important;
+  background: #252636 !important; color: #f8f8f2 !important;
   border-bottom: 1px solid #2c2d42 !important;
-  padding: 6px 10px !important;
-  font-size: 12px !important;
+  padding: 6px 10px !important; font-size: 12px !important;
 }
 .CodeMirror-dialog input {
-  background: #1e1f2e !important;
-  color: #f8f8f2 !important;
-  border: 1px solid #3d3f5e !important;
-  border-radius: 4px !important;
-  padding: 3px 8px !important;
-  font-size: 12px !important;
-  outline: none !important;
+  background: #1e1f2e !important; color: #f8f8f2 !important;
+  border: 1px solid #3d3f5e !important; border-radius: 4px !important;
+  padding: 3px 8px !important; font-size: 12px !important; outline: none !important;
 }
 
-/* Status bar */
+/* ── Status bar ── */
 .ide-status {
-  display: flex;
-  align-items: center;
+  display: flex; align-items: center;
   background: #e53935;
-  height: 22px;
-  padding: 0 12px;
-  gap: 16px;
-  flex-shrink: 0;
-  overflow: hidden;
+  height: 22px; padding: 0 12px;
+  gap: 16px; flex-shrink: 0; overflow: hidden;
 }
 .ide-status span {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 10px; font-weight: 600;
   color: rgba(255,255,255,0.9);
   white-space: nowrap;
   font-family: 'Sora', sans-serif;
 }
 .ide-status .st-r { margin-left: auto; opacity: 0.75; }
 
-/* Preview */
+/* ── Open tab picker overlay ── */
+#tab-picker {
+  position: fixed; inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,0.7);
+  display: none; align-items: flex-end; justify-content: center;
+}
+#tab-picker.open { display: flex; }
+.tp-sheet {
+  background: #1a1b2e;
+  border-radius: 18px 18px 0 0;
+  width: 100%; max-height: 70vh;
+  display: flex; flex-direction: column;
+  border-top: 1px solid #2c2d42;
+}
+.tp-head {
+  padding: 14px 18px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid #2c2d42;
+  flex-shrink: 0;
+}
+.tp-title {
+  font-size: 13px; font-weight: 700;
+  color: #f8f8f2;
+  font-family: 'Sora', sans-serif;
+}
+.tp-close {
+  background: #252636; border: none; color: #888;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.tp-list {
+  overflow-y: auto; padding: 8px 0 20px;
+  -webkit-overflow-scrolling: touch;
+}
+.tp-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 18px;
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid #1e1f2e;
+}
+.tp-item:hover, .tp-item:active { background: #252636; }
+.tp-item.already-open { opacity: 0.45; pointer-events: none; }
+.tp-item-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tp-item-name { font-size: 13px; color: #f8f8f2; font-family: 'Sora',sans-serif; font-weight: 600; flex: 1; }
+.tp-item-sub { font-size: 10px; color: #666; font-family: 'Sora',sans-serif; }
+
+/* ── Preview overlay ── */
 #prev-ov {
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: #000;
-  display: none;
-  flex-direction: column;
+  position: fixed; inset: 0;
+  z-index: 600; background: #000;
+  display: none; flex-direction: column;
 }
 #prev-ov.open { display: flex; }
 .prev-bar {
-  display: flex;
-  align-items: center;
-  background: #13141f;
-  height: 44px;
-  padding: 0 14px;
-  border-bottom: 1px solid #2c2d42;
-  flex-shrink: 0;
-  gap: 10px;
+  display: flex; align-items: center;
+  background: #13141f; height: 44px; padding: 0 14px;
+  border-bottom: 1px solid #2c2d42; flex-shrink: 0; gap: 10px;
 }
-.prev-bar span {
-  font-size: 13px;
-  font-weight: 600;
-  color: #ccc;
-  font-family: 'Sora', sans-serif;
-  flex: 1;
-}
-.prev-close {
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
-}
+.prev-bar span { font-size: 13px; font-weight: 600; color: #ccc; font-family: 'Sora',sans-serif; flex: 1; }
+.prev-close { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; padding: 4px 8px; }
 #prev-frame { flex: 1; border: none; background: #fff; }
 </style>
 {% endblock %}
@@ -216,14 +286,12 @@ body { padding-bottom: 0 !important; overflow: hidden; }
 <div id="ide">
 
   <!-- Tab bar -->
-  <div class="ide-tabs">
-    <div class="ide-tab">
-      <span class="ide-tab-dot dot-{{ iklan.tipe }}"></span>
-      {{ iklan.nama }}.{{ iklan.tipe }}
-    </div>
+  <div class="ide-tabs" id="tabBar">
+    <!-- tabs injected by JS -->
+    <button class="tab-add" onclick="openPicker()" title="Buka iklan lain">+</button>
   </div>
 
-  <!-- Toolbar — scroll horizontal -->
+  <!-- Toolbar -->
   <div class="ide-toolbar">
     <button class="tb" onclick="ins('<div class=&quot;&quot;>\n  \n</div>')">div</button>
     <button class="tb" onclick="ins('<span></span>')">span</button>
@@ -233,27 +301,35 @@ body { padding-bottom: 0 !important; overflow: hidden; }
     <button class="tb" onclick="ins('<script>\n\n<\/script>')">js</button>
     <button class="tb" onclick="ins('<style>\n\n</style>')">css</button>
     <span class="tb-sep"></span>
-    <button class="tb tb-label" onclick="doFormat()">⇥ fmt</button>
-    <button class="tb tb-label" onclick="doPreview()">▶ prev</button>
-    <button class="tb tb-label" onclick="doCopy()">⎘ copy</button>
-    <button class="tb tb-label" onclick="doClear()">✕ clr</button>
+    <button class="tb tb-lbl" onclick="doFormat()">⇥ fmt</button>
+    <button class="tb tb-lbl" onclick="doPreview()">▶ prev</button>
+    <button class="tb tb-lbl" onclick="doCopy()">⎘ copy</button>
+    <button class="tb tb-lbl" onclick="doClear()">✕ clr</button>
     <span class="tb-sep"></span>
-    <a href="/admin/iklan" class="tb tb-label">← back</a>
+    <a href="/admin/iklan" class="tb tb-lbl">← back</a>
     <button class="tb tb-save" onclick="doSave()"><i class="fa-solid fa-floppy-disk"></i> Simpan</button>
   </div>
 
-  <!-- Code editor -->
-  <div class="ide-editor">
-    <textarea id="ed">{{ iklan.konten or '' }}</textarea>
-  </div>
+  <!-- Editor panes container -->
+  <div class="ide-editor-wrap" id="editorWrap"></div>
 
   <!-- Status bar -->
   <div class="ide-status">
     <span>Ln <b id="sb-ln">1</b> &nbsp;Col <b id="sb-col">1</b></span>
     <span><b id="sb-chars">0</b> chars</span>
-    <span class="st-r">{{ iklan.tipe | upper }} · Dracula</span>
+    <span class="st-r" id="sb-mode">–</span>
   </div>
+</div>
 
+<!-- Tab picker bottom sheet -->
+<div id="tab-picker">
+  <div class="tp-sheet">
+    <div class="tp-head">
+      <span class="tp-title"><i class="fa-solid fa-rectangle-ad" style="color:#e53935;margin-right:7px;"></i>Buka Iklan</span>
+      <button class="tp-close" onclick="closePicker()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="tp-list" id="pickerList"></div>
+  </div>
 </div>
 
 <!-- Preview overlay -->
@@ -278,88 +354,244 @@ body { padding-bottom: 0 !important; overflow: hidden; }
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
+
 <script>
-const TIPE = '{{ iklan.tipe }}';
-const ID   = '{{ iklan.id }}';
+// ── Data dari server ──
+const ALL_IKLAN = {{ all_iklan | tojson }};
+const INIT_ID   = '{{ iklan.id }}';
 
-const cm = CodeMirror.fromTextArea(document.getElementById('ed'), {
-  mode: (TIPE === 'html' || TIPE === 'script') ? 'htmlmixed' : 'null',
-  theme: 'dracula',
-  lineNumbers: true,
-  lineWrapping: true,
-  matchBrackets: true,
-  autoCloseTags: true,
-  styleActiveLine: true,
-  indentUnit: 2,
-  tabSize: 2,
-  indentWithTabs: false,
-  extraKeys: { 'Ctrl-S': doSave, 'Cmd-S': doSave, 'Ctrl-F': 'findPersistent' }
-});
-cm.setSize('100%', '100%');
-cm.on('cursorActivity', tick);
-cm.on('change', tick);
-tick();
+// ── State ──
+// tabs: { id, nama, tipe, posisi, cm, dirty }
+const tabs = [];
+let activeId = null;
 
+// ── Helpers ──
+function getMode(t) {
+  return (t === 'html' || t === 'script') ? 'htmlmixed' : 'null';
+}
+function dotClass(t) {
+  return { script:'dot-script', html:'dot-html', gambar:'dot-gambar' }[t] || 'dot-other';
+}
+function toast(msg, type) {
+  typeof showToast === 'function' && showToast(msg, type);
+}
+
+// ── Create tab + editor pane ──
+function createTab(iklanData) {
+  const { id, nama, tipe, konten } = iklanData;
+
+  // pane
+  const pane = document.createElement('div');
+  pane.className = 'editor-pane';
+  pane.id = 'pane-' + id;
+  document.getElementById('editorWrap').appendChild(pane);
+
+  // CodeMirror
+  const cm = CodeMirror(pane, {
+    value: konten || '',
+    mode: getMode(tipe),
+    theme: 'dracula',
+    lineNumbers: true,
+    lineWrapping: true,
+    matchBrackets: true,
+    autoCloseTags: true,
+    styleActiveLine: true,
+    indentUnit: 2,
+    tabSize: 2,
+    indentWithTabs: false,
+    extraKeys: { 'Ctrl-S': doSave, 'Cmd-S': doSave, 'Ctrl-F': 'findPersistent' }
+  });
+  cm.setSize('100%', '100%');
+
+  const tab = { id, nama, tipe, cm, dirty: false };
+  tabs.push(tab);
+
+  cm.on('change', () => {
+    if (!tab.dirty) {
+      tab.dirty = true;
+      renderTabBar();
+    }
+    if (activeId === id) tick();
+  });
+  cm.on('cursorActivity', () => { if (activeId === id) tick(); });
+
+  renderTabBar();
+  return tab;
+}
+
+// ── Render tab bar ──
+function renderTabBar() {
+  const bar = document.getElementById('tabBar');
+  // remove existing tabs (keep the + button)
+  bar.querySelectorAll('.ide-tab').forEach(el => el.remove());
+  const addBtn = bar.querySelector('.tab-add');
+
+  tabs.forEach(tab => {
+    const el = document.createElement('div');
+    el.className = 'ide-tab' + (tab.id === activeId ? ' active' : '') + (tab.dirty ? ' unsaved' : '');
+    el.dataset.id = tab.id;
+    el.innerHTML = `
+      <span class="tab-dot ${dotClass(tab.tipe)}"></span>
+      <span class="tab-name">${tab.nama}.${tab.tipe}</span>
+      <span class="tab-close" data-close="${tab.id}">✕</span>
+    `;
+    el.addEventListener('click', (e) => {
+      if (e.target.dataset.close) { closeTab(e.target.dataset.close); return; }
+      switchTab(tab.id);
+    });
+    bar.insertBefore(el, addBtn);
+  });
+}
+
+// ── Switch active tab ──
+function switchTab(id) {
+  activeId = id;
+  document.querySelectorAll('.editor-pane').forEach(p => p.classList.remove('active'));
+  const pane = document.getElementById('pane-' + id);
+  if (pane) pane.classList.add('active');
+  renderTabBar();
+  const tab = tabs.find(t => t.id === id);
+  if (tab) {
+    setTimeout(() => { tab.cm.refresh(); tab.cm.focus(); }, 30);
+    tick();
+    document.getElementById('sb-mode').textContent = tab.tipe.toUpperCase() + ' · Dracula';
+  }
+  // scroll tab into view
+  const tabEl = document.querySelector(`.ide-tab[data-id="${id}"]`);
+  if (tabEl) tabEl.scrollIntoView({ inline: 'nearest', behavior: 'smooth' });
+}
+
+// ── Close tab ──
+function closeTab(id) {
+  const tab = tabs.find(t => t.id === id);
+  if (!tab) return;
+  if (tab.dirty && !confirm(`"${tab.nama}" punya perubahan belum disimpan. Tutup tetap?`)) return;
+  if (tabs.length === 1) { toast('Minimal 1 tab harus terbuka', 'error'); return; }
+
+  const idx = tabs.findIndex(t => t.id === id);
+  tabs.splice(idx, 1);
+  document.getElementById('pane-' + id)?.remove();
+
+  if (activeId === id) {
+    const next = tabs[idx] || tabs[idx - 1];
+    if (next) switchTab(next.id);
+  } else {
+    renderTabBar();
+  }
+}
+
+// ── Open tab from picker ──
+async function openTabById(iklanData) {
+  closePicker();
+  // already open?
+  if (tabs.find(t => t.id === iklanData.id)) {
+    switchTab(iklanData.id);
+    return;
+  }
+  const tab = createTab(iklanData);
+  switchTab(tab.id);
+}
+
+// ── Picker ──
+function openPicker() {
+  const openIds = new Set(tabs.map(t => t.id));
+  const list = document.getElementById('pickerList');
+  list.innerHTML = '';
+  ALL_IKLAN.forEach(item => {
+    const el = document.createElement('div');
+    el.className = 'tp-item' + (openIds.has(item.id) ? ' already-open' : '');
+    el.innerHTML = `
+      <span class="tp-item-dot ${dotClass(item.tipe)}"></span>
+      <div style="flex:1;min-width:0;">
+        <div class="tp-item-name">${item.nama}</div>
+        <div class="tp-item-sub">${item.tipe} · ${item.posisi}</div>
+      </div>
+      ${openIds.has(item.id) ? '<span style="font-size:10px;color:#e53935;">terbuka</span>' : ''}
+    `;
+    el.addEventListener('click', () => openTabById(item));
+    list.appendChild(el);
+  });
+  document.getElementById('tab-picker').classList.add('open');
+}
+function closePicker() {
+  document.getElementById('tab-picker').classList.remove('open');
+}
+
+// ── Active tab CM ──
+function activeCm() {
+  return tabs.find(t => t.id === activeId)?.cm;
+}
+
+// ── Status bar ──
 function tick() {
+  const cm = activeCm();
+  if (!cm) return;
   const c = cm.getCursor();
   document.getElementById('sb-ln').textContent    = c.line + 1;
   document.getElementById('sb-col').textContent   = c.ch + 1;
   document.getElementById('sb-chars').textContent = cm.getValue().length;
 }
 
+// ── Toolbar actions ──
 function ins(raw) {
-  const code = raw
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
+  const cm = activeCm(); if (!cm) return;
+  const code = raw.replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
   const doc = cm.getDoc();
   if (doc.getSelection()) doc.replaceSelection(code);
   else doc.replaceRange(code, doc.getCursor());
   cm.focus();
 }
-
 function doFormat() {
+  const cm = activeCm(); if (!cm) return;
   let v = cm.getValue();
-  v = v.replace(/>\s*</g, '>\n<').replace(/(\s*\n){2,}/g, '\n').trim();
+  v = v.replace(/>\s*</g,'>\n<').replace(/(\s*\n){2,}/g,'\n').trim();
   cm.setValue(v);
 }
-
 function doCopy() {
-  navigator.clipboard.writeText(cm.getValue())
-    .then(() => typeof showToast === 'function' && showToast('Tersalin!'));
+  const cm = activeCm(); if (!cm) return;
+  navigator.clipboard.writeText(cm.getValue()).then(() => toast('Tersalin!'));
 }
-
 function doClear() {
-  if (confirm('Kosongkan semua konten?')) { cm.setValue(''); cm.focus(); }
+  const cm = activeCm(); if (!cm) return;
+  if (confirm('Kosongkan konten tab ini?')) { cm.setValue(''); cm.focus(); }
 }
-
 function doPreview() {
+  const cm = activeCm(); if (!cm) return;
   document.getElementById('prev-frame').srcdoc =
     `<!DOCTYPE html><html><head><meta charset="utf-8">
     <style>body{margin:8px;font-family:sans-serif;}</style></head>
     <body>${cm.getValue()}</body></html>`;
   document.getElementById('prev-ov').classList.add('open');
 }
-function closePrev() {
-  document.getElementById('prev-ov').classList.remove('open');
-}
+function closePrev() { document.getElementById('prev-ov').classList.remove('open'); }
 
 async function doSave() {
-  const konten = cm.getValue().trim();
-  if (!konten) { typeof showToast==='function' && showToast('Konten kosong','error'); return; }
+  const tab = tabs.find(t => t.id === activeId);
+  if (!tab) return;
+  const konten = tab.cm.getValue().trim();
+  if (!konten) { toast('Konten kosong','error'); return; }
   try {
     const r = await fetch('/admin/iklan/update-konten', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: ID, konten })
+      body: JSON.stringify({ id: tab.id, konten })
     });
     const d = await r.json();
-    typeof showToast === 'function'
-      ? d.ok ? showToast('Tersimpan!') : showToast('Gagal: '+(d.error||''),'error')
-      : alert(d.ok ? 'Tersimpan!' : 'Gagal');
-  } catch(e) {
-    typeof showToast === 'function' && showToast('Error: '+e.message,'error');
-  }
+    if (d.ok) {
+      tab.dirty = false;
+      renderTabBar();
+      toast('Tersimpan!');
+    } else {
+      toast('Gagal: ' + (d.error||''), 'error');
+    }
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+// ── Init: buka tab pertama ──
+const initData = ALL_IKLAN.find(i => i.id === INIT_ID) || ALL_IKLAN[0];
+if (initData) {
+  const tab = createTab(initData);
+  switchTab(tab.id);
 }
 </script>
 {% endblock %}
