@@ -691,6 +691,25 @@ def admin_iklan_delete():
     code = sb_delete("iklan_aktif", row_id, use_service=True)
     return jsonify({"ok": code in (200,204)})
 
+@app.route("/admin/iklan/konten/<iklan_id>")
+@admin_required
+def admin_iklan_konten_editor(iklan_id):
+    rows = sb_get("iklan_aktif", f"id=eq.{iklan_id}", use_service=True)
+    if not rows:
+        return "Iklan tidak ditemukan", 404
+    return render_template("admin/iklan_konten_editor.html", iklan=rows[0])
+
+@app.route("/admin/iklan/update-konten", methods=["POST"])
+@admin_required
+def admin_iklan_update_konten():
+    d = request.get_json() or {}
+    row_id = d.get("id")
+    konten = d.get("konten", "")
+    if not row_id:
+        return jsonify({"error": "id required"}), 400
+    code = sb_patch("iklan_aktif", row_id, {"konten": konten}, use_service=True)
+    return jsonify({"ok": code in (200, 204)})
+
 # ── API: get iklan untuk render ──
 @app.route("/api/iklan/<posisi>")
 def api_iklan(posisi):
