@@ -350,21 +350,34 @@
 .fed-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 4px;
+  padding: 0 10px;
   background: #0f3460;
   border-bottom: 1px solid rgba(255,255,255,0.06);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  height: 40px;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
+.fed-toolbar::-webkit-scrollbar { display: none; }
 .fed-toolbar-btn {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   color: #ccd6f6;
-  padding: 4px 10px;
+  padding: 5px 10px;
   border-radius: 5px;
   font-size: 11px;
   cursor: pointer;
   transition: all 0.15s;
+  flex-shrink: 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
 }
 .fed-toolbar-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
 .fed-toolbar-sep { width: 1px; height: 20px; background: rgba(255,255,255,0.1); margin: 0 2px; }
@@ -428,6 +441,9 @@
     </button>
     <button class="fed-toolbar-btn" onclick="fedCopy()" title="Salin semua">
       <i class="fa-solid fa-copy"></i> Salin
+    </button>
+    <button class="fed-toolbar-btn" onclick="fedPaste()" title="Tempel dari clipboard">
+      <i class="fa-solid fa-clipboard"></i> Tempel
     </button>
     <span class="fed-lang-badge" id="fed_lang_badge">html</span>
   </div>
@@ -560,6 +576,20 @@ function fedClear() {
 
 function fedCopy() {
   navigator.clipboard.writeText(cmFull.getValue()).then(() => showToast('Tersalin!'));
+}
+
+function fedPaste() {
+  navigator.clipboard.readText().then(text => {
+    const doc = cmFull.getDoc();
+    const sel = doc.getSelection();
+    if (sel) doc.replaceSelection(text);
+    else doc.replaceRange(text, doc.getCursor());
+    cmFull.focus();
+  }).catch(() => {
+    // fallback: focus editor, user can paste manually
+    cmFull.focus();
+    showToast('Tap di editor lalu tahan untuk paste manual', 'error');
+  });
 }
 
 function updateStatusBar(cm) {

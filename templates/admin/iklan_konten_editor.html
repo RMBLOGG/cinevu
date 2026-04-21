@@ -304,6 +304,7 @@ body { padding-bottom: 0 !important; overflow: hidden; }
     <button class="tb tb-lbl" onclick="doFormat()">⇥ fmt</button>
     <button class="tb tb-lbl" onclick="doPreview()">▶ prev</button>
     <button class="tb tb-lbl" onclick="doCopy()">⎘ copy</button>
+    <button class="tb tb-lbl" onclick="doPaste()">⎗ paste</button>
     <button class="tb tb-lbl" onclick="doClear()">✕ clr</button>
     <span class="tb-sep"></span>
     <a href="/admin/iklan" class="tb tb-lbl">← back</a>
@@ -550,6 +551,19 @@ function doFormat() {
 function doCopy() {
   const cm = activeCm(); if (!cm) return;
   navigator.clipboard.writeText(cm.getValue()).then(() => toast('Tersalin!'));
+}
+function doPaste() {
+  const cm = activeCm(); if (!cm) return;
+  navigator.clipboard.readText().then(text => {
+    const doc = cm.getDoc();
+    const sel = doc.getSelection();
+    if (sel) doc.replaceSelection(text);
+    else doc.replaceRange(text, doc.getCursor());
+    cm.focus();
+  }).catch(() => {
+    cm.focus();
+    toast('Tap di editor lalu tahan untuk paste manual', 'error');
+  });
 }
 function doClear() {
   const cm = activeCm(); if (!cm) return;
